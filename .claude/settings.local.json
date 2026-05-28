@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import sys; from html.parser import HTMLParser; class P\\(HTMLParser\\): def handle_data\\(self, d\\): if d.strip\\(\\): print\\(d.strip\\(\\)\\) p = P\\(\\); p.feed\\(sys.stdin.read\\(\\)\\)\")",
+      "Bash(gh repo *)"
+    ]
+  }
+}

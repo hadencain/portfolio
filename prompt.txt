@@ -1,0 +1,46 @@
+You are a senior front-end engineer and UI designer. Build a modern, production-ready personal portfolio website.
+
+goal:
+Create a sleek, fast, responsive portfolio site that presents my github, youtube, and other code projects clearly and beautifully. The design should feel modern (2026 aesthetic), minimal, and highly polished.
+
+Framework	Next.js (App Router, Server Components)
+Language	TypeScript
+Styling	Tailwind CSS
+Animation	Framer Motion 12
+
+Clean, minimal, high-end aesthetic
+Dark mode
+Strong typography hierarchy (use a modern font like Inter or Geist)
+Generous whitespace, grid-based layout
+Very subtle gradients or noise texture allowed (tasteful only)
+Smooth hover states and micro-interactions
+Fully responsive (mobile-first)
+
+Single-page layout with smooth scroll navigation:
+
+Hero Section
+Name + short title
+Short punchy tagline
+CTA buttons (GitHub, Contact, Resume)
+About
+Short bio paragraph
+Skills grouped visually (frontend, backend, tools, creative, etc.)
+Projects
+Grid layout of projects
+Each project includes:
+  Title
+  Short description
+  Tech stack tags
+  Link to GitHub / live demo
+  Hover animations with preview feel
+Contact
+Direct links (email, GitHub, LinkedIn, etc.)
+// Future: wire up contact form via mailto or Resend/Formspree
+
+Functional Requirements
+Fully responsive across all devices
+Fast performance (no unnecessary libraries)
+SEO-friendly structure
+Clean component architecture
+Reusable UI components
+Accessible (ARIA labels, contrast, keyboard navigation)
