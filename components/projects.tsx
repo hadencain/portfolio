@@ -55,9 +55,25 @@ const projects = [
   {
     title: "audioSort",
     description:
-      "Scans and organizes audio sample libraries by keyword. Practical CLI utility for managing large sample collections.",
-    tags: ["Python", "Audio", "CLI"],
+      "Audio sample organizer. Evolved from keyword filename matching into a weighted multi-signal classifier — path context, metadata, librosa spectral analysis, and an AST ML model via HuggingFace.",
+    tags: ["Python", "ML", "Audio", "CLI"],
     github: "https://github.com/hadencain/audioSort",
+    youtube: null,
+  },
+  {
+    title: "tunedown-theory",
+    description:
+      "Interactive scale and theory practice tool for guitar and keyboard. Fretboard and keyboard visualization with selectable scales, modes, and chord highlighting.",
+    tags: ["TypeScript", "React", "Music Theory"],
+    github: "https://github.com/hadencain/tunedown-theory",
+    youtube: null,
+  },
+  {
+    title: "capabilityaccessmanager-monitor",
+    description:
+      "Monitors and auto-remediates the Windows 11 camsvc WAL runaway write bug — a system process that silently fills drives. Electron tray app with alerting and one-click remediation.",
+    tags: ["Electron", "JavaScript", "Windows", "Security"],
+    github: "https://github.com/hadencain/capabilityaccessmanager_monitor",
     youtube: null,
   },
   {
