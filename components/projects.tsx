@@ -69,6 +69,14 @@ const projects = [
     youtube: null,
   },
   {
+    title: "dependency-risk-scan",
+    description:
+      "CLI tool that audits Python dependencies for outdated packages, abandoned libraries, and known CVEs — from a local requirements.txt or any GitHub repo URL.",
+    tags: ["Python", "Security", "CLI"],
+    github: "https://github.com/hadencain/dependency-risk-scan",
+    youtube: null,
+  },
+  {
     title: "secret-scanner",
     description:
       "Scans source files for accidentally committed secrets — API keys, private keys, AWS credentials, passwords, and connection strings. Named regex patterns plus optional entropy-based detection. Git pre-commit hook blocks commits before exposure.",
