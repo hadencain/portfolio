@@ -21,6 +21,14 @@ const projects = [
     youtube: null,
   },
   {
+    title: "senses",
+    description:
+      "Modular AR audio-visual instruments for Android. Camera, motion, and generative audio as playable pieces.",
+    tags: ["React Native", "Skia", "Web Audio", "Vision Camera", "Android"],
+    github: "https://github.com/hadencain/senses",
+    youtube: null,
+  },
+  {
     title: "glitch",
     description:
       "Browser-based video manipulation. Temporal corruption algorithms applied to uploaded video in real-time through Canvas.",
