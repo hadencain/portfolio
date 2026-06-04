@@ -5,6 +5,14 @@ import { useRef } from "react";
 
 const projects = [
   {
+    title: "openlock-terrain-gen",
+    description:
+      "Browser-based OpenLOCK dungeon tile generator. Configurable piece types (straight, corner, T, cross, doorway, window, curved, column, staircase), six surface themes with parametric detail, and batch STL export — powered by manifold-3d WASM CSG for watertight boolean geometry.",
+    tags: ["TypeScript", "React", "WebGL", "WASM", "3D Printing"],
+    github: "https://github.com/hadencain/openlock-terrain-gen",
+    youtube: null,
+  },
+  {
     title: "granular-synthesizer",
     description:
       "Granular synthesis engine built as a VST3 plugin. Full grain control, LFO modulation matrix, and real-time waveform display.",
