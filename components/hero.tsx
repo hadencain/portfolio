@@ -15,7 +15,7 @@ export function Hero() {
   return (
     <section
       id="hero"
-      className="min-h-screen flex"
+      className="min-h-screen h-screen flex"
     >
       {/* Left — text content */}
       <div className="flex items-center px-8 md:px-16 lg:px-24 pt-24 w-full lg:w-1/2 shrink-0">
