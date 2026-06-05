@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FluidSim } from "./fluid-sim";
+import { BlackHoleSim } from "./black-hole-sim";
 import { GlitchLabel } from "./glitch-label";
 
 function fadeUp(delay: number) {
@@ -18,7 +18,7 @@ export function Hero() {
 
       {/* Fluid fills entire background */}
       <div className="absolute inset-0">
-        <FluidSim />
+        <BlackHoleSim />
       </div>
 
       {/* Dark gradient — keeps left-side text readable without killing the fluid */}
