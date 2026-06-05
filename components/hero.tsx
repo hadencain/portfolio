@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ParticleField } from "./particle-field";
+import { GlitchLabel } from "./glitch-label";
 
 function fadeUp(delay: number) {
   return {
@@ -20,12 +21,9 @@ export function Hero() {
       {/* Left — text content */}
       <div className="flex items-center px-8 md:px-16 lg:px-24 pt-24 w-full lg:w-1/2 shrink-0">
         <div>
-          <motion.p
-            className="text-[11px] tracking-[0.35em] uppercase text-[#606060] mb-8"
-            {...fadeUp(0.1)}
-          >
-            Creative Coder
-          </motion.p>
+          <motion.div className="mb-8" {...fadeUp(0.1)}>
+            <GlitchLabel />
+          </motion.div>
 
           <motion.h1
             className="text-7xl md:text-8xl lg:text-9xl font-extralight tracking-[-0.02em] text-[#e8e8e8] leading-[0.92] mb-10 select-none"
@@ -37,7 +35,7 @@ export function Hero() {
           </motion.h1>
 
           <motion.p
-            className="text-base text-[#646464] font-light leading-relaxed mb-12 max-w-sm"
+            className="text-base text-[#999] font-light leading-relaxed mb-12 max-w-sm"
             {...fadeUp(0.35)}
           >
             Stay humble, but always stay hungry.
