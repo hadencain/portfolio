@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ParticleField } from "./particle-field";
+import { FluidSim } from "./fluid-sim";
 import { GlitchLabel } from "./glitch-label";
 
 function fadeUp(delay: number) {
@@ -77,7 +77,7 @@ export function Hero() {
         animate={{ opacity: 1 }}
         transition={{ duration: 1.4, delay: 0.4 }}
       >
-        <ParticleField />
+        <FluidSim />
       </motion.div>
     </section>
   );
