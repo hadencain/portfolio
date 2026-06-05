@@ -50,7 +50,7 @@ export function Hero() {
             className="text-base text-[#999] font-light leading-relaxed mb-12 max-w-sm"
             {...fadeUp(0.35)}
           >
-            Stay humble, but always stay hungry.
+            Always stay hungry.
           </motion.p>
 
           <motion.div className="flex gap-3" {...fadeUp(0.5)}>
