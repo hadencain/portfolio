@@ -123,7 +123,7 @@ const PARTICLE_FRAG = `
     float d = length(gl_PointCoord - 0.5) * 2.0;
     float alpha = max(0.0, 1.0 - d);
     float val = 0.55 + vSpeed * 0.45;
-    float intensity = alpha * (0.18 + vSpeed * 0.22);
+    float intensity = alpha * (0.03 + vSpeed * 0.06);
     gl_FragColor = vec4(val * intensity, val * intensity, val * intensity, intensity);
   }
 `;
@@ -163,8 +163,8 @@ const DISPLAY = `
     c *= 0.86 + gran * 0.28 * lum * (1.0 - lum) * 3.8;
 
     // Soft watercolor gamma
-    c = pow(max(c, vec3(0.0)), vec3(0.60));
-    c += (grain - 0.5) * 0.034;
+    c = pow(max(c, vec3(0.0)), vec3(0.82));
+    c += (grain - 0.5) * 0.018;
 
     // Wet-edge pooling (pigment pools at wash edges)
     c *= 1.0 - smoothstep(0.55, 0.88, lum) * 0.20;
@@ -179,12 +179,12 @@ const DISPLAY = `
     float psOuter = ehR * 2.8;
     float psMid   = (psInner + psOuter) * 0.5;
     float photon  = smoothstep(psInner, psMid, rSing) * (1.0 - smoothstep(psMid, psOuter, rSing));
-    c += photon * 0.09;
+    c += photon * 0.03;
 
     // Vignette
     vec2 uv = vUv * 2.0 - 1.0;
     float vig = pow(clamp(1.0 - dot(uv*0.46,uv*0.46), 0.0, 1.0), 0.55);
-    c *= vig * 0.78 + 0.22;
+    c *= vig * 0.60 + 0.05;
 
     gl_FragColor = vec4(clamp(c, 0.0, 1.0), 1.0);
   }
@@ -196,22 +196,22 @@ const SIM_RES        = 128;
 const DYE_RES        = 512;
 const PRESSURE_ITERS = 20;
 const VEL_DISS       = 0.990;
-const DYE_DISS       = 0.996;
+const DYE_DISS       = 0.988;
 const CURL_STRENGTH  = 14;
-const SPLAT_RADIUS   = 0.0055;
+const SPLAT_RADIUS   = 0.003;
 
 const N_PARTICLES       = 650;
 const GM                = 0.0115;   // gravitational parameter, UV³/s²
 const GM_RING           = 0.038;    // larger GM for velocity ring (visual)
 const EVENT_HORIZON_UV  = 0.022;    // physics radius, UV space
-const SPAWN_MIN         = 0.26;
-const SPAWN_MAX         = 0.50;
+const SPAWN_MIN         = 0.12;
+const SPAWN_MAX         = 0.28;
 
 // Orbital velocity ring — injects swirling velocity field into the fluid
 const RINGS = [
-  { r: 0.08, n: 6 },
-  { r: 0.16, n: 5 },
-  { r: 0.26, n: 4 },
+  { r: 0.05, n: 5 },
+  { r: 0.10, n: 4 },
+  { r: 0.18, n: 3 },
 ];
 
 // ─── WebGL helpers ───────────────────────────────────────────────────────────
@@ -395,7 +395,7 @@ export function BlackHoleSim() {
           const sy = bhY + Math.sin(angle) * ring.r;
           const vx = -Math.sin(angle) * v;
           const vy =  Math.cos(angle) * v;
-          splat(sx, sy, vx, vy, 0.005, 0.005, 0.005);
+          splat(sx, sy, vx, vy, 0.001, 0.001, 0.001);
         }
       }
     }
