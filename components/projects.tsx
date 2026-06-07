@@ -173,6 +173,7 @@ function MediaCard({ project, delay }: { project: Project; delay: number }) {
         <iframe
           className="aspect-video w-full border-b border-[#1e1e1e]"
           src={project.youtube}
+          title={project.title}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
         />

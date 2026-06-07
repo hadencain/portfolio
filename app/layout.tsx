@@ -18,6 +18,18 @@ export const metadata: Metadata = {
   title: "Haden Cain",
   description:
     "Software Engineer & Audio Toolmaker. I build things that make noise and things that make sense.",
+  openGraph: {
+    title: "Haden Cain",
+    description:
+      "Software Engineer & Audio Toolmaker. I build things that make noise and things that make sense.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Haden Cain",
+    description:
+      "Software Engineer & Audio Toolmaker. I build things that make noise and things that make sense.",
+  },
 };
 
 export default function RootLayout({

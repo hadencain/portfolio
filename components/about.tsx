@@ -22,14 +22,6 @@ export function About() {
           About
         </motion.p>
 
-        <motion.p
-          className="text-2xl md:text-3xl font-extralight text-[#b8b8b8] leading-relaxed max-w-2xl"
-          initial={{ opacity: 0, y: 16 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.9, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-        >
-          Experimenting....
-        </motion.p>
       </div>
     </section>
   );

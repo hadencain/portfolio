@@ -48,7 +48,7 @@ export function Contact() {
           <span className="text-[10px] tracking-[0.3em] uppercase text-[#383838]">
             Haden Cain
           </span>
-          <span className="text-[10px] text-[#303030]">2026</span>
+          <span className="text-[10px] text-[#303030]">{new Date().getFullYear()}</span>
         </div>
       </div>
     </section>
