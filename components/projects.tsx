@@ -95,6 +95,13 @@ const SECURITY: Project[] = [
     github: "https://github.com/hadencain/capabilityaccessmanager_monitor",
   },
   {
+    title: "portCheck",
+    description:
+      "Windows CLI for monitoring localhost dev server ports. Lists all listeners, inspects process detail, health-scans for exposed interfaces and port conflicts, kills processes by PID, and watches for real-time open/close events.",
+    tags: ["Go"],
+    github: "https://github.com/hadencain/portCheck",
+  },
+  {
     title: "mlb-ev-analysis",
     description:
       "Model-generated win probabilities compared against sportsbook lines. Baseball analytics with edge detection.",
