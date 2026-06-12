@@ -278,7 +278,7 @@ export function Projects() {
 
       {/* ── Sound / Video ── */}
       <AnimatedSection>
-        <div className="mb-16">
+        <div id="sound-video" className="mb-16 scroll-mt-24">
           <SectionHeader label="Sound / Video" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-[#1a1a1a]">
             {SOUND_VIDEO.map((p, i) => (
@@ -292,7 +292,7 @@ export function Projects() {
 
       {/* ── Security ── */}
       <AnimatedSection>
-        <div className="mb-16">
+        <div id="security" className="mb-16 scroll-mt-24">
           <SectionHeader label="Security" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
             {SECURITY.map((p, i) => (
@@ -304,7 +304,7 @@ export function Projects() {
 
       {/* ── AR / Mobile ── */}
       <AnimatedSection>
-        <div className="mb-16">
+        <div id="ar-mobile" className="mb-16 scroll-mt-24">
           <SectionHeader label="AR / Mobile" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
             {AR_MOBILE.map((p, i) => (
@@ -316,7 +316,7 @@ export function Projects() {
 
       {/* ── 3D ── */}
       <AnimatedSection>
-        <div>
+        <div id="threed" className="scroll-mt-24">
           <SectionHeader label="3D" />
           <div className="max-w-xl">
             {THREED.map((p, i) => (
