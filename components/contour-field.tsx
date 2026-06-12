@@ -9,6 +9,7 @@ import { useEffect, useRef } from "react";
  *   2 scan dome (ar/mobile)              3 printed layers (3d)
  *   4 idle drift (about/contact)
  * Interaction: cursor disturbance + "field-pulse" CustomEvents from cards.
+ * Pulse detail {x, y} is in viewport coordinates (the canvas's fixed coord space).
  * Decorative only — every failure path is a silent no-op.
  */
 
@@ -136,7 +137,7 @@ export function ContourField() {
         const a = anchors[i];
         const b = anchors[i + 1];
         if (yc < b.top)
-          return a.mode + ((yc - a.top) / (b.top - a.top)) * (b.mode - a.mode);
+          return a.mode + ((yc - a.top) / (b.top - a.top || 1)) * (b.mode - a.mode);
       }
       return anchors[anchors.length - 1].mode;
     };
@@ -149,6 +150,10 @@ export function ContourField() {
       const p = progress();
       const weights = MODES.map((_, i) => Math.max(0, 1 - Math.abs(p - i)));
       const wsum = weights.reduce((a, b) => a + b, 0) || 1;
+      const active: { fn: ModeFn; w: number }[] = [];
+      for (let i = 0; i < MODES.length; i++) {
+        if (weights[i] > 0.01) active.push({ fn: MODES[i], w: weights[i] / wsum });
+      }
 
       let cr = 0;
       let cg = 0;
@@ -178,17 +183,18 @@ export function ContourField() {
         })`;
         ctx.lineWidth = 1;
         ctx.beginPath();
-        for (let px = 0; px <= w; px += step) {
-          const x = px / w;
+        for (let px = 0; px <= w + step; px += step) {
+          const cx = Math.min(px, w);
+          const x = cx / w;
           let e = 0;
-          weights.forEach((wt, i) => {
-            if (wt > 0.01) e += MODES[i](x, l, t) * (wt / wsum);
-          });
-          const mdx = px - mouse.x;
+          for (let k = 0; k < active.length; k++) {
+            e += active[k].fn(x, l, t) * active[k].w;
+          }
+          const mdx = cx - mouse.x;
           const mdy = baseY - mouse.y;
           e -= Math.exp(-(mdx * mdx + mdy * mdy) / 3800) * 30;
           for (const pu of pulses) {
-            const dx2 = px - pu.x;
+            const dx2 = cx - pu.x;
             const dy2 = baseY - pu.y;
             e -=
               26 *
@@ -196,8 +202,9 @@ export function ContourField() {
               Math.exp(-(t - pu.t0) * 2.2);
           }
           const y = baseY + e;
-          if (px === 0) ctx.moveTo(px, y);
-          else ctx.lineTo(px, y);
+          if (cx === 0) ctx.moveTo(cx, y);
+          else ctx.lineTo(cx, y);
+          if (cx === w) break;
         }
         ctx.stroke();
       }
@@ -223,6 +230,11 @@ export function ContourField() {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
     };
+    const onMouseOut = () => {
+      mouse.x = -1e4;
+      mouse.y = -1e4;
+    };
+    const onScrollStatic = () => draw(performance.now());
     const onPulse = (e: Event) => {
       const d = (e as CustomEvent<{ x: number; y: number }>).detail;
       if (!d) return;
@@ -234,10 +246,17 @@ export function ContourField() {
     window.addEventListener("resize", resize);
     document.addEventListener("visibilitychange", onVis);
     window.addEventListener("field-pulse", onPulse);
-    if (!coarse) window.addEventListener("mousemove", onMouse, { passive: true });
+    if (!coarse) {
+      window.addEventListener("mousemove", onMouse, { passive: true });
+      document.addEventListener("mouseleave", onMouseOut);
+    }
+    if (reduced) window.addEventListener("scroll", onScrollStatic, { passive: true });
 
     // Layout shifts after mount (fonts, iframes) move the anchors — re-measure.
-    const ro = new ResizeObserver(measure);
+    const ro = new ResizeObserver(() => {
+      measure();
+      if (reduced) draw(performance.now());
+    });
     ro.observe(document.body);
 
     if (reduced) {
@@ -253,6 +272,8 @@ export function ContourField() {
       document.removeEventListener("visibilitychange", onVis);
       window.removeEventListener("field-pulse", onPulse);
       window.removeEventListener("mousemove", onMouse);
+      document.removeEventListener("mouseleave", onMouseOut);
+      window.removeEventListener("scroll", onScrollStatic);
     };
   }, []);
 
