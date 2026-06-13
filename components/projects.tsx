@@ -139,6 +139,15 @@ const THREED: Project[] = [
 
 // ─── Shared UI ────────────────────────────────────────────────────────────────
 
+function emitFieldPulse(e: React.MouseEvent<HTMLDivElement>) {
+  const r = e.currentTarget.getBoundingClientRect();
+  window.dispatchEvent(
+    new CustomEvent("field-pulse", {
+      detail: { x: r.left + r.width / 2, y: r.top + r.height / 2 },
+    })
+  );
+}
+
 const Arrow = () => (
   <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
     <path d="M1 11L11 1M11 1H2.5M11 1V9.5" stroke="currentColor" strokeWidth="1.1" strokeLinecap="square" />
@@ -164,6 +173,7 @@ function Tags({ tags }: { tags: string[] }) {
 function MediaCard({ project, delay }: { project: Project; delay: number }) {
   return (
     <motion.div
+      onMouseEnter={emitFieldPulse}
       className="border border-[#1e1e1e] flex flex-col"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
@@ -204,6 +214,7 @@ function MediaCard({ project, delay }: { project: Project; delay: number }) {
 function CompactCard({ project, delay }: { project: Project; delay: number }) {
   return (
     <motion.div
+      onMouseEnter={emitFieldPulse}
       className="border-b border-[#1a1a1a] py-5 flex flex-col gap-3"
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
