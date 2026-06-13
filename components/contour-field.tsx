@@ -100,7 +100,7 @@ export function ContourField() {
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const coarse = window.matchMedia("(pointer: coarse)").matches;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    let dpr = Math.min(window.devicePixelRatio || 1, 1.5);
 
     let w = 0;
     let h = 0;
@@ -120,6 +120,7 @@ export function ContourField() {
     };
 
     const resize = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       w = window.innerWidth;
       h = window.innerHeight;
       cv.width = Math.round(w * dpr);
@@ -245,8 +246,8 @@ export function ContourField() {
     resize();
     window.addEventListener("resize", resize);
     document.addEventListener("visibilitychange", onVis);
-    window.addEventListener("field-pulse", onPulse);
-    if (!coarse) {
+    if (!reduced) window.addEventListener("field-pulse", onPulse);
+    if (!coarse && !reduced) {
       window.addEventListener("mousemove", onMouse, { passive: true });
       document.addEventListener("mouseleave", onMouseOut);
     }
