@@ -501,14 +501,14 @@
             mediaRecorder.start();
             isRecording = true;
             recBtn.textContent = 'STOP REC';
-            recBtn.classList.add('rec-active');
+            recBtn.classList.add('active');
         }
 
         function stopRecording() {
             if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
             isRecording = false;
             recBtn.textContent = 'REC';
-            recBtn.classList.remove('rec-active');
+            recBtn.classList.remove('active');
         }
 
         recBtn.addEventListener('click', () => {
