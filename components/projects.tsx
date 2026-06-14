@@ -266,7 +266,7 @@ function CompactCard({ project, delay }: { project: Project; delay: number }) {
   return (
     <motion.div
       onMouseEnter={emitFieldPulse}
-      className="border-b border-[#1a1a1a] py-4 flex flex-col gap-2"
+      className="border-b border-[#1a1a1a] py-5 flex flex-col gap-3"
       initial={{ opacity: 0, x: -8 }}
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true, margin: "-60px" }}
@@ -297,6 +297,9 @@ function CompactCard({ project, delay }: { project: Project; delay: number }) {
           </a>
         </div>
       </div>
+      <p className="text-[12px] text-[#606060] font-light leading-relaxed">
+        {project.description}
+      </p>
       <Tags tags={project.tags} />
     </motion.div>
   );
@@ -345,9 +348,9 @@ export function Projects() {
         </div>
       </div>
 
-      {/* ── Browser Tools ── */}
+      {/* ── Interactive Demos ── */}
       <div id="browser-video" className="mb-16 scroll-mt-24">
-        <SectionHeader label="Browser Tools" />
+        <SectionHeader label="Interactive Demos" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
           {BROWSER_VIDEO.map((p, i) => (
             <CompactCard key={p.title} project={p} delay={i * 0.07} />
