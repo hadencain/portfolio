@@ -11,6 +11,7 @@ interface Project {
   tags: string[];
   github: string;
   youtube?: string;
+  demo?: string;
 }
 
 const SOUND_VIDEO: Project[] = [
@@ -27,6 +28,7 @@ const SOUND_VIDEO: Project[] = [
       "Browser-based video manipulation. Temporal corruption algorithms applied to uploaded video in real-time through Canvas.",
     tags: ["HTML5", "Canvas", "JavaScript"],
     github: "https://github.com/hadencain/glitch",
+    demo: "/tools/glitch/",
   },
   {
     title: "osmosis",
@@ -34,6 +36,31 @@ const SOUND_VIDEO: Project[] = [
       "Pixel contamination between two videos. Bleed, bleed rate, and blend controls applied frame by frame in the browser.",
     tags: ["HTML5", "Canvas", "JavaScript"],
     github: "https://github.com/hadencain/osmosis",
+    demo: "/tools/osmosis/",
+  },
+  {
+    title: "spectral",
+    description:
+      "Audio-reactive temporal displacement of video frames. Spectral energy drives frame buffering and displacement in real-time.",
+    tags: ["HTML5", "Canvas", "Web Audio"],
+    github: "https://github.com/hadencain/spectral",
+    demo: "/tools/spectral/",
+  },
+  {
+    title: "palimpsest",
+    description:
+      "Audio-reactive temporal compositor. Layers of video frames blended by spectral energy, with export to WEBM.",
+    tags: ["HTML5", "Canvas", "Web Audio"],
+    github: "https://github.com/hadencain/palimpsest",
+    demo: "/tools/palimpsest/",
+  },
+  {
+    title: "markov",
+    description:
+      "Markov chain video sequencer. Learns transition probabilities from playback history and remixes video segments statistically.",
+    tags: ["HTML5", "Canvas", "JavaScript"],
+    github: "https://github.com/hadencain/markov",
+    demo: "/tools/markov/",
   },
   {
     title: "harmonic-filter-sequencer",
@@ -199,15 +226,28 @@ function MediaCard({ project, delay }: { project: Project; delay: number }) {
       <div className="flex flex-col gap-4 p-6 flex-1">
         <div className="flex items-start justify-between gap-4">
           <h3 className="text-[13px] font-light text-[#c8c8c8] leading-tight">{project.title}</h3>
-          <a
-            href={project.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[#444] hover:text-[#888] transition-colors duration-300 shrink-0 mt-0.5"
-            aria-label={`${project.title} on GitHub`}
-          >
-            <Arrow />
-          </a>
+          <div className="flex items-center gap-3 shrink-0">
+            {project.demo && (
+              <a
+                href={project.demo}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[10px] font-mono tracking-[0.18em] text-[#444] hover:text-[#888] transition-colors duration-300"
+                aria-label={`${project.title} demo`}
+              >
+                DEMO
+              </a>
+            )}
+            <a
+              href={project.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#444] hover:text-[#888] transition-colors duration-300 mt-0.5"
+              aria-label={`${project.title} on GitHub`}
+            >
+              <Arrow />
+            </a>
+          </div>
         </div>
         <p className="text-[12px] text-[#606060] font-light leading-relaxed flex-1">
           {project.description}
