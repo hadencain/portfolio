@@ -26,7 +26,7 @@ const SOCIALS = [
 
 export function Hero() {
   return (
-    <section id="hero" className="relative min-h-screen h-screen overflow-hidden">
+    <section id="hero" className="relative min-h-screen h-screen overflow-x-hidden">
       {/* Readability gradient — the contour field shows through everywhere else */}
       <div
         className="absolute inset-0 pointer-events-none"
