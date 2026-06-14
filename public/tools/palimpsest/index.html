@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PALIMPSEST.EXE</title>
+  <link rel="stylesheet" href="../shared/shared.css">
+  <style>
+    :root {
+      --error: #c0392b;
+    }
+
+    /* Layout: tool header is variable height, subtract it from main-layout */
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr var(--panel-width);
+      height: calc(100vh - var(--nav-height) - 90px);
+      /* 90px ≈ tool-header height; JS uses canvasWrap.clientHeight so this flexes */
+    }
+
+    /* Canvas column */
+    .canvas-wrap {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      background: #0a0a0a;
+      border-right: 1px solid var(--border);
+    }
+
+    /* The actual canvas fills available space */
+    #canvas {
+      display: block;
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* Drop hint overlay (canvas-hint id used by JS) */
+    #canvas-hint {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--quiet);
+      pointer-events: none;
+    }
+
+    /* Layer stack badges */
+    .layer-stack {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .ltag {
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 2px 5px;
+      border: 1px solid;
+    }
+
+    .ltag.p2  { color: var(--ghost);   border-color: var(--ghost); }
+    .ltag.p1  { color: var(--quiet);   border-color: var(--quiet); }
+    .ltag.now { color: var(--secondary); border-color: var(--secondary); }
+    .ltag.f1  { color: var(--quiet);   border-color: var(--quiet); }
+    .ltag.f2  { color: var(--ghost);   border-color: var(--ghost); }
+
+    /* Timecode */
+    #timecode {
+      position: absolute;
+      bottom: 66px; /* above playback-row */
+      left: 10px;
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--body);
+    }
+
+    /* Transport buttons overlay */
+    .transport {
+      position: absolute;
+      bottom: 66px;
+      right: 10px;
+      display: flex;
+      gap: 6px;
+    }
+
+    /* Visualizer strip */
+    .viz {
+      display: flex;
+      height: 50px;
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+      flex-shrink: 0;
+    }
+
+    .viz-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 4px 0 5px;
+      gap: 3px;
+      border-right: 1px solid var(--border);
+      position: relative;
+    }
+
+    .viz-col:last-child { border-right: none; }
+
+    .bar-track {
+      flex: 1;
+      width: 50%;
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .bar {
+      width: 100%;
+      background: var(--quiet);
+      transition: height 0.05s;
+    }
+
+    .bar.now { background: var(--secondary); }
+
+    .now-floor {
+      position: absolute;
+      left: 25%;
+      right: 25%;
+      height: 1px;
+      background: rgba(168,168,168,0.35);
+    }
+
+    .vlabel {
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--label);
+    }
+
+    .vlabel.now { color: var(--secondary); }
+
+    /* Playback row */
+    .playback-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 10px;
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .playback-row .fsep { flex: 1; }
+
+    /* btn.active state for shared.css .btn */
+    .btn.active {
+      border-color: var(--border2);
+      color: var(--secondary);
+    }
+
+    /* record-active: class toggled by JS on btn-record */
+    .btn.record-active {
+      border-color: var(--secondary);
+      color: var(--text);
+    }
+
+    /* ctrl.disabled used by JS in AR mode */
+    .ctrl.disabled {
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    /* Status bar inside panel */
+    .status-bar {
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--body);
+      letter-spacing: 0.08em;
+      padding: 2px 0 8px;
+      line-height: 1.5;
+    }
+
+    .status-bar span { color: var(--text); }
+
+    /* Debug panel: hidden by default, shown via .visible toggled by JS */
+    #debug-panel {
+      display: none;
+    }
+
+    #debug-panel.visible {
+      display: block;
+    }
+
+    /* Debug columns */
+    .debug-cols {
+      display: flex;
+      gap: 0;
+    }
+
+    .debug-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      border-right: 1px solid var(--border);
+      padding: 0 8px;
+    }
+
+    .debug-col:first-child { padding-left: 0; }
+    .debug-col:last-child  { border-right: none; }
+
+    .dlabel {
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--label);
+    }
+
+    .dlabel.now { color: var(--secondary); }
+
+    .dval {
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      color: var(--body);
+    }
+
+    .dval.now { color: var(--text); }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+
+      .canvas-wrap {
+        height: 50vh;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .controls-panel {
+        width: 100%;
+        max-height: 300px;
+        border-left: none;
+        border-top: 1px solid var(--border);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top nav -->
+  <nav class="topnav">
+    <a href="/" class="topnav-back">&#8592; hadencain.com</a>
+    <span class="topnav-name">PALIMPSEST.EXE</span>
+  </nav>
+
+  <!-- Tool header -->
+  <header class="tool-header">
+    <div class="tool-header-left">
+      <p class="section-label">Sound / Video &#8212; 004</p>
+      <div class="glitch-title-wrap" id="glitch-title"></div>
+      <p class="kind-tag">Audio-Reactive Temporal Compositor</p>
+    </div>
+    <div class="header-desc">
+      Audio-reactive temporal compositor. Layers of video frames blended by spectral energy, with export to WEBM.
+    </div>
+  </header>
+
+  <!-- Main layout -->
+  <div class="main-layout">
+
+    <!-- Left: canvas column -->
+    <div class="canvas-wrap" id="canvas-wrap">
+      <canvas id="canvas"></canvas>
+      <div id="canvas-hint">DROP VIDEO FILE TO BEGIN</div>
+
+      <div class="layer-stack">
+        <div class="ltag f2">FUT-2</div>
+        <div class="ltag f1">FUT-1</div>
+        <div class="ltag now">NOW</div>
+        <div class="ltag p1">PAST-1</div>
+        <div class="ltag p2">PAST-2</div>
+      </div>
+
+      <div id="timecode">--:--.-</div>
+
+      <div class="transport">
+        <button class="btn" id="btn-play">&#9654; PLAY</button>
+        <button class="btn" id="btn-pause">&#9646;&#9646; PAUSE</button>
+      </div>
+
+      <!-- Visualizer -->
+      <div class="viz" id="viz">
+        <div class="viz-col">
+          <div class="bar-track"><div class="bar" id="bar-0" style="height:0%"></div></div>
+          <div class="vlabel">PAST-2</div>
+        </div>
+        <div class="viz-col">
+          <div class="bar-track"><div class="bar" id="bar-1" style="height:0%"></div></div>
+          <div class="vlabel">PAST-1</div>
+        </div>
+        <div class="viz-col">
+          <div class="bar-track"><div class="bar now" id="bar-2" style="height:30%"></div></div>
+          <div class="now-floor" id="now-floor" style="bottom: calc(6px + 12px + 30%)"></div>
+          <div class="vlabel now">NOW</div>
+        </div>
+        <div class="viz-col">
+          <div class="bar-track"><div class="bar" id="bar-3" style="height:0%"></div></div>
+          <div class="vlabel">FUT-1</div>
+        </div>
+        <div class="viz-col">
+          <div class="bar-track"><div class="bar" id="bar-4" style="height:0%"></div></div>
+          <div class="vlabel">FUT-2</div>
+        </div>
+      </div>
+
+      <!-- Playback row -->
+      <div class="playback-row">
+        <button class="btn active" id="btn-load">LOAD FILE</button>
+        <button class="btn" id="btn-loop">LOOP</button>
+        <button class="btn" id="btn-ar">AR</button>
+        <div class="fsep"></div>
+        <button class="btn hidden" id="btn-record">&#9679; RECORD</button>
+        <button class="btn hidden" id="btn-export">EXPORT</button>
+        <button class="btn" id="btn-debug">DEBUG</button>
+      </div>
+    </div>
+
+    <!-- Right: controls panel -->
+    <div class="controls-panel">
+
+      <!-- Status -->
+      <div class="panel-section">
+        <p class="panel-section-label">Status</p>
+        <div class="status-bar" id="status">
+          T = <span id="s-offset">1.0s</span> &nbsp;|&nbsp;
+          LAYERS: <span id="s-layers">5</span> &nbsp;|&nbsp;
+          <span id="s-state">READY</span>
+        </div>
+      </div>
+
+      <!-- Temporal Offset -->
+      <div class="panel-section">
+        <p class="panel-section-label">Parameters</p>
+
+        <div class="ctrl ctrl-wrap" id="ctrl-wrap-offset">
+          <div class="slider-row">
+            <div class="slider-label-row">
+              <label>Temporal Offset</label>
+              <span class="slider-value" id="val-offset">1.0s</span>
+            </div>
+            <input type="range" id="ctrl-offset" min="1" max="50" value="10">
+          </div>
+        </div>
+
+        <div class="ctrl ctrl-wrap" id="ctrl-wrap-floor">
+          <div class="slider-row">
+            <div class="slider-label-row">
+              <label>Present Floor</label>
+              <span class="slider-value" id="val-floor">0.30</span>
+            </div>
+            <input type="range" id="ctrl-floor" min="0" max="100" value="30">
+          </div>
+        </div>
+
+        <div class="ctrl ctrl-wrap" id="ctrl-wrap-smooth">
+          <div class="slider-row">
+            <div class="slider-label-row">
+              <label>FFT Smoothing</label>
+              <span class="slider-value" id="val-smooth">0.85</span>
+            </div>
+            <input type="range" id="ctrl-smooth" min="0" max="95" value="85">
+          </div>
+        </div>
+
+        <div class="ctrl ctrl-wrap" id="ctrl-wrap-layers">
+          <div class="slider-row">
+            <div class="slider-label-row">
+              <label>Layers</label>
+              <span class="slider-value" id="val-layers">5</span>
+            </div>
+            <input type="range" id="ctrl-layers" min="0" max="1" step="1" value="1">
+          </div>
+        </div>
+      </div>
+
+      <!-- Debug panel: toggled by JS via .visible on #debug-panel -->
+      <div class="panel-section" id="debug-panel">
+        <p class="panel-section-label">Debug</p>
+        <div class="debug-cols">
+          <div class="debug-col">
+            <div class="dlabel">PAST-2</div>
+            <div class="dval" id="dbg-t-0">t: &#8212;</div>
+            <div class="dval" id="dbg-a-0">&#945;: 0.00</div>
+          </div>
+          <div class="debug-col">
+            <div class="dlabel">PAST-1</div>
+            <div class="dval" id="dbg-t-1">t: &#8212;</div>
+            <div class="dval" id="dbg-a-1">&#945;: 0.00</div>
+          </div>
+          <div class="debug-col">
+            <div class="dlabel now">NOW</div>
+            <div class="dval now" id="dbg-t-2">t: &#8212;</div>
+            <div class="dval now" id="dbg-a-2">&#945;: 0.30</div>
+          </div>
+          <div class="debug-col">
+            <div class="dlabel">FUT-1</div>
+            <div class="dval" id="dbg-t-3">t: &#8212;</div>
+            <div class="dval" id="dbg-a-3">&#945;: 0.00</div>
+          </div>
+          <div class="debug-col">
+            <div class="dlabel">FUT-2</div>
+            <div class="dval" id="dbg-t-4">t: &#8212;</div>
+            <div class="dval" id="dbg-a-4">&#945;: 0.00</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../shared/glitch-title.js"></script>
+  <script>initGlitchTitle('glitch-title', 'PALIMPSEST.EXE');</script>
+  <script>
+// ============================================================
+// STATE
+// ============================================================
+
+// Params (live-updatable)
+let temporalOffset = 1.0;   // seconds between adjacent layers
+let presentFloor   = 0.30;  // minimum opacity for layer 2
+let layerCount     = 5;     // 3 or 5
+
+// Playback
+let duration    = 0;
+let frameCount  = 0;
+let animFrameId = null;
+let isPlaying   = false;
+let loopMode    = false;
+let arMode      = false;
+
+// Video dimensions (set on loadedmetadata)
+let videoNativeW = 0;
+let videoNativeH = 0;
+
+// Recording
+let isRecording  = false;
+let mediaRecorder = null;
+let recordChunks  = [];
+
+// Audio
+let audioCtx    = null;
+let audioSource = null;
+let analyser    = null;
+let freqData    = null;
+let recordDest  = null;
+
+// File
+let currentSrcUrl = null;
+
+// Layers — 5 HTMLVideoElement instances, created in setupLayers()
+let layers = [];
+
+// Frequency band definitions: [startBin, endBin] per layer index
+const BANDS = [
+  [0,   10],   // 0: PAST-2  bass
+  [11,  40],   // 1: PAST-1  low-mid
+  [41,  100],  // 2: NOW     mid
+  [101, 160],  // 3: FUT-1   high-mid
+  [161, 220],  // 4: FUT-2   treble
+];
+
+// DOM refs
+const canvas     = document.getElementById('canvas');
+const ctx        = canvas.getContext('2d');
+const canvasWrap = document.getElementById('canvas-wrap');
+
+// ============================================================
+// ENGINE
+// ============================================================
+
+function setupLayers(src) {
+  // Tear down any previous layers
+  layers.forEach(v => { v.pause(); v.src = ''; });
+
+  layers = Array.from({ length: 5 }, (_, i) => {
+    const v = document.createElement('video');
+    v.src     = src;
+    v.muted   = true;
+    v.preload = 'auto';
+    return v;
+  });
+
+  // Only the present layer (index 2) produces audio
+  layers[2].muted = false;
+
+  // Once metadata loads on layer 2, store duration and apply aspect ratio
+  layers[2].addEventListener('loadedmetadata', () => {
+    duration     = layers[2].duration;
+    videoNativeW = layers[2].videoWidth;
+    videoNativeH = layers[2].videoHeight;
+    applyVideoAspect();
+  }, { once: true });
+}
+
+function loadFile(file) {
+  if (!file || !file.type.startsWith('video/')) return;
+
+  // Tear down active playback and recording before replacing layers
+  if (isPlaying) pausePlayback();
+
+  // Close audio context so setupAudio() reinitializes against the new layers
+  if (audioCtx) {
+    audioCtx.close();
+    audioCtx = null; audioSource = null; analyser = null; freqData = null; recordDest = null;
+  }
+
+  // Revoke previous blob URL to free memory
+  if (currentSrcUrl) { URL.revokeObjectURL(currentSrcUrl); }
+  currentSrcUrl = URL.createObjectURL(file);
+  duration = 0;
+  videoNativeW = 0;
+  videoNativeH = 0;
+  canvasWrap.style.width       = '';
+  canvasWrap.style.justifySelf = '';
+
+  setupLayers(currentSrcUrl);
+
+  // Auto-exit AR mode on file load to prevent orphaned disabled state
+  if (arMode) {
+    arMode = false;
+    document.getElementById('btn-ar').classList.remove('active');
+    document.querySelectorAll('.ctrl').forEach(el => el.classList.remove('disabled'));
+  }
+
+  document.getElementById('canvas-hint').style.display = 'none';
+  document.getElementById('btn-export').classList.remove('hidden');
+  document.getElementById('btn-record').classList.add('hidden');
+  setStatus('LOADED');
+}
+
+function setStatus(text) {
+  document.getElementById('s-state').textContent = text;
+}
+
+function setupAudio() {
+  if (audioCtx) return; // already set up
+
+  audioCtx = new AudioContext();
+
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 512;
+  analyser.smoothingTimeConstant = 0.85;
+  freqData = new Uint8Array(analyser.frequencyBinCount); // 256 bins
+
+  const src = audioCtx.createMediaElementSource(layers[2]);
+  src.connect(analyser);
+  analyser.connect(audioCtx.destination);
+
+  // Secondary branch for recording
+  recordDest = audioCtx.createMediaStreamDestination();
+  analyser.connect(recordDest);
+}
+
+function getBandEnergy(startBin, endBin) {
+  let sum = 0;
+  for (let b = startBin; b <= endBin; b++) sum += freqData[b];
+  return sum / ((endBin - startBin + 1) * 255); // normalized 0..1
+}
+
+function getActiveLayers() {
+  if (layerCount === 5) {
+    return [0, 1, 2, 3, 4].map(i => ({ i, offset: (i - 2) * temporalOffset }));
+  }
+  // layerCount === 3: use layers 0, 2, 4 mapped to offsets -T, 0, +T
+  return [
+    { i: 0, offset: -temporalOffset },
+    { i: 2, offset: 0 },
+    { i: 4, offset:  temporalOffset },
+  ];
+}
+
+function syncLayers() {
+  const masterTime = layers[2].currentTime;
+  const active = getActiveLayers();
+  active.forEach(({ i, offset }) => {
+    if (i === 2) return; // present layer drives itself
+    const target = Math.max(0, Math.min(masterTime + offset, duration));
+    // Only write if meaningfully off — avoids thrashing
+    if (Math.abs(layers[i].currentTime - target) > 0.1) {
+      layers[i].currentTime = target;
+    }
+  });
+}
+
+function renderFrame() {
+  if (!isPlaying) return;
+
+  frameCount++;
+  const masterTime = layers[2].currentTime;
+
+  // Resize canvas to container if needed
+  const w = canvasWrap.clientWidth;
+  const h = canvasWrap.clientHeight;
+  if (canvas.width !== w || canvas.height !== h) {
+    canvas.width  = w;
+    canvas.height = h;
+  }
+
+  // Pull frequency data
+  if (analyser) analyser.getByteFrequencyData(freqData);
+
+  // AR mode — audio drives parameters each frame
+  if (arMode && analyser) {
+    temporalOffset = 0.5 + getBandEnergy(0, 10) * 4.5;
+    presentFloor   = getBandEnergy(11, 40);
+    const futRate  = 0.5 + getBandEnergy(101, 160) * 1.5;
+    const pastRate = 0.5 + getBandEnergy(161, 220) * 1.5;
+    if (layers[3]) layers[3].playbackRate = futRate;
+    if (layers[4]) layers[4].playbackRate = futRate;
+    if (layers[0]) layers[0].playbackRate = pastRate;
+    if (layers[1]) layers[1].playbackRate = pastRate;
+    // Update slider thumbs and value displays to show audio-driven values
+    const offsetSlider = document.getElementById('ctrl-offset');
+    if (offsetSlider) offsetSlider.value = temporalOffset * 10;
+    const floorSlider = document.getElementById('ctrl-floor');
+    if (floorSlider) floorSlider.value = presentFloor * 100;
+    document.getElementById('val-offset').textContent = `${temporalOffset.toFixed(1)}s`;
+    document.getElementById('val-floor').textContent  = presentFloor.toFixed(2);
+  }
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const active = getActiveLayers();
+  const opacities = [0, 0, 0, 0, 0];
+
+  active.forEach(({ i, offset }) => {
+    const [s, e] = BANDS[i];
+    let opacity = analyser ? getBandEnergy(s, e) : 0;
+    if (i === 2) opacity = Math.max(opacity, presentFloor);
+    opacities[i] = opacity;
+
+    if (layers[i].readyState < 2) return;
+    ctx.globalAlpha = opacity;
+    ctx.drawImage(layers[i], 0, 0, canvas.width, canvas.height);
+  });
+
+  ctx.globalAlpha = 1.0;
+
+  // Drift correction — every frame in AR mode (offset changes each frame), else every 30
+  if (arMode || frameCount % 30 === 0) syncLayers();
+
+  // Update UI
+  updateVisualizer(opacities, masterTime);
+  updateTimecode(masterTime);
+
+  // End condition
+  if (masterTime >= duration && duration > 0) {
+    if (loopMode) {
+      const active = getActiveLayers();
+      active.forEach(({ i, offset }) => {
+        if (i === 2) return;
+        layers[i].currentTime = Math.max(0, Math.min(offset, duration));
+      });
+      layers[2].currentTime = 0;
+    } else {
+      pausePlayback();
+      setStatus('DONE');
+      return;
+    }
+  }
+
+  animFrameId = requestAnimationFrame(renderFrame);
+}
+
+function updateVisualizer(opacities, masterTime) {
+  for (let i = 0; i < 5; i++) {
+    const op = isNaN(opacities[i]) ? 0 : opacities[i];
+    const bar = document.getElementById(`bar-${i}`);
+    if (bar) bar.style.height = `${(op * 100).toFixed(1)}%`;
+
+    const dt = document.getElementById(`dbg-t-${i}`);
+    const da = document.getElementById(`dbg-a-${i}`);
+    if (dt) {
+      const t = (i === 2) ? masterTime : Math.max(0, Math.min(masterTime + (i - 2) * temporalOffset, duration));
+      dt.textContent = `t: ${t.toFixed(2)}s`;
+    }
+    if (da) da.textContent = `α: ${op.toFixed(2)}`;
+  }
+
+  // Keep the NOW floor hairline aligned with presentFloor
+  const floor = document.getElementById('now-floor');
+  if (floor) {
+    // labelHeight ≈ 12px + 4px gap, track is (60px - 22px) = 38px
+    floor.style.bottom = `calc(22px + ${presentFloor * 100}%)`;
+  }
+}
+
+function updateTimecode(t) {
+  const fmt = s => {
+    const m = Math.floor(s / 60);
+    const sec = (s % 60).toFixed(1).padStart(4, '0');
+    return `${String(m).padStart(2, '0')}:${sec}`;
+  };
+  document.getElementById('timecode').textContent =
+    `${fmt(t)} / ${fmt(duration)}`;
+  document.getElementById('s-offset').textContent = `${temporalOffset.toFixed(1)}s`;
+  document.getElementById('s-layers').textContent = `${layerCount}`;
+}
+
+function startPlayback() {
+  if (!layers.length || isPlaying) return;
+
+  setupAudio();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  layers.forEach(v => v.play().catch(() => {}));
+  isPlaying = true;
+  setStatus('PLAYING');
+  document.getElementById('btn-record').classList.remove('hidden');
+  animFrameId = requestAnimationFrame(renderFrame);
+}
+
+function pausePlayback() {
+  isPlaying = false;
+  if (animFrameId) { cancelAnimationFrame(animFrameId); animFrameId = null; }
+  layers.forEach(v => v.pause());
+  setStatus('PAUSED');
+  document.getElementById('btn-record').classList.add('hidden');
+  if (isRecording) stopRecording();
+}
+
+function startRecording() {
+  if (isRecording || !isPlaying) return;
+
+  // Mix canvas video stream with audio
+  const videoStream = canvas.captureStream(30);
+  const audioStream = recordDest.stream;
+  const combined = new MediaStream([
+    ...videoStream.getVideoTracks(),
+    ...audioStream.getAudioTracks(),
+  ]);
+
+  recordChunks = [];
+  mediaRecorder = new MediaRecorder(combined, { mimeType: 'video/webm' });
+
+  mediaRecorder.ondataavailable = e => {
+    if (e.data.size > 0) recordChunks.push(e.data);
+  };
+
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(recordChunks, { type: 'video/webm' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `palimpsest-${Date.now()}.webm`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  mediaRecorder.start();
+  isRecording = true;
+
+  const btn = document.getElementById('btn-record');
+  btn.innerHTML = '&#9646;&#9646; STOP REC';
+  btn.classList.add('record-active');
+}
+
+function stopRecording() {
+  if (!isRecording) return;
+  mediaRecorder.stop();
+  isRecording = false;
+
+  const btn = document.getElementById('btn-record');
+  btn.innerHTML = '&#9679; RECORD';
+  btn.classList.remove('record-active');
+}
+
+function applyVideoAspect() {
+  if (!videoNativeW || !videoNativeH) return;
+  if (videoNativeH > videoNativeW) {
+    // Portrait: constrain wrap width to maintain video AR within available height
+    const availH = canvasWrap.offsetHeight || (window.innerHeight - 168);
+    const w = Math.floor(availH * (videoNativeW / videoNativeH));
+    canvasWrap.style.width       = `${w}px`;
+    canvasWrap.style.justifySelf = 'center';
+  } else {
+    canvasWrap.style.width       = '';
+    canvasWrap.style.justifySelf = '';
+  }
+}
+
+// ============================================================
+// UI
+// ============================================================
+
+// --- File picker ---
+const fileInput = document.createElement('input');
+fileInput.type   = 'file';
+fileInput.accept = 'video/*';
+fileInput.style.display = 'none';
+document.body.appendChild(fileInput);
+
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) loadFile(fileInput.files[0]);
+});
+
+document.getElementById('btn-load').addEventListener('click', () => fileInput.click());
+
+// --- Drag and drop ---
+canvasWrap.addEventListener('dragover', e => {
+  e.preventDefault();
+  canvasWrap.style.outline = '1px solid #555';
+});
+
+canvasWrap.addEventListener('dragleave', () => {
+  canvasWrap.style.outline = '';
+});
+
+canvasWrap.addEventListener('drop', e => {
+  e.preventDefault();
+  canvasWrap.style.outline = '';
+  const file = e.dataTransfer.files[0];
+  if (file) loadFile(file);
+});
+
+// --- Transport controls ---
+document.getElementById('btn-play').addEventListener('click', startPlayback);
+document.getElementById('btn-pause').addEventListener('click', pausePlayback);
+
+// --- Debug panel toggle ---
+document.getElementById('btn-debug').addEventListener('click', () => {
+  const panel = document.getElementById('debug-panel');
+  panel.classList.toggle('visible');
+  document.getElementById('btn-debug').classList.toggle('active');
+});
+
+// --- Temporal Offset: slider range 1–50, value maps to 0.1–5.0s (divide by 10) ---
+document.getElementById('ctrl-offset').addEventListener('input', function() {
+  temporalOffset = this.value / 10;
+  document.getElementById('val-offset').textContent = `${temporalOffset.toFixed(1)}s`;
+  document.getElementById('s-offset').textContent   = `${temporalOffset.toFixed(1)}s`;
+  // Trigger immediate re-sync on next tick
+  if (isPlaying) syncLayers();
+});
+
+// --- Present Floor: slider range 0–100, value / 100 ---
+document.getElementById('ctrl-floor').addEventListener('input', function() {
+  presentFloor = this.value / 100;
+  document.getElementById('val-floor').textContent = presentFloor.toFixed(2);
+});
+
+// --- FFT Smoothing: slider range 0–95, value / 100 ---
+document.getElementById('ctrl-smooth').addEventListener('input', function() {
+  const v = this.value / 100;
+  document.getElementById('val-smooth').textContent = v.toFixed(2);
+  if (analyser) analyser.smoothingTimeConstant = v;
+});
+
+// --- Layer Count: slider 0=3layers, 1=5layers ---
+document.getElementById('ctrl-layers').addEventListener('input', function() {
+  layerCount = this.value === '1' ? 5 : 3;
+  document.getElementById('val-layers').textContent = `${layerCount}`;
+  document.getElementById('s-layers').textContent   = `${layerCount}`;
+});
+
+// --- Record button ---
+document.getElementById('btn-record').addEventListener('click', () => {
+  if (isRecording) stopRecording();
+  else startRecording();
+});
+
+// --- Export button: start playing + recording in one click ---
+document.getElementById('btn-export').addEventListener('click', () => {
+  if (!isPlaying) startPlayback();
+  startRecording();
+});
+
+// --- Loop toggle ---
+document.getElementById('btn-loop').addEventListener('click', () => {
+  loopMode = !loopMode;
+  document.getElementById('btn-loop').classList.toggle('active', loopMode);
+});
+
+// --- AR mode toggle ---
+document.getElementById('btn-ar').addEventListener('click', () => {
+  arMode = !arMode;
+  document.getElementById('btn-ar').classList.toggle('active', arMode);
+  document.querySelectorAll('.ctrl').forEach(el => {
+    el.classList.toggle('disabled', arMode);
+  });
+  if (!arMode) {
+    // Restore all layer playback rates to 1.0 when leaving AR mode
+    layers.forEach(v => { if (v) v.playbackRate = 1.0; });
+  }
+});
+
+// Initial canvas sizing
+canvas.width  = canvasWrap.clientWidth;
+canvas.height = canvasWrap.clientHeight;
+
+// Resize handler
+window.addEventListener('resize', () => {
+  applyVideoAspect();
+  canvas.width  = canvasWrap.clientWidth;
+  canvas.height = canvasWrap.clientHeight;
+});
+  </script>
+</body>
+</html>
