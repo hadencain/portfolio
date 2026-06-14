@@ -9,6 +9,8 @@
   --label: #686868;
   --quiet: #484848;
   --ghost: #383838;
+  --nav-height: 56px;
+  --panel-width: 280px;
 }
 
 /* Body reset */
@@ -89,9 +91,9 @@ body {
 /* Main layout */
 .main-layout {
   display: grid;
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: 1fr var(--panel-width);
   gap: 0;
-  height: calc(100vh - 60px);
+  height: calc(100vh - var(--nav-height));
 }
 
 .canvas-wrap {
@@ -160,7 +162,7 @@ body {
 
 /* 6. Controls panel */
 .controls-panel {
-  width: 280px;
+  width: var(--panel-width);
   border-left: 1px solid var(--border);
   overflow-y: auto;
   padding: 0;
@@ -260,6 +262,7 @@ input[type="range"]::-moz-range-progress {
 }
 
 .toggle.active::after {
+  background: var(--bg);
   left: calc(100% - 10px);
 }
 
@@ -274,7 +277,7 @@ input[type="range"]::-moz-range-progress {
   background: none;
   padding: 6px 12px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: border-color 0.15s, color 0.15s;
 }
 
 .btn:hover {
