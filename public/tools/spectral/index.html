@@ -6,6 +6,8 @@
   <title>SPECTRAL.EXE</title>
   <link rel="stylesheet" href="../shared/shared.css">
   <style>
+    :root { --error: #c0392b; }
+
     /* Tool-specific overrides */
 
     .main-layout {
@@ -240,7 +242,7 @@
       display: inline-block;
       width: 6px;
       height: 6px;
-      background: #c0392b;
+      background: var(--error);
       border-radius: 50%;
       margin-right: 6px;
       animation: pulse 1s infinite;
@@ -254,7 +256,7 @@
     /* Debug panel */
     .debug-line { margin-bottom: 2px; }
     .debug-line.fading { opacity: 0.3; }
-    .debug-line.error { color: #c0392b; }
+    .debug-line.error { color: var(--error); }
     .debug-line.warning { color: var(--body); }
     .debug-line.info { color: var(--quiet); }
 
