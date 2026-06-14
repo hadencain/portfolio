@@ -39,30 +39,6 @@ const SOUND_VIDEO: Project[] = [
     demo: "/tools/osmosis/",
   },
   {
-    title: "spectral",
-    description:
-      "Audio-reactive temporal displacement of video frames. Spectral energy drives frame buffering and displacement in real-time.",
-    tags: ["HTML5", "Canvas", "Web Audio"],
-    github: "https://github.com/hadencain/spectral",
-    demo: "/tools/spectral/",
-  },
-  {
-    title: "palimpsest",
-    description:
-      "Audio-reactive temporal compositor. Layers of video frames blended by spectral energy, with export to WEBM.",
-    tags: ["HTML5", "Canvas", "Web Audio"],
-    github: "https://github.com/hadencain/palimpsest",
-    demo: "/tools/palimpsest/",
-  },
-  {
-    title: "markov",
-    description:
-      "Markov chain video sequencer. Learns transition probabilities from playback history and remixes video segments statistically.",
-    tags: ["HTML5", "Canvas", "JavaScript"],
-    github: "https://github.com/hadencain/markov",
-    demo: "/tools/markov/",
-  },
-  {
     title: "harmonic-filter-sequencer",
     description:
       "Bandpass filter applied to the harmonics of incoming audio. Max for Live patch for spectral rhythm processing.",
@@ -103,6 +79,33 @@ const SOUND_VIDEO: Project[] = [
       "Interactive scale and theory practice tool for guitar and keyboard. Fretboard and keyboard visualization with selectable scales, modes, and chord highlighting.",
     tags: ["TypeScript", "React"],
     github: "https://github.com/hadencain/tunedown-theory",
+  },
+];
+
+const BROWSER_VIDEO: Project[] = [
+  {
+    title: "spectral",
+    description:
+      "Audio-reactive temporal displacement of video frames. Spectral energy drives frame buffering and displacement in real-time.",
+    tags: ["HTML5", "Canvas", "Web Audio"],
+    github: "https://github.com/hadencain/spectral",
+    demo: "/tools/spectral/",
+  },
+  {
+    title: "palimpsest",
+    description:
+      "Audio-reactive temporal compositor. Layers of video frames blended by spectral energy, with export to WEBM.",
+    tags: ["HTML5", "Canvas", "Web Audio"],
+    github: "https://github.com/hadencain/palimpsest",
+    demo: "/tools/palimpsest/",
+  },
+  {
+    title: "markov",
+    description:
+      "Markov chain video sequencer. Learns transition probabilities from playback history and remixes video segments statistically.",
+    tags: ["HTML5", "Canvas", "JavaScript"],
+    github: "https://github.com/hadencain/markov",
+    demo: "/tools/markov/",
   },
 ];
 
@@ -232,7 +235,7 @@ function MediaCard({ project, delay }: { project: Project; delay: number }) {
                 href={project.demo}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[10px] font-mono tracking-[0.18em] text-[#444] hover:text-[#888] transition-colors duration-300"
+                className="text-[10px] font-mono tracking-[0.18em] text-[#888] hover:text-[#c8c8c8] transition-colors duration-300"
                 aria-label={`${project.title} demo`}
               >
                 DEMO
@@ -258,7 +261,7 @@ function MediaCard({ project, delay }: { project: Project; delay: number }) {
   );
 }
 
-// Compact card — for Security / AR / 3D — no thumbnail
+// Compact card — for Security / AR / 3D / Browser tools
 function CompactCard({ project, delay }: { project: Project; delay: number }) {
   return (
     <motion.div
@@ -271,15 +274,28 @@ function CompactCard({ project, delay }: { project: Project; delay: number }) {
     >
       <div className="flex items-center justify-between gap-6">
         <h3 className="text-[13px] font-light text-[#c8c8c8]">{project.title}</h3>
-        <a
-          href={project.github}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[#444] hover:text-[#888] transition-colors duration-300 shrink-0"
-          aria-label={`${project.title} on GitHub`}
-        >
-          <Arrow />
-        </a>
+        <div className="flex items-center gap-4 shrink-0">
+          {project.demo && (
+            <a
+              href={project.demo}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[10px] font-mono tracking-[0.18em] text-[#888] hover:text-[#c8c8c8] transition-colors duration-300"
+              aria-label={`${project.title} demo`}
+            >
+              DEMO
+            </a>
+          )}
+          <a
+            href={project.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#444] hover:text-[#888] transition-colors duration-300"
+            aria-label={`${project.title} on GitHub`}
+          >
+            <Arrow />
+          </a>
+        </div>
       </div>
       <p className="text-[12px] text-[#606060] font-light leading-relaxed">
         {project.description}
@@ -330,6 +346,16 @@ export function Projects() {
             <div key={p.title} className="bg-[#080808]">
               <MediaCard project={p} delay={i * 0.06} />
             </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Browser / Video ── */}
+      <div id="browser-video" className="mb-16 scroll-mt-24">
+        <SectionHeader label="Browser / Video" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
+          {BROWSER_VIDEO.map((p, i) => (
+            <CompactCard key={p.title} project={p} delay={i * 0.07} />
           ))}
         </div>
       </div>
