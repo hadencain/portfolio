@@ -43,7 +43,9 @@
       "top:0",
       "left:0",
       "color:rgba(255,35,35,0.60)",
-      "display:none"
+      "display:none",
+      "pointer-events:none",
+      "user-select:none"
     ].join(";");
     redSpan.textContent = titleString;
 
@@ -58,7 +60,9 @@
       "top:0",
       "left:0",
       "color:rgba(0,215,205,0.60)",
-      "display:none"
+      "display:none",
+      "pointer-events:none",
+      "user-select:none"
     ].join(";");
     cyanSpan.textContent = titleString;
 
