@@ -57,6 +57,13 @@ const SOUND_VIDEO: Project[] = [
     github: "https://github.com/hadencain/TCBBP",
   },
   {
+    title: "TCGS",
+    description:
+      "Terminal-controlled granular synthesizer. Full grain engine with playhead, FX chain, 4-LFO modulation matrix, polyphonic voices, and a live Textual TUI with waveform display and grain-field visualizer.",
+    tags: ["Python", "numpy", "Textual"],
+    github: "https://github.com/hadencain/TCGS",
+  },
+  {
     title: "audioSort",
     description:
       "Audio sample organizer evolved from keyword matching into a weighted multi-signal classifier — path context, metadata, librosa spectral analysis, and an AST ML model.",
