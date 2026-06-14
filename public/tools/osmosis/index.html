@@ -98,12 +98,6 @@
       background: var(--bg);
     }
 
-    /* REC button active = red border */
-    .btn.rec-active {
-      border-color: var(--error);
-      color: var(--error);
-    }
-
     /* Direction button group */
     .btn-group {
       display: flex;
@@ -115,6 +109,12 @@
     .btn.active {
       border-color: var(--secondary);
       color: var(--text);
+    }
+
+    /* Recording indicator — red on active */
+    #recBtn.active {
+      border-color: var(--error);
+      color: var(--error);
     }
 
     /* Log output */
