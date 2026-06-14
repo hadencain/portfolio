@@ -2,6 +2,83 @@
 
 import { useEffect, useRef, useState } from "react";
 
+// ─── GlitchText — for inline use (e.g. DEMO links) ───────────────────────────
+
+export function GlitchText({ text, className }: { text: string; className?: string }) {
+  const [display, setDisplay] = useState(text);
+  const [chromatic, setChromatic] = useState(false);
+  const [offsets, setOffsets] = useState({ r: -4, c: 4 });
+  const alive = useRef(true);
+
+  useEffect(() => {
+    alive.current = true;
+    let timer: ReturnType<typeof setTimeout>;
+
+    function micro() {
+      const i = Math.floor(Math.random() * text.length);
+      const glitched = text.split("").map((ch, j) => (j === i && ch !== " " ? rc(false) : ch)).join("");
+      setDisplay(glitched);
+      setTimeout(() => { if (alive.current) setDisplay(text); }, 80);
+    }
+
+    function schedule() {
+      timer = setTimeout(() => {
+        if (!alive.current) return;
+        micro();
+        schedule();
+      }, rnd(900, 2800));
+    }
+
+    schedule();
+    return () => { alive.current = false; clearTimeout(timer); };
+  }, [text]);
+
+  function handleEnter() {
+    setChromatic(true);
+    setOffsets({ r: rnd(-7, -3), c: rnd(3, 8) });
+    let n = 0;
+    const flash = setInterval(() => {
+      setDisplay(text.split("").map((ch) => ch === " " ? " " : Math.random() < 0.45 ? rc(true) : ch).join(""));
+      if (++n >= 5) { clearInterval(flash); setDisplay(text); }
+    }, 38);
+  }
+
+  function handleLeave() {
+    setChromatic(false);
+    setDisplay(text);
+  }
+
+  const mono: React.CSSProperties = {
+    fontFamily: "ui-monospace, 'Courier New', monospace",
+    fontSize: "inherit",
+    letterSpacing: "inherit",
+    textTransform: "inherit" as const,
+    whiteSpace: "nowrap" as const,
+  };
+
+  return (
+    <span
+      style={{ position: "relative", display: "inline-block" }}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+    >
+      {chromatic && (
+        <span aria-hidden style={{ ...mono, position: "absolute", inset: 0, color: "rgba(255,35,35,0.55)", transform: `translateX(${offsets.r}px)`, pointerEvents: "none", userSelect: "none" }}>
+          {display}
+        </span>
+      )}
+      {chromatic && (
+        <span aria-hidden style={{ ...mono, position: "absolute", inset: 0, color: "rgba(0,215,205,0.55)", transform: `translateX(${offsets.c}px)`, pointerEvents: "none", userSelect: "none" }}>
+          {display}
+        </span>
+      )}
+      <span className={className} style={{ ...mono, position: "relative", zIndex: 1 }}>{display}</span>
+    </span>
+  );
+}
+
+// ─── GlitchLabel — hero cycling label ─────────────────────────────────────────
+
 const LABELS = [
   "VST PLUGINS",
   "AUGMENTED REALITY",
