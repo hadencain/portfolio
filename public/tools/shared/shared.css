@@ -38,6 +38,25 @@ body {
   font-size: 11px;
 }
 
+.topnav-back {
+  color: var(--label);
+  text-decoration: none;
+  font-size: 11px;
+  font-family: ui-monospace, 'Courier New', monospace;
+  letter-spacing: 0.1em;
+}
+
+.topnav-back:hover {
+  color: var(--secondary);
+}
+
+.topnav-name {
+  color: var(--label);
+  font-size: 11px;
+  font-family: ui-monospace, 'Courier New', monospace;
+  letter-spacing: 0.2em;
+}
+
 /* 2. Tool header */
 .tool-header {
   display: grid;
