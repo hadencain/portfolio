@@ -2,77 +2,91 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// ─── GlitchText — for inline use (e.g. DEMO links) ───────────────────────────
+// ─── GlitchText — inline glitch matching hero aesthetic ───────────────────────
+
+interface TextFrame {
+  chars: string;
+  chromatic: boolean;
+  redX: number;
+  cyanX: number;
+  skewX: number;
+}
+
+const TEXT_BASE = (text: string): TextFrame => ({ chars: text, chromatic: false, redX: 0, cyanX: 0, skewX: 0 });
 
 export function GlitchText({ text, className }: { text: string; className?: string }) {
-  const [display, setDisplay] = useState(text);
-  const [chromatic, setChromatic] = useState(false);
-  const [offsets, setOffsets] = useState({ r: -4, c: 4 });
+  const [frame, setFrame] = useState<TextFrame>(TEXT_BASE(text));
   const alive = useRef(true);
 
   useEffect(() => {
     alive.current = true;
-    let timer: ReturnType<typeof setTimeout>;
+    let idle: ReturnType<typeof setTimeout>;
+    let ticker: ReturnType<typeof setInterval>;
 
-    function micro() {
-      const i = Math.floor(Math.random() * text.length);
-      const glitched = text.split("").map((ch, j) => (j === i && ch !== " " ? rc(false) : ch)).join("");
-      setDisplay(glitched);
-      setTimeout(() => { if (alive.current) setDisplay(text); }, 80);
+    function glitch() {
+      const dur = rnd(350, 650);
+      const t0 = Date.now();
+      if (ticker) clearInterval(ticker);
+
+      ticker = setInterval(() => {
+        if (!alive.current) return;
+        const p = (Date.now() - t0) / dur;
+
+        if (p >= 1) {
+          clearInterval(ticker);
+          setFrame(TEXT_BASE(text));
+          schedule();
+          return;
+        }
+
+        const peak = p > 0.25 && p < 0.78;
+        const chars = text.split("").map((ch) => {
+          if (ch === " ") return " ";
+          if (p > 0.72) return Math.random() < p ? ch : rc(true);
+          if (peak)     return Math.random() < 0.28 ? ch : rc(true);
+          return Math.random() < p * 0.9 ? ch : rc(false);
+        }).join("");
+
+        setFrame({
+          chars,
+          chromatic: peak || Math.random() < 0.3,
+          redX:  peak ? rnd(-12, -4) : rnd(-4, -1),
+          cyanX: peak ? rnd(4, 13)   : rnd(1, 4),
+          skewX: peak ? rnd(-3, 3)   : rnd(-1, 1),
+        });
+      }, 28);
     }
 
     function schedule() {
-      timer = setTimeout(() => {
-        if (!alive.current) return;
-        micro();
-        schedule();
-      }, rnd(900, 2800));
+      idle = setTimeout(() => { if (alive.current) glitch(); }, rnd(1200, 3800));
     }
 
     schedule();
-    return () => { alive.current = false; clearTimeout(timer); };
+    return () => { alive.current = false; clearTimeout(idle); clearInterval(ticker); };
   }, [text]);
-
-  function handleEnter() {
-    setChromatic(true);
-    setOffsets({ r: rnd(-7, -3), c: rnd(3, 8) });
-    let n = 0;
-    const flash = setInterval(() => {
-      setDisplay(text.split("").map((ch) => ch === " " ? " " : Math.random() < 0.45 ? rc(true) : ch).join(""));
-      if (++n >= 5) { clearInterval(flash); setDisplay(text); }
-    }, 38);
-  }
-
-  function handleLeave() {
-    setChromatic(false);
-    setDisplay(text);
-  }
 
   const mono: React.CSSProperties = {
     fontFamily: "ui-monospace, 'Courier New', monospace",
     fontSize: "inherit",
     letterSpacing: "inherit",
-    textTransform: "inherit" as const,
     whiteSpace: "nowrap" as const,
   };
 
+  const { chars, chromatic, redX, cyanX, skewX } = frame;
+
   return (
-    <span
-      style={{ position: "relative", display: "inline-block" }}
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
-    >
+    <span style={{ position: "relative", display: "inline-block", transform: chromatic ? `skewX(${skewX}deg)` : "none" }}>
       {chromatic && (
-        <span aria-hidden style={{ ...mono, position: "absolute", inset: 0, color: "rgba(255,35,35,0.55)", transform: `translateX(${offsets.r}px)`, pointerEvents: "none", userSelect: "none" }}>
-          {display}
+        <span aria-hidden style={{ ...mono, position: "absolute", inset: 0, color: "rgba(255,35,35,0.60)", transform: `translateX(${redX}px)`, pointerEvents: "none", userSelect: "none" }}>
+          {chars}
         </span>
       )}
       {chromatic && (
-        <span aria-hidden style={{ ...mono, position: "absolute", inset: 0, color: "rgba(0,215,205,0.55)", transform: `translateX(${offsets.c}px)`, pointerEvents: "none", userSelect: "none" }}>
-          {display}
+        <span aria-hidden style={{ ...mono, position: "absolute", inset: 0, color: "rgba(0,215,205,0.60)", transform: `translateX(${cyanX}px)`, pointerEvents: "none", userSelect: "none" }}>
+          {chars}
         </span>
       )}
-      <span className={className} style={{ ...mono, position: "relative", zIndex: 1 }}>{display}</span>
+      <span className={className} style={{ ...mono, position: "relative", zIndex: 1 }}>{chars}</span>
     </span>
   );
 }

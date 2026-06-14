@@ -35,26 +35,3 @@ body {
 ::-webkit-scrollbar-thumb {
   background: #222;
 }
-
-@keyframes glitch-demo {
-  0%, 62%, 100% {
-    text-shadow: none;
-    transform: none;
-  }
-  64% {
-    text-shadow: -5px 0 rgba(255, 35, 35, 0.9), 5px 0 rgba(0, 215, 205, 0.9);
-    transform: translateX(4px);
-  }
-  67% {
-    text-shadow: 4px 0 rgba(255, 35, 35, 0.9), -4px 0 rgba(0, 215, 205, 0.9);
-    transform: translateX(-3px);
-  }
-  70% {
-    text-shadow: -2px 0 rgba(255, 35, 35, 0.7), 2px 0 rgba(0, 215, 205, 0.7);
-    transform: translateX(2px);
-  }
-  73% {
-    text-shadow: none;
-    transform: none;
-  }
-}
