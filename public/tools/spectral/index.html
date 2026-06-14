@@ -724,14 +724,10 @@
             els.statusText.textContent = 'VIDEO LOADED — READY';
         }
 
-        els.uploadZone.classList.add('hidden');
-        els.videoContainer.classList.add('visible');
-        els.visualizer.classList.add('visible');
-        els.captureWindow.classList.add('visible');
-        document.getElementById('controls-transport').classList.add('visible');
-        document.getElementById('controls-volume').classList.add('visible');
-        document.getElementById('controls-spectral').classList.add('visible');
-        document.getElementById('controls-overlay-settings').classList.add('visible');
+        els.videoContainer.style.display = 'block';
+        els.visualizer.style.display = 'block';
+        els.controls.style.display = 'block';
+        els.captureWindow.style.display = 'block';
         updateTimeDisplay();
     }
 
@@ -855,7 +851,7 @@
     }
 
     function updateVisualizer(bass, lowMid, highMid, treble) {
-        const maxH = 48;
+        const maxH = 80;
         els.bassBar.style.height    = (bass    * maxH) + 'px';
         els.lowMidBar.style.height  = (lowMid  * maxH) + 'px';
         els.highMidBar.style.height = (highMid * maxH) + 'px';
@@ -958,7 +954,7 @@
 
         const lineH = fs * 1.7;
         const lx = Math.round(w * 0.012);
-        captureCtx.font = `${fs}px "Courier New", monospace`;
+        captureCtx.font = `${fs}px "Courier Prime", monospace`;
         captureCtx.textAlign = 'left';
 
         const items = [
@@ -991,7 +987,7 @@
         captureCtx.fillStyle = rightScrim;
         captureCtx.fillRect(g.px - g.pfs * 2, 0, g.panelW + g.pfs * 2, h);
 
-        captureCtx.font = `${g.pfs}px "Courier New", monospace`;
+        captureCtx.font = `${g.pfs}px "Courier Prime", monospace`;
 
         const paramRows = [
             ['BASS',   bassInfluence / 2,    bassInfluence.toFixed(2)],
