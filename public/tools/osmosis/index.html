@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OSMOSIS.EXE</title>
+  <link rel="stylesheet" href="../shared/shared.css">
+  <style>
+    :root {
+      --error: #c0392b;
+    }
+
+    /* Two-column drop zone grid */
+    .drop-zones {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+    }
+
+    .drop-zone {
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--secondary);
+      background: var(--ghost);
+      user-select: none;
+      transition: background 0.1s, color 0.1s;
+    }
+
+    .drop-zone:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .drop-zone.waiting {
+      color: var(--label);
+    }
+
+    /* Canvas fills remaining vertical space */
+    #display {
+      display: block;
+      width: 100%;
+      background: #000;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* Contamination meter strip */
+    .meter-strip {
+      padding: 6px 12px;
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .meter-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--label);
+      letter-spacing: 0.15em;
+      margin-bottom: 4px;
+    }
+
+    .meter-track {
+      width: 100%;
+      height: 2px;
+      background: var(--border2);
+    }
+
+    .meter-fill {
+      height: 100%;
+      background: var(--secondary);
+      width: 0%;
+      transition: width 0.4s;
+    }
+
+    /* Canvas-wrap: full flex column */
+    .canvas-wrap {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Playback row */
+    .playback-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    /* REC button active = red border */
+    .btn.rec-active {
+      border-color: var(--error);
+      color: var(--error);
+    }
+
+    /* Direction button group */
+    .btn-group {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    /* Active direction/loop btn */
+    .btn.active {
+      border-color: var(--secondary);
+      color: var(--text);
+    }
+
+    /* Log output */
+    .log-wrap {
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--quiet);
+      line-height: 1.5;
+      word-break: break-all;
+      white-space: pre-wrap;
+    }
+
+    /* Main layout height accounting for header + nav */
+    .main-layout {
+      height: calc(100vh - var(--nav-height) - 90px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top nav -->
+  <nav class="topnav">
+    <a href="/" class="topnav-back">← hadencain.com</a>
+    <span class="topnav-name">OSMOSIS.EXE</span>
+  </nav>
+
+  <!-- Header -->
+  <header class="tool-header">
+    <div class="tool-header-left">
+      <p class="section-label">Sound / Video — 003</p>
+      <div class="glitch-title-wrap" id="glitch-title"></div>
+      <p class="kind-tag">Pixel Contamination Between Two Videos</p>
+    </div>
+    <div class="header-desc">
+      Pixel contamination between two videos. Bleed, bleed rate, and blend controls applied frame by frame in the browser.
+    </div>
+  </header>
+
+  <!-- Main layout -->
+  <div class="main-layout">
+
+    <!-- Canvas area -->
+    <div class="canvas-wrap">
+
+      <!-- Drop zones -->
+      <div class="drop-zones">
+        <div id="dropA" class="drop-zone waiting">[ DROP VIDEO A ]</div>
+        <div id="dropB" class="drop-zone waiting">[ DROP VIDEO B ]</div>
+      </div>
+
+      <!-- Output canvas -->
+      <canvas id="display"></canvas>
+
+      <!-- Contamination meter -->
+      <div class="meter-strip">
+        <div class="meter-label-row">
+          <span id="meterLabel">CONTAMINATION: 0%</span>
+        </div>
+        <div class="meter-track">
+          <div id="meterBar" class="meter-fill"></div>
+        </div>
+      </div>
+
+      <!-- Playback row -->
+      <div class="playback-row">
+        <button class="btn primary" id="playBtn" disabled>PLAY</button>
+        <button class="btn" id="recBtn" disabled>REC</button>
+      </div>
+
+    </div><!-- /canvas-wrap -->
+
+    <!-- Controls panel -->
+    <div class="controls-panel">
+
+      <!-- Direction -->
+      <div class="panel-section">
+        <p class="panel-section-label">Direction</p>
+        <div class="btn-group">
+          <button class="btn" id="dirAtoB">A→B</button>
+          <button class="btn active" id="dirBidi">BIDI</button>
+          <button class="btn" id="dirBtoA">B→A</button>
+        </div>
+      </div>
+
+      <!-- Bleed -->
+      <div class="panel-section">
+        <p class="panel-section-label">Bleed</p>
+        <div class="slider-row">
+          <div class="slider-label-row">
+            <label for="bleedSlider">Bleed Rate</label>
+            <span class="slider-value" id="bleedDisplay">0.010</span>
+          </div>
+          <input type="range" id="bleedSlider" min="0.001" max="0.1" step="0.001" value="0.01">
+        </div>
+      </div>
+
+      <!-- Playback -->
+      <div class="panel-section">
+        <p class="panel-section-label">Playback</p>
+        <div class="btn-group">
+          <button class="btn" id="resetBtn">RESET</button>
+          <button class="btn" id="loopBtn">LOOP: OFF</button>
+        </div>
+      </div>
+
+      <!-- Log -->
+      <div class="panel-section">
+        <p class="panel-section-label">Log</p>
+        <div class="log-wrap" id="debugPanel">bleed=0.010 &nbsp; fps=— &nbsp; contamination=0%</div>
+      </div>
+
+    </div><!-- /controls-panel -->
+
+  </div><!-- /main-layout -->
+
+  <!-- Hidden file inputs and video elements (JS references these IDs — do not change) -->
+  <input type="file" id="fileA" accept="video/*" style="display:none">
+  <input type="file" id="fileB" accept="video/*" style="display:none">
+  <video id="videoA" style="display:none" loop crossorigin="anonymous"></video>
+  <video id="videoB" style="display:none" loop crossorigin="anonymous"></video>
+
+  <script src="../shared/glitch-title.js"></script>
+  <script>initGlitchTitle('glitch-title', 'OSMOSIS.EXE');</script>
+  <script>
+        const videoA = document.getElementById('videoA');
+        const videoB = document.getElementById('videoB');
+        const playBtn = document.getElementById('playBtn');
+        const recBtn = document.getElementById('recBtn');
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let isRecording = false;
+
+        let readyA = false, readyB = false;
+        let isPlaying = false;
+
+        const INTERNAL_W = 854, INTERNAL_H = 480;
+        let WORK_W = INTERNAL_W, WORK_H = INTERNAL_H;
+
+        const displayCanvas = document.getElementById('display');
+        const displayCtx = displayCanvas.getContext('2d');
+        displayCanvas.width = WORK_W;
+        displayCanvas.height = WORK_H;
+
+        const offA = new OffscreenCanvas(WORK_W, WORK_H);
+        const offB = new OffscreenCanvas(WORK_W, WORK_H);
+        const ctxA = offA.getContext('2d');
+        const ctxB = offB.getContext('2d');
+
+        let contaminationBuffer = null;
+        let bufInitialized = false;
+        let originalSnapshot = null; // pixel snapshot of videoA at buffer init — used by contamination meter
+
+        let bleedRate = 0.01;
+        let direction = 'BIDIRECTIONAL'; // 'A_TO_B' | 'B_TO_A' | 'BIDIRECTIONAL'
+        let lastFrameTime = 0;
+        let currentFps = 0;
+        let frameSkipActive = false;
+        let frameSkipToggle = false;
+
+        // Called when videoA loads — sets working resolution from videoA's native dimensions
+        function setWorkingResolution() {
+            const vw = videoA.videoWidth;
+            const vh = videoA.videoHeight;
+            if (!vw || !vh) return;
+            const scale = Math.min(INTERNAL_W / vw, INTERNAL_H / vh, 1);
+            WORK_W = Math.round(vw * scale);
+            WORK_H = Math.round(vh * scale);
+            displayCanvas.width = WORK_W;
+            displayCanvas.height = WORK_H;
+            offA.width = WORK_W; offA.height = WORK_H;
+            offB.width = WORK_W; offB.height = WORK_H;
+            bufInitialized = false;
+            contaminationBuffer = null;
+            originalSnapshot = null;
+        }
+
+        // Draws video into ctx letterboxed/pillarboxed to fit WORK_W × WORK_H
+        function drawVideoFit(ctx, video) {
+            const vw = video.videoWidth || WORK_W;
+            const vh = video.videoHeight || WORK_H;
+            const scale = Math.min(WORK_W / vw, WORK_H / vh);
+            const dw = Math.round(vw * scale);
+            const dh = Math.round(vh * scale);
+            const dx = Math.round((WORK_W - dw) / 2);
+            const dy = Math.round((WORK_H - dh) / 2);
+            ctx.clearRect(0, 0, WORK_W, WORK_H);
+            ctx.drawImage(video, dx, dy, dw, dh);
+        }
+
+        function bleedPixels(dataA, dataB, buf) {
+            for (let i = 0; i < WORK_W * WORK_H; i++) {
+                const r = i * 4, g = r + 1, b = r + 2;
+                const lumA = 0.299 * dataA[r] + 0.587 * dataA[g] + 0.114 * dataA[b];
+                const lumB = 0.299 * dataB[r] + 0.587 * dataB[g] + 0.114 * dataB[b];
+
+                if ((direction === 'A_TO_B' || direction === 'BIDIRECTIONAL') && lumA > lumB) {
+                    const t = bleedRate * ((lumA - lumB) / 255);
+                    buf[r] += (dataA[r] - buf[r]) * t;
+                    buf[g] += (dataA[g] - buf[g]) * t;
+                    buf[b] += (dataA[b] - buf[b]) * t;
+                }
+                if ((direction === 'B_TO_A' || direction === 'BIDIRECTIONAL') && lumB > lumA) {
+                    const t = bleedRate * ((lumB - lumA) / 255);
+                    buf[r] += (dataB[r] - buf[r]) * t;
+                    buf[g] += (dataB[g] - buf[g]) * t;
+                    buf[b] += (dataB[b] - buf[b]) * t;
+                }
+            }
+        }
+
+        function computeContaminationPercent(threshold = 30) {
+            if (!bufInitialized || !originalSnapshot) return 0;
+            const buf = contaminationBuffer.data;
+            let altered = 0;
+            for (let i = 0; i < 1000; i++) {
+                const idx = Math.floor(Math.random() * (WORK_W * WORK_H)) * 4;
+                const dr = Math.abs(buf[idx]   - originalSnapshot[idx]);
+                const dg = Math.abs(buf[idx+1] - originalSnapshot[idx+1]);
+                const db = Math.abs(buf[idx+2] - originalSnapshot[idx+2]);
+                if (dr + dg + db > threshold) altered++;
+            }
+            return altered / 1000;
+        }
+
+        function renderFrame(timestamp) {
+            requestAnimationFrame(renderFrame);
+            if (!isPlaying) return;
+
+            // Init buffer on first live frame so drawImage gets a real decoded frame
+            if (!bufInitialized) {
+                ctxA.drawImage(videoA, 0, 0, WORK_W, WORK_H);
+                contaminationBuffer = ctxA.getImageData(0, 0, WORK_W, WORK_H);
+                originalSnapshot = new Uint8ClampedArray(contaminationBuffer.data);
+                bufInitialized = true;
+                displayCtx.putImageData(contaminationBuffer, 0, 0);
+                return;
+            }
+
+            if (lastFrameTime > 0) {
+                const delta = timestamp - lastFrameTime;
+                currentFps = Math.round(1000 / delta);
+                frameSkipActive = currentFps < 25;
+            }
+            lastFrameTime = timestamp;
+
+            ctxA.drawImage(videoA, 0, 0, WORK_W, WORK_H);
+            drawVideoFit(ctxB, videoB);
+
+            const dataA = ctxA.getImageData(0, 0, WORK_W, WORK_H).data;
+            const dataB = ctxB.getImageData(0, 0, WORK_W, WORK_H).data;
+            const buf = contaminationBuffer.data;
+
+            if (frameSkipActive) {
+                frameSkipToggle = !frameSkipToggle;
+                if (!frameSkipToggle) bleedPixels(dataA, dataB, buf);
+            } else {
+                bleedPixels(dataA, dataB, buf);
+            }
+
+            displayCtx.putImageData(contaminationBuffer, 0, 0);
+        }
+
+        requestAnimationFrame(renderFrame);
+
+        const meterLabel = document.getElementById('meterLabel');
+        const meterBar = document.getElementById('meterBar');
+        const debugPanel = document.getElementById('debugPanel');
+
+        function updateDebug(pct) {
+            debugPanel.innerHTML = `bleed=${bleedRate.toFixed(3)} &nbsp; fps=${currentFps || '—'} &nbsp; contamination=${pct}%`;
+        }
+
+        setInterval(() => {
+            if (!isPlaying || !bufInitialized) return;
+            const pct = Math.round(computeContaminationPercent() * 100);
+            meterLabel.textContent = `CONTAMINATION: ${pct}%`;
+            meterBar.style.width = `${pct}%`;
+            updateDebug(pct);
+        }, 1000);
+
+        const dirMap = {
+            'A_TO_B': document.getElementById('dirAtoB'),
+            'BIDIRECTIONAL': document.getElementById('dirBidi'),
+            'B_TO_A': document.getElementById('dirBtoA'),
+        };
+
+        Object.entries(dirMap).forEach(([dir, btn]) => {
+            btn.addEventListener('click', () => {
+                direction = dir;
+                Object.values(dirMap).forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (!bufInitialized) return;
+            ctxA.drawImage(videoA, 0, 0, WORK_W, WORK_H);
+            contaminationBuffer = ctxA.getImageData(0, 0, WORK_W, WORK_H);
+            originalSnapshot = new Uint8ClampedArray(contaminationBuffer.data);
+        });
+
+        const bleedSlider = document.getElementById('bleedSlider');
+        const bleedDisplay = document.getElementById('bleedDisplay');
+
+        bleedSlider.addEventListener('input', () => {
+            bleedRate = parseFloat(bleedSlider.value);
+            bleedDisplay.textContent = bleedRate.toFixed(3);
+        });
+
+        function checkReady() {
+            if (readyA && readyB) playBtn.disabled = false;
+        }
+
+        function loadVideo(video, file, zone, onReady) {
+            zone.textContent = 'LOADING...';
+            if (video.src && video.src.startsWith('blob:')) URL.revokeObjectURL(video.src);
+            video.src = URL.createObjectURL(file);
+            video.oncanplay = () => {
+                const label = zone.id === 'dropA' ? '[ VIDEO A — READY ]' : '[ VIDEO B — READY ]';
+                zone.textContent = label;
+                zone.classList.remove('waiting');
+                onReady();
+            };
+            video.load();
+        }
+
+        function setupZone(zoneId, fileInputId, video, onReady) {
+            const zone = document.getElementById(zoneId);
+            const input = document.getElementById(fileInputId);
+            zone.addEventListener('click', () => input.click());
+            input.addEventListener('change', e => {
+                if (e.target.files[0]) loadVideo(video, e.target.files[0], zone, onReady);
+            });
+            zone.addEventListener('dragover', e => e.preventDefault());
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('video/')) loadVideo(video, file, zone, onReady);
+            });
+        }
+
+        setupZone('dropA', 'fileA', videoA, () => { readyA = true; setWorkingResolution(); checkReady(); });
+        setupZone('dropB', 'fileB', videoB, () => { readyB = true; checkReady(); });
+
+        playBtn.addEventListener('click', () => {
+            if (!isPlaying) {
+                videoA.play();
+                videoB.play();
+                isPlaying = true;
+                playBtn.textContent = 'STOP';
+                recBtn.disabled = false;
+            } else {
+                if (isRecording) stopRecording();
+                videoA.pause();
+                videoB.pause();
+                isPlaying = false;
+                playBtn.textContent = 'PLAY';
+                recBtn.disabled = true;
+                recBtn.textContent = 'REC';
+            }
+        });
+
+        function startRecording() {
+            const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+                ? 'video/webm;codecs=vp9'
+                : 'video/webm';
+            const stream = displayCanvas.captureStream(30);
+            recordedChunks = [];
+            mediaRecorder = new MediaRecorder(stream, { mimeType });
+            mediaRecorder.ondataavailable = e => {
+                if (e.data.size > 0) recordedChunks.push(e.data);
+            };
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'osmosis.webm';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+            };
+            mediaRecorder.start();
+            isRecording = true;
+            recBtn.textContent = 'STOP REC';
+            recBtn.classList.add('rec-active');
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+            isRecording = false;
+            recBtn.textContent = 'REC';
+            recBtn.classList.remove('rec-active');
+        }
+
+        recBtn.addEventListener('click', () => {
+            if (!isRecording) startRecording();
+            else stopRecording();
+        });
+
+        let loopEnabled = false;
+        videoA.removeAttribute('loop');
+        videoB.removeAttribute('loop');
+
+        function handleEnded(video) {
+            if (loopEnabled) {
+                video.currentTime = 0;
+                video.play();
+            } else {
+                video.pause();
+            }
+        }
+
+        videoA.addEventListener('ended', () => handleEnded(videoA));
+        videoB.addEventListener('ended', () => handleEnded(videoB));
+
+        document.getElementById('loopBtn').addEventListener('click', function() {
+            loopEnabled = !loopEnabled;
+            this.textContent = loopEnabled ? 'LOOP: ON' : 'LOOP: OFF';
+            this.classList.toggle('active', loopEnabled);
+        });
+  </script>
+</body>
+</html>
