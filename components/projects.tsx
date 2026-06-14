@@ -235,7 +235,8 @@ function MediaCard({ project, delay }: { project: Project; delay: number }) {
                 href={project.demo}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="demo-glitch text-[10px] font-mono"
+                className="text-[10px] font-mono tracking-[0.18em] text-[#c8c8c8] border border-[#2c2c2c] px-1.5 py-0.5 hover:border-[#666] transition-colors duration-300"
+                style={{ animation: "glitch-demo 2.2s infinite" }}
                 aria-label={`${project.title} demo`}
               >
                 DEMO
@@ -280,7 +281,8 @@ function CompactCard({ project, delay }: { project: Project; delay: number }) {
               href={project.demo}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[10px] font-mono tracking-[0.18em] text-[#888] hover:text-[#c8c8c8] transition-colors duration-300"
+              className="text-[10px] font-mono tracking-[0.18em] text-[#c8c8c8] border border-[#2c2c2c] px-1.5 py-0.5 hover:border-[#666] transition-colors duration-300"
+              style={{ animation: "glitch-demo 2.2s infinite" }}
               aria-label={`${project.title} demo`}
             >
               DEMO
