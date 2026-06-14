@@ -25,6 +25,8 @@
       console.warn("initGlitchTitle: element not found:", elementId);
       return;
     }
+    if (container && container.dataset.glitchInit) return;
+    container.dataset.glitchInit = '1';
 
     var uid = elementId + "-gt";
 
@@ -242,6 +244,7 @@
     schedule();
 
     function cleanup() {
+      window.removeEventListener("beforeunload", cleanup);
       alive = false;
       if (idleTimer) clearTimeout(idleTimer);
       if (tickerInterval) clearInterval(tickerInterval);
