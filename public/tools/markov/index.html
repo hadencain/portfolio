@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MARKOV.EXE</title>
+  <link rel="stylesheet" href="../shared/shared.css">
+  <style>
+    :root {
+      --error: #c0392b;
+    }
+
+    /* Layout: subtract topnav + tool-header */
+    .main-layout {
+      height: calc(100vh - var(--nav-height) - 89px);
+    }
+
+    /* Canvas-wrap columns flex */
+    .canvas-wrap {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Upload zone */
+    #uploadZone {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .upload-text {
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 11px;
+      color: var(--secondary);
+      letter-spacing: 0.1em;
+    }
+
+    .upload-sub {
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--body);
+    }
+
+    .file-input { display: none; }
+
+    /* Drag state */
+    #uploadZone.dragover {
+      border-color: var(--secondary);
+      background: var(--ghost);
+    }
+
+    /* File list */
+    .file-list {
+      display: none;
+      flex-shrink: 0;
+      border-top: 1px solid var(--border);
+      padding: 6px 12px;
+      max-height: 72px;
+      overflow-y: auto;
+      background: var(--bg);
+    }
+
+    .file-list-header {
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--label);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .file-entry {
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--quiet);
+      padding: 1px 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .file-entry.active { color: var(--secondary); }
+
+    .file-entry .fname {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+
+    .file-entry .fdur {
+      flex-shrink: 0;
+      color: var(--label);
+    }
+
+    /* Scan panel */
+    .scan-panel {
+      display: none;
+      flex-shrink: 0;
+      border-top: 1px solid var(--border);
+      padding: 8px 12px;
+      background: var(--bg);
+    }
+
+    .scan-label {
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--label);
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .scan-bar-track {
+      height: 2px;
+      background: var(--border2);
+      margin-bottom: 4px;
+    }
+
+    .scan-bar-fill {
+      height: 100%;
+      background: var(--secondary);
+      width: 0%;
+      transition: width 0.2s ease;
+    }
+
+    .scan-meta {
+      display: flex;
+      justify-content: space-between;
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--label);
+    }
+
+    /* Video container */
+    #videoContainer {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    #videoWrapper {
+      background: #000;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: none;
+    }
+
+    video.active-video { display: block; }
+
+    canvas.record-canvas { display: none; }
+
+    /* Status line */
+    .status-line {
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--body);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-shrink: 0;
+    }
+
+    .status-prefix { color: var(--label); }
+
+    /* btn-lock / btn-rec states wired to JS .held / .recording */
+    .btn-lock { color: var(--label); }
+    .btn-lock.held {
+      border-color: var(--secondary);
+      color: var(--text);
+    }
+
+    .btn-rec { color: var(--label); }
+    .btn-rec.recording {
+      border-color: var(--error);
+      color: var(--error);
+    }
+
+    .rec-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: var(--error);
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    /* Timeline */
+    .timeline-track {
+      flex: 1;
+      height: 2px;
+      background: var(--border2);
+      position: relative;
+      min-width: 80px;
+    }
+
+    .timeline-fill { height: 100%; background: var(--secondary); }
+
+    .timeline-marker {
+      position: absolute;
+      top: -5px;
+      width: 1px;
+      height: 12px;
+      background: var(--body);
+      transform: translateX(-50%);
+    }
+
+    .time-info {
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--label);
+      margin-top: 4px;
+    }
+
+    /* Step warning */
+    .step-warning {
+      display: none;
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--body);
+      margin-top: 4px;
+    }
+
+    /* Slider val display */
+    .slider-val {
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 11px;
+      color: var(--body);
+      min-width: 40px;
+      text-align: right;
+    }
+
+    .slider-range {
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--label);
+    }
+
+    /* Debug log lines */
+    .debug-line { margin-bottom: 2px; color: var(--quiet); }
+    .debug-line.fading { opacity: 0.3; }
+    .debug-line.error { color: var(--error); }
+    .debug-line.warning { color: var(--body); }
+
+    /* Debug stats */
+    .debug-stats {
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+      padding-top: 8px;
+    }
+
+    .debug-stat {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3px;
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+    }
+
+    .debug-stat .label { color: var(--label); }
+    .debug-stat .value { color: var(--secondary); }
+    .debug-stat .value.dim { color: var(--label); }
+
+    /* Collapsed log panel */
+    #debugPanel.collapsed .log-wrap,
+    #debugPanel.collapsed .debug-stats {
+      display: none;
+    }
+
+    /* Mobile */
+    @media (max-width: 700px) {
+      .tool-header {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .header-desc {
+        border-left: none;
+        border-top: 1px solid var(--border);
+        padding-left: 0;
+        padding-top: 16px;
+      }
+
+      .main-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+
+      .controls-panel {
+        width: 100%;
+        max-height: 300px;
+        border-left: none;
+        border-top: 1px solid var(--border);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top nav -->
+  <nav class="topnav">
+    <a href="/" class="topnav-back">← hadencain.com</a>
+    <span class="topnav-name">MARKOV.EXE</span>
+  </nav>
+
+  <!-- Tool header -->
+  <header class="tool-header">
+    <div class="tool-header-left">
+      <p class="section-label">Sound / Video — 005</p>
+      <div class="glitch-title-wrap" id="glitch-title"></div>
+      <p class="kind-tag">Statistical Playback Engine</p>
+    </div>
+    <div class="header-desc">
+      Markov chain video sequencer. Learns transition probabilities from playback history and remixes video segments statistically.
+    </div>
+  </header>
+
+  <!-- Main layout -->
+  <div class="main-layout">
+
+    <!-- Left: canvas area -->
+    <div class="canvas-wrap">
+
+      <!-- Upload zone -->
+      <div class="dropzone" id="uploadZone">
+        <div class="upload-text">>> drop a folder or multiple video files</div>
+        <div class="upload-sub">single file also works</div>
+        <button class="btn" id="browseBtn">Browse Folder</button>
+        <input type="file" id="fileInputFolder" class="file-input" accept="video/*" webkitdirectory />
+        <input type="file" id="fileInputFiles"  class="file-input" accept="video/*" multiple />
+      </div>
+
+      <!-- Loaded file list -->
+      <div class="file-list" id="fileList">
+        <div class="file-list-header" id="fileListHeader">0 videos loaded</div>
+        <div id="fileListBody"></div>
+      </div>
+
+      <!-- Scan progress -->
+      <div class="scan-panel" id="scanPanel">
+        <div class="scan-label" id="scanLabel">Scanning: 0 / 0 frames</div>
+        <div class="scan-bar-track">
+          <div class="scan-bar-fill" id="scanBarFill"></div>
+        </div>
+        <div class="scan-meta">
+          <span id="scanPct">0%</span>
+          <span id="scanEta">ETA: --:--</span>
+        </div>
+      </div>
+
+      <!-- Video display -->
+      <div id="videoContainer">
+        <div id="videoWrapper"></div>
+      </div>
+
+      <!-- Off-screen recording canvas -->
+      <canvas class="record-canvas" id="recordCanvas"></canvas>
+
+      <!-- Status line (always visible) -->
+      <div class="status-line" style="padding:6px 12px;border-top:1px solid var(--border);">
+        <span class="status-prefix">// </span><span id="statusText">waiting for video input</span>
+      </div>
+
+    </div>
+
+    <!-- Right: controls panel -->
+    <div class="controls-panel" id="controls" style="display:none;">
+
+      <!-- Playback -->
+      <div class="panel-section">
+        <p class="panel-section-label">Playback</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <button class="btn" id="playBtn" disabled>Play</button>
+          <button class="btn" id="stopBtn" disabled>Stop</button>
+          <button class="btn btn-lock" id="lockBtn" disabled title="Hold to freeze walk">Hold: Lock</button>
+          <button class="btn btn-rec" id="recordBtn">Rec</button>
+          <button class="btn" id="exportBtn" disabled>Export</button>
+          <button class="btn" id="muteBtn">Mute</button>
+        </div>
+      </div>
+
+      <!-- Sample Rate -->
+      <div class="panel-section">
+        <p class="panel-section-label">Sample Rate</p>
+        <div class="slider-row">
+          <div class="slider-label-row">
+            <label class="slider-range">0.5s – 5.0s &nbsp;·&nbsp; seconds between frames</label>
+            <span class="slider-val" id="sampleRateVal">2.0s</span>
+          </div>
+          <input type="range" class="slider" id="sampleRateSlider" min="0.5" max="5.0" step="0.1" value="2.0" />
+        </div>
+        <div class="step-warning" id="stepWarning">
+          auto-adjusted to <span id="adjustedStep">--</span>s &nbsp;·&nbsp; too many frames for budget
+        </div>
+      </div>
+
+      <!-- Randomness -->
+      <div class="panel-section">
+        <p class="panel-section-label">Randomness</p>
+        <div class="slider-row">
+          <div class="slider-label-row">
+            <label class="slider-range">0 = most similar &nbsp;·&nbsp; 1 = fully random</label>
+            <span class="slider-val" id="randomnessVal">0.30</span>
+          </div>
+          <input type="range" class="slider" id="randomnessSlider" min="0" max="1.0" step="0.01" value="0.3" />
+        </div>
+      </div>
+
+      <!-- K Neighbors -->
+      <div class="panel-section">
+        <p class="panel-section-label">K Neighbors</p>
+        <div class="slider-row">
+          <div class="slider-label-row">
+            <label class="slider-range">3 – 10 &nbsp;·&nbsp; candidates per step</label>
+            <span class="slider-val" id="kVal">5</span>
+          </div>
+          <input type="range" class="slider" id="kSlider" min="3" max="10" step="1" value="5" />
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="panel-section">
+        <p class="panel-section-label">Timeline</p>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="timeline-track">
+            <div class="timeline-fill" id="timelineFill" style="width:0%"></div>
+            <div class="timeline-marker" id="timelineMarker" style="left:0%"></div>
+          </div>
+        </div>
+        <div class="time-info" id="timeInfo">00:00 / 00:00</div>
+      </div>
+
+      <!-- Log / Debug -->
+      <div class="panel-section" id="debugPanel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <p class="panel-section-label" style="margin-bottom:0;">Log</p>
+          <button class="btn" id="debugToggle">−</button>
+        </div>
+        <div class="log-wrap" id="debugLog"></div>
+        <div class="debug-stats">
+          <div class="debug-stat">
+            <span class="label">phase</span>
+            <span class="value dim" id="dbPhase">idle</span>
+          </div>
+          <div class="debug-stat">
+            <span class="label">videos</span>
+            <span class="value dim" id="dbVideos">—</span>
+          </div>
+          <div class="debug-stat">
+            <span class="label">frames</span>
+            <span class="value dim" id="dbFrames">—</span>
+          </div>
+          <div class="debug-stat">
+            <span class="label">video</span>
+            <span class="value" id="dbVideo">—</span>
+          </div>
+          <div class="debug-stat">
+            <span class="label">frame t</span>
+            <span class="value" id="dbFrameT">—</span>
+          </div>
+          <div class="debug-stat">
+            <span class="label">index</span>
+            <span class="value" id="dbIndex">—</span>
+          </div>
+          <div class="debug-stat">
+            <span class="label">similarity</span>
+            <span class="value" id="dbSimilarity">—</span>
+          </div>
+          <div class="debug-stat">
+            <span class="label">locked</span>
+            <span class="value dim" id="dbLocked">no</span>
+          </div>
+          <div class="debug-stat">
+            <span class="label">k</span>
+            <span class="value dim" id="dbK">5</span>
+          </div>
+          <div class="debug-stat">
+            <span class="label">randomness</span>
+            <span class="value dim" id="dbRand">0.30</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../shared/glitch-title.js"></script>
+  <script>initGlitchTitle('glitch-title', 'MARKOV.EXE');</script>
+  <script>
+'use strict';
+
+// ── CONSTANTS ─────────────────────────────────────────────────────────────
+const FINGERPRINT_SIZE  = 8;
+const MAX_TOTAL_FRAMES  = 300;   // budget shared across all videos
+const EPSILON           = 0.001;
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let phase            = 'idle';
+let videos           = [];   // { file, el, name, duration }
+let frames           = [];   // { videoIndex, time, fp, neighbors }
+let currentFrameIndex = 0;
+let activeVideoIndex  = -1;
+let lastDist          = 0;
+let markovTimer       = null;
+let rafId             = null;
+let locked            = false;
+let isRecording       = false;
+let isMuted           = false;
+let mediaRecorder     = null;
+let recordedChunks    = [];
+let audioContext      = null;
+let gainNode          = null;
+let scanStartTime     = 0;
+
+// Scan canvas
+let scanCanvas, scanCtx;
+try {
+    scanCanvas = new OffscreenCanvas(FINGERPRINT_SIZE, FINGERPRINT_SIZE);
+    scanCtx    = scanCanvas.getContext('2d', { willReadFrequently: true });
+} catch {
+    scanCanvas        = document.createElement('canvas');
+    scanCanvas.width  = FINGERPRINT_SIZE;
+    scanCanvas.height = FINGERPRINT_SIZE;
+    scanCtx           = scanCanvas.getContext('2d', { willReadFrequently: true });
+}
+
+// ── ELEMENTS ──────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const el = {
+    uploadZone:       $('uploadZone'),
+    browseBtn:        $('browseBtn'),
+    fileInputFolder:  $('fileInputFolder'),
+    fileInputFiles:   $('fileInputFiles'),
+    fileList:         $('fileList'),
+    fileListHeader:   $('fileListHeader'),
+    fileListBody:     $('fileListBody'),
+    scanPanel:        $('scanPanel'),
+    scanLabel:        $('scanLabel'),
+    scanBarFill:      $('scanBarFill'),
+    scanPct:          $('scanPct'),
+    scanEta:          $('scanEta'),
+    videoContainer:   $('videoContainer'),
+    videoWrapper:     $('videoWrapper'),
+    recordCanvas:     $('recordCanvas'),
+    controls:         $('controls'),
+    playBtn:          $('playBtn'),
+    stopBtn:          $('stopBtn'),
+    lockBtn:          $('lockBtn'),
+    recordBtn:        $('recordBtn'),
+    exportBtn:        $('exportBtn'),
+    muteBtn:          $('muteBtn'),
+    sampleRateSlider: $('sampleRateSlider'),
+    sampleRateVal:    $('sampleRateVal'),
+    randomnessSlider: $('randomnessSlider'),
+    randomnessVal:    $('randomnessVal'),
+    kSlider:          $('kSlider'),
+    kVal:             $('kVal'),
+    timelineFill:     $('timelineFill'),
+    timelineMarker:   $('timelineMarker'),
+    timeInfo:         $('timeInfo'),
+    statusText:       $('statusText'),
+    stepWarning:      $('stepWarning'),
+    adjustedStep:     $('adjustedStep'),
+    debugPanel:       $('debugPanel'),
+    debugToggle:      $('debugToggle'),
+    debugLog:         $('debugLog'),
+    dbPhase:          $('dbPhase'),
+    dbVideos:         $('dbVideos'),
+    dbFrames:         $('dbFrames'),
+    dbVideo:          $('dbVideo'),
+    dbFrameT:         $('dbFrameT'),
+    dbIndex:          $('dbIndex'),
+    dbSimilarity:     $('dbSimilarity'),
+    dbLocked:         $('dbLocked'),
+    dbK:              $('dbK'),
+    dbRand:           $('dbRand'),
+};
+
+// ── DEBUG LOG ─────────────────────────────────────────────────────────────
+const debugLines = [];
+const MAX_LOG    = 14;
+
+function log(msg, type = 'info') {
+    const ts = new Date().toLocaleTimeString().slice(-8);
+    debugLines.unshift({ text: `${ts} ${msg}`, type });
+    if (debugLines.length > MAX_LOG) debugLines.length = MAX_LOG;
+    renderLog();
+}
+
+function renderLog() {
+    el.debugLog.innerHTML = '';
+    debugLines.forEach((l, i) => {
+        const d = document.createElement('div');
+        d.className = `debug-line ${l.type}${i > 6 ? ' fading' : ''}`;
+        d.textContent = l.text;
+        el.debugLog.appendChild(d);
+    });
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function setStatus(msg) { el.statusText.textContent = msg; }
+function setPhase(p)    { phase = p; el.dbPhase.textContent = p; }
+
+function fmtTime(s) {
+    const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+    return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+
+function waitForSeek(v) {
+    return new Promise(r => v.addEventListener('seeked', r, { once: true }));
+}
+
+function waitForMeta(v) {
+    return new Promise((resolve, reject) => {
+        if (v.readyState >= 1) { resolve(); return; }
+        v.addEventListener('loadedmetadata', resolve, { once: true });
+        v.addEventListener('error', reject, { once: true });
+    });
+}
+
+function getParams() {
+    return {
+        sampleRate: parseFloat(el.sampleRateSlider.value),
+        randomness: parseFloat(el.randomnessSlider.value),
+        K:          parseInt(el.kSlider.value),
+    };
+}
+
+function truncate(str, n) {
+    return str.length > n ? '…' + str.slice(-(n - 1)) : str;
+}
+
+function updateTimeline(t, dur) {
+    if (!dur) return;
+    const pct = (t / dur * 100).toFixed(2) + '%';
+    el.timelineFill.style.width  = pct;
+    el.timelineMarker.style.left = pct;
+    el.timeInfo.textContent      = `${fmtTime(t)} / ${fmtTime(dur)}`;
+}
+
+// ── FILE LOAD ─────────────────────────────────────────────────────────────
+function initUpload() {
+    el.uploadZone.addEventListener('dragover', e => {
+        e.preventDefault();
+        el.uploadZone.classList.add('dragover');
+    });
+    el.uploadZone.addEventListener('dragleave', () => {
+        el.uploadZone.classList.remove('dragover');
+    });
+    el.uploadZone.addEventListener('drop', async e => {
+        e.preventDefault();
+        el.uploadZone.classList.remove('dragover');
+        const files = await extractFilesFromDrop(e);
+        if (files.length) prepareVideos(files);
+    });
+
+    // Click: try folder picker; fall back to multi-file picker on browsers that
+    // don't support webkitdirectory (they usually just open a normal picker anyway)
+    el.browseBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        el.fileInputFolder.click();
+    });
+
+    el.uploadZone.addEventListener('click', () => el.fileInputFolder.click());
+
+    el.fileInputFolder.addEventListener('change', e => {
+        const files = [...e.target.files].filter(isVideo);
+        if (files.length) prepareVideos(files);
+    });
+
+    el.fileInputFiles.addEventListener('change', e => {
+        const files = [...e.target.files].filter(isVideo);
+        if (files.length) prepareVideos(files);
+    });
+}
+
+function isVideo(f) { return f.type.startsWith('video/'); }
+
+async function extractFilesFromDrop(e) {
+    const items = [...(e.dataTransfer.items || [])];
+    const files = [];
+
+    for (const item of items) {
+        if (item.webkitGetAsEntry) {
+            const entry = item.webkitGetAsEntry();
+            if (entry && entry.isDirectory) {
+                await traverseEntry(entry, files);
+                continue;
+            }
+        }
+        const f = item.getAsFile ? item.getAsFile() : null;
+        if (f && isVideo(f)) files.push(f);
+    }
+
+    // Fallback: e.dataTransfer.files
+    if (files.length === 0 && e.dataTransfer.files) {
+        [...e.dataTransfer.files].filter(isVideo).forEach(f => files.push(f));
+    }
+
+    return files;
+}
+
+function traverseEntry(entry, files) {
+    return new Promise(resolve => {
+        if (entry.isFile) {
+            entry.file(f => { if (isVideo(f)) files.push(f); resolve(); });
+        } else if (entry.isDirectory) {
+            const reader = entry.createReader();
+            const readAll = () => {
+                reader.readEntries(async entries => {
+                    if (!entries.length) { resolve(); return; }
+                    await Promise.all(entries.map(e => traverseEntry(e, files)));
+                    readAll();
+                });
+            };
+            readAll();
+        } else {
+            resolve();
+        }
+    });
+}
+
+// ── VIDEO PREPARATION ─────────────────────────────────────────────────────
+function prepareVideos(files) {
+    // Sort alphabetically for consistent ordering
+    files.sort((a, b) => a.name.localeCompare(b.name));
+
+    // Clear any previous state
+    videos.forEach(v => { v.el.src = ''; v.el.remove(); });
+    videos   = [];
+    frames   = [];
+    activeVideoIndex = -1;
+
+    files.forEach(file => {
+        const v = document.createElement('video');
+        v.loop     = true;
+        v.preload  = 'metadata';
+        v.src      = URL.createObjectURL(file);
+        el.videoWrapper.appendChild(v);
+        videos.push({ file, el: v, name: file.name, duration: 0 });
+    });
+
+    log(`${files.length} video${files.length > 1 ? 's' : ''} queued`);
+    setStatus(`loading metadata for ${files.length} file${files.length > 1 ? 's' : ''}...`);
+    setPhase('loading');
+
+    loadMetadataThenScan();
+}
+
+async function loadMetadataThenScan() {
+    // Load metadata for all videos to get durations
+    await Promise.all(videos.map(async v => {
+        try {
+            await waitForMeta(v.el);
+            v.duration = v.el.duration;
+        } catch {
+            log(`metadata failed: ${v.name}`, 'warning');
+            v.duration = 0;
+        }
+    }));
+
+    // Filter out failed / zero-duration videos
+    const valid = videos.filter(v => v.duration > 0);
+    if (valid.length !== videos.length) {
+        log(`${videos.length - valid.length} file(s) skipped (load error)`, 'warning');
+        videos = valid;
+    }
+
+    if (videos.length === 0) {
+        setStatus('error: no valid video files');
+        return;
+    }
+
+    // Set record canvas to first video's dimensions
+    const firstV = videos[0].el;
+    el.recordCanvas.width  = firstV.videoWidth  || 640;
+    el.recordCanvas.height = firstV.videoHeight || 360;
+
+    // Show UI sections
+    el.videoContainer.style.display = 'block';
+    el.controls.style.display       = 'block';
+    el.uploadZone.style.display     = 'none';
+
+    // Render file list
+    renderFileList();
+
+    // Show first video as placeholder
+    showVideo(0);
+
+    el.dbVideos.textContent = videos.length;
+    startScan();
+}
+
+function renderFileList() {
+    el.fileList.style.display = 'block';
+    el.fileListHeader.textContent = `${videos.length} video${videos.length > 1 ? 's' : ''} loaded`;
+    el.fileListBody.innerHTML = '';
+    videos.forEach((v, i) => {
+        const row = document.createElement('div');
+        row.className   = 'file-entry';
+        row.id          = `file-entry-${i}`;
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'fname';
+        nameSpan.textContent = truncate(v.name, 32);
+        const durSpan = document.createElement('span');
+        durSpan.className = 'fdur';
+        durSpan.textContent = fmtTime(v.duration);
+        row.appendChild(nameSpan);
+        row.appendChild(durSpan);
+        el.fileListBody.appendChild(row);
+    });
+}
+
+function showVideo(vIdx) {
+    if (activeVideoIndex === vIdx) return;
+    if (activeVideoIndex >= 0) {
+        videos[activeVideoIndex].el.classList.remove('active-video');
+    }
+    activeVideoIndex = vIdx;
+    videos[vIdx].el.classList.add('active-video');
+
+    // Highlight file list entry
+    el.fileListBody.querySelectorAll('.file-entry').forEach((r, i) => {
+        r.classList.toggle('active', i === vIdx);
+    });
+
+    el.dbVideo.textContent = truncate(videos[vIdx].name, 20);
+}
+
+// ── SCAN PHASE ────────────────────────────────────────────────────────────
+async function startScan() {
+    setPhase('scanning');
+    el.playBtn.disabled          = true;
+    el.stopBtn.disabled          = true;
+    el.lockBtn.disabled          = true;
+    el.sampleRateSlider.disabled = true;
+    el.kSlider.disabled          = true;
+    el.scanPanel.style.display   = 'block';
+
+    const { sampleRate, K } = getParams();
+
+    // Distribute frame budget proportionally to each video's duration
+    const totalDur    = videos.reduce((s, v) => s + v.duration, 0);
+    const frameAlloc  = videos.map(v => {
+        const ideal = Math.floor(v.duration / sampleRate);
+        const share = Math.round(MAX_TOTAL_FRAMES * (v.duration / totalDur));
+        return Math.max(5, Math.min(ideal, share));
+    });
+
+    const totalFrames = frameAlloc.reduce((a, b) => a + b, 0);
+    let globalDone    = 0;
+    scanStartTime     = performance.now();
+    frames            = [];
+
+    // Flag adjusted steps
+    let anyAdjusted = false;
+    const effectiveSteps = videos.map((v, i) => {
+        const step = v.duration / frameAlloc[i];
+        if (step > sampleRate + 0.05) anyAdjusted = true;
+        return step;
+    });
+
+    if (anyAdjusted) {
+        el.stepWarning.style.display = 'block';
+        el.adjustedStep.textContent  = Math.max(...effectiveSteps).toFixed(2);
+        log('frame budget distributed across videos', 'warning');
+    }
+
+    log(`scanning ${totalFrames} frames across ${videos.length} video${videos.length > 1 ? 's' : ''}`);
+    setStatus('scanning...');
+
+    for (let vi = 0; vi < videos.length; vi++) {
+        const v    = videos[vi];
+        const step = effectiveSteps[vi];
+        const n    = frameAlloc[vi];
+
+        el.scanLabel.textContent = `Scanning video ${vi + 1} / ${videos.length}: ${truncate(v.name, 24)}`;
+        showVideo(vi);
+
+        for (let i = 0; i < n; i++) {
+            v.el.currentTime = i * step;
+            await waitForSeek(v.el);
+
+            scanCtx.drawImage(v.el, 0, 0, FINGERPRINT_SIZE, FINGERPRINT_SIZE);
+            const px = scanCtx.getImageData(0, 0, FINGERPRINT_SIZE, FINGERPRINT_SIZE).data;
+            const fp = new Float32Array(64);
+            for (let j = 0; j < 64; j++) {
+                const b = j * 4;
+                fp[j] = (0.299 * px[b] + 0.587 * px[b+1] + 0.114 * px[b+2]) / 255;
+            }
+
+            frames.push({ videoIndex: vi, time: i * step, fp, neighbors: null });
+            globalDone++;
+            updateScanProgress(globalDone, totalFrames);
+        }
+    }
+
+    setStatus('building similarity graph...');
+    el.scanLabel.textContent = 'Building similarity graph...';
+    buildGraph(frames, K);
+
+    el.scanPanel.style.display  = 'none';
+    el.sampleRateSlider.disabled = false;
+    el.kSlider.disabled          = false;
+    onScanComplete(frames.length);
+}
+
+function updateScanProgress(done, total) {
+    const pct     = (done / total * 100).toFixed(1);
+    const elapsed = (performance.now() - scanStartTime) / 1000;
+    const eta     = elapsed / done * (total - done);
+
+    el.scanBarFill.style.width = pct + '%';
+    el.scanPct.textContent     = pct + '%';
+    el.scanEta.textContent     = `ETA: ${fmtTime(eta)}`;
+    el.dbFrames.textContent    = `${done}/${total}`;
+}
+
+function buildGraph(frames, K) {
+    for (let i = 0; i < frames.length; i++) {
+        const dists = [];
+        for (let j = 0; j < frames.length; j++) {
+            if (i === j) continue;
+            let d = 0;
+            const a = frames[i].fp, b = frames[j].fp;
+            for (let k = 0; k < 64; k++) {
+                const diff = a[k] - b[k];
+                d += diff * diff;
+            }
+            dists.push({ frameIndex: j, dist: Math.sqrt(d) });
+        }
+        dists.sort((a, b) => a.dist - b.dist);
+        frames[i].neighbors = dists.slice(0, K);
+    }
+}
+
+function onScanComplete(n) {
+    log(`graph complete · ${n} frames · ${videos.length} videos`);
+    setStatus(`graph complete · ${n} frames indexed across ${videos.length} video${videos.length > 1 ? 's' : ''}`);
+    setPhase('ready');
+    el.dbFrames.textContent = n;
+    el.playBtn.disabled     = false;
+    currentFrameIndex = 0;
+    showVideo(frames[0].videoIndex);
+    updateDebugStats();
+}
+
+// ── AUDIO ─────────────────────────────────────────────────────────────────
+function initAudio() {
+    if (audioContext) return;
+    try {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        gainNode     = audioContext.createGain();
+        gainNode.gain.value = 1;
+        gainNode.connect(audioContext.destination);
+
+        videos.forEach(v => {
+            try {
+                const src = audioContext.createMediaElementSource(v.el);
+                src.connect(gainNode);
+                v.audioSrc = src;
+            } catch(e) {
+                log(`audio source failed: ${v.name}`, 'warning');
+            }
+        });
+
+        log('audio ready');
+    } catch(e) {
+        log('audio unavailable: ' + e.message, 'warning');
+    }
+}
+
+// ── MARKOV WALK ───────────────────────────────────────────────────────────
+function advanceMarkov() {
+    if (locked) return;
+
+    const { randomness, K } = getParams();
+    const current   = frames[currentFrameIndex];
+    const neighbors = current.neighbors.slice(0, K);
+
+    const rawW  = neighbors.map(n => 1 / (n.dist + EPSILON));
+    const total = rawW.reduce((a, b) => a + b, 0);
+    const normW = rawW.map(w => w / total);
+    const uniform = 1 / neighbors.length;
+    const finalW  = normW.map(w => w * (1 - randomness) + uniform * randomness);
+
+    let r      = Math.random();
+    let chosen = neighbors[neighbors.length - 1];
+    for (let i = 0; i < neighbors.length; i++) {
+        r -= finalW[i];
+        if (r <= 0) { chosen = neighbors[i]; break; }
+    }
+
+    lastDist          = chosen.dist;
+    currentFrameIndex = chosen.frameIndex;
+    const nextFrame   = frames[currentFrameIndex];
+
+    switchToVideo(nextFrame.videoIndex, nextFrame.time);
+    updateDebugStats();
+    if (isRecording) drawFrameToCanvas();
+}
+
+function switchToVideo(vIdx, time) {
+    if (vIdx !== activeVideoIndex) {
+        // Pause outgoing video
+        videos[activeVideoIndex]?.el.pause();
+        showVideo(vIdx);
+    }
+    const v = videos[vIdx].el;
+    v.currentTime = time;
+    v.play().catch(() => {});
+}
+
+function updateDebugStats() {
+    const f = frames[currentFrameIndex];
+    if (!f) return;
+    el.dbFrameT.textContent     = f.time.toFixed(3) + 's';
+    el.dbIndex.textContent      = `${currentFrameIndex} / ${frames.length}`;
+    el.dbSimilarity.textContent = lastDist ? lastDist.toFixed(4) : '—';
+    el.dbLocked.textContent     = locked ? 'YES' : 'no';
+    el.dbK.textContent          = el.kSlider.value;
+    el.dbRand.textContent       = parseFloat(el.randomnessSlider.value).toFixed(2);
+}
+
+// ── PLAYBACK ──────────────────────────────────────────────────────────────
+function startPlayback() {
+    if (phase === 'playing') return;
+    setPhase('playing');
+
+    initAudio();
+    if (audioContext?.state === 'suspended') audioContext.resume();
+
+    el.playBtn.disabled          = true;
+    el.stopBtn.disabled          = false;
+    el.lockBtn.disabled          = false;
+    el.sampleRateSlider.disabled = true;
+
+    const { sampleRate } = getParams();
+    setStatus('markov walk active');
+    log(`playback · ${sampleRate}s/step · ${videos.length} video${videos.length > 1 ? 's' : ''} in graph`);
+
+    advanceMarkov();
+    markovTimer = setInterval(advanceMarkov, sampleRate * 1000);
+
+    function rafLoop() {
+        if (phase !== 'playing') return;
+        const f = frames[currentFrameIndex];
+        if (f) updateTimeline(videos[f.videoIndex].el.currentTime, videos[f.videoIndex].el.duration);
+        rafId = requestAnimationFrame(rafLoop);
+    }
+    rafId = requestAnimationFrame(rafLoop);
+}
+
+function stopPlayback() {
+    if (markovTimer) { clearInterval(markovTimer); markovTimer = null; }
+    if (rafId)       { cancelAnimationFrame(rafId); rafId = null; }
+
+    locked = false;
+    el.lockBtn.classList.remove('held');
+    el.lockBtn.textContent = 'Hold: Lock';
+
+    videos.forEach(v => v.el.pause());
+
+    el.playBtn.disabled          = false;
+    el.stopBtn.disabled          = true;
+    el.lockBtn.disabled          = true;
+    el.sampleRateSlider.disabled = false;
+
+    setPhase('ready');
+    setStatus('stopped');
+    log('stopped');
+    updateDebugStats();
+}
+
+// ── HOLD-TO-LOCK ──────────────────────────────────────────────────────────
+function acquireLock() {
+    locked = true;
+    el.lockBtn.classList.add('held');
+    el.lockBtn.textContent = 'Locked';
+    videos[activeVideoIndex]?.el.pause();
+    el.dbLocked.textContent = 'YES';
+}
+
+function releaseLock() {
+    if (!locked) return;
+    locked = false;
+    el.lockBtn.classList.remove('held');
+    el.lockBtn.textContent = 'Hold: Lock';
+    videos[activeVideoIndex]?.el.play().catch(() => {});
+    el.dbLocked.textContent = 'no';
+}
+
+// ── RECORDING ─────────────────────────────────────────────────────────────
+function drawFrameToCanvas() {
+    const rctx = el.recordCanvas.getContext('2d');
+    const v    = videos[activeVideoIndex]?.el;
+    if (v) rctx.drawImage(v, 0, 0, el.recordCanvas.width, el.recordCanvas.height);
+}
+
+function toggleRecording() {
+    if (isRecording) {
+        if (mediaRecorder?.state !== 'inactive') mediaRecorder.stop();
+        isRecording = false;
+        el.recordBtn.classList.remove('recording');
+        el.recordBtn.textContent = 'Rec';
+        log('recording stopped');
+        return;
+    }
+
+    recordedChunks = [];
+    const stream   = el.recordCanvas.captureStream(30);
+
+    if (gainNode && audioContext) {
+        try {
+            const dest  = audioContext.createMediaStreamDestination();
+            gainNode.connect(dest);
+            const track = dest.stream.getAudioTracks()[0];
+            if (track) stream.addTrack(track);
+        } catch(e) {
+            log('audio track unavailable', 'warning');
+        }
+    }
+
+    const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')
+        ? 'video/webm;codecs=vp9,opus' : 'video/webm';
+
+    try {
+        mediaRecorder = new MediaRecorder(stream, { mimeType });
+    } catch(e) {
+        log('MediaRecorder failed: ' + e.message, 'error');
+        setStatus('error: recording not supported');
+        return;
+    }
+
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        const url  = URL.createObjectURL(blob);
+        el.exportBtn.disabled = false;
+        el.exportBtn.onclick  = () => {
+            const a    = document.createElement('a');
+            a.href     = url;
+            a.download = 'markov-output.webm';
+            a.click();
+        };
+        log('export ready');
+        setStatus('recording saved — export available');
+    };
+
+    mediaRecorder.start(100);
+    isRecording = true;
+    el.recordBtn.classList.add('recording');
+    el.recordBtn.innerHTML = '<span class="rec-dot"></span>Stop Rec';
+    log('recording started');
+    setStatus('recording...');
+}
+
+// ── CONTROLS ──────────────────────────────────────────────────────────────
+function initControls() {
+    el.debugToggle.addEventListener('click', () => {
+        el.debugPanel.classList.toggle('collapsed');
+        el.debugToggle.textContent = el.debugPanel.classList.contains('collapsed') ? '+' : '−';
+    });
+
+    el.playBtn.addEventListener('click', startPlayback);
+    el.stopBtn.addEventListener('click', stopPlayback);
+    el.recordBtn.addEventListener('click', toggleRecording);
+
+    el.lockBtn.addEventListener('mousedown',   e => { e.preventDefault(); acquireLock(); });
+    el.lockBtn.addEventListener('mouseup',     releaseLock);
+    el.lockBtn.addEventListener('mouseleave',  releaseLock);
+    el.lockBtn.addEventListener('touchstart',  e => { e.preventDefault(); acquireLock(); }, { passive: false });
+    el.lockBtn.addEventListener('touchend',    releaseLock);
+    el.lockBtn.addEventListener('touchcancel', releaseLock);
+
+    el.muteBtn.addEventListener('click', () => {
+        isMuted = !isMuted;
+        if (gainNode) gainNode.gain.value = isMuted ? 0 : 1;
+        el.muteBtn.textContent = isMuted ? 'Unmute' : 'Mute';
+    });
+
+    el.sampleRateSlider.addEventListener('input', () => {
+        el.sampleRateVal.textContent = parseFloat(el.sampleRateSlider.value).toFixed(1) + 's';
+    });
+
+    el.randomnessSlider.addEventListener('input', () => {
+        const v = parseFloat(el.randomnessSlider.value).toFixed(2);
+        el.randomnessVal.textContent = v;
+        el.dbRand.textContent        = v;
+    });
+
+    el.kSlider.addEventListener('input', () => {
+        el.kVal.textContent = el.kSlider.value;
+        el.dbK.textContent  = el.kSlider.value;
+    });
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────────────
+function init() {
+    log('MARKOV.EXE ready');
+    initUpload();
+    initControls();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
