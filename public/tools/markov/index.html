@@ -10,10 +10,6 @@
       --error: #c0392b;
     }
 
-    /* Layout: subtract topnav + tool-header */
-    .main-layout {
-      height: calc(100vh - var(--nav-height) - 89px);
-    }
 
     /* Canvas-wrap columns flex */
     .canvas-wrap {
@@ -289,32 +285,6 @@
       display: none;
     }
 
-    /* Mobile */
-    @media (max-width: 700px) {
-      .tool-header {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-
-      .header-desc {
-        border-left: none;
-        border-top: 1px solid var(--border);
-        padding-left: 0;
-        padding-top: 16px;
-      }
-
-      .main-layout {
-        grid-template-columns: 1fr;
-        height: auto;
-      }
-
-      .controls-panel {
-        width: 100%;
-        max-height: 300px;
-        border-left: none;
-        border-top: 1px solid var(--border);
-      }
-    }
   </style>
 </head>
 <body>
@@ -322,20 +292,9 @@
   <!-- Top nav -->
   <nav class="topnav">
     <a href="/" class="topnav-back">← hadencain.com</a>
+    <span class="topnav-kind">Statistical Playback Engine</span>
     <span class="topnav-name">MARKOV.EXE</span>
   </nav>
-
-  <!-- Tool header -->
-  <header class="tool-header">
-    <div class="tool-header-left">
-      <p class="section-label">Sound / Video — 005</p>
-      <div class="glitch-title-wrap" id="glitch-title"></div>
-      <p class="kind-tag">Statistical Playback Engine</p>
-    </div>
-    <div class="header-desc">
-      Markov chain video sequencer. Learns transition probabilities from playback history and remixes video segments statistically.
-    </div>
-  </header>
 
   <!-- Main layout -->
   <div class="main-layout">
@@ -506,8 +465,6 @@
     </div>
   </div>
 
-  <script src="/tools/shared/glitch-title.js"></script>
-  <script>initGlitchTitle('glitch-title', 'MARKOV.EXE');</script>
   <script>
 'use strict';
 

@@ -21,9 +21,8 @@
 
     #videoPlayer {
       width: 100%;
-      height: auto;
+      height: 100%;
       display: block;
-      flex: 1;
       object-fit: contain;
     }
 
@@ -156,9 +155,9 @@
       text-align: right;
     }
 
-    /* Controls panel content */
-    .main-layout {
-      height: calc(100vh - var(--nav-height) - 76px); /* subtract header height approx */
+    .video-wrapper {
+      flex: 1;
+      min-height: 0;
     }
   </style>
 </head>
@@ -166,20 +165,9 @@
   <!-- Top nav -->
   <nav class="topnav">
     <a href="/" class="topnav-back">← hadencain.com</a>
+    <span class="topnav-kind">Temporal Corruption Engine</span>
     <span class="topnav-name">GLITCH.EXE</span>
   </nav>
-
-  <!-- Header: 2-col -->
-  <header class="tool-header">
-    <div class="tool-header-left">
-      <p class="section-label">Sound / Video — 001</p>
-      <div class="glitch-title-wrap" id="glitch-title"></div>
-      <p class="kind-tag">Temporal Corruption Engine</p>
-    </div>
-    <div class="header-desc">
-      Browser-based video manipulation. Temporal corruption algorithms applied to uploaded video in real-time through Canvas.
-    </div>
-  </header>
 
   <!-- Main layout: canvas area + controls -->
   <div class="main-layout">
@@ -307,8 +295,6 @@
     </div>
   </div>
 
-  <script src="/tools/shared/glitch-title.js"></script>
-  <script>initGlitchTitle('glitch-title', 'GLITCH.EXE');</script>
   <script>
         // Global state
         let video = document.getElementById('videoPlayer');
@@ -480,31 +466,14 @@
             }
 
             elements.statusText.textContent = 'LOADING VIDEO DATA...';
+            debugLog('File read complete', 'info');
+            debugLog('Setting video source', 'info');
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                debugLog('File read complete', 'info');
-                const arrayBuffer = e.target.result;
-                const blob = new Blob([arrayBuffer], { type: file.type });
-
-                const dataReader = new FileReader();
-                dataReader.onload = function(event) {
-                    debugLog('Setting video source', 'info');
-                    video.src = event.target.result;
-                    video.load();
-                };
-                dataReader.onerror = function() {
-                    debugLog('Data URL creation failed', 'error');
-                    showError('CANNOT LOAD VIDEO IN SANDBOX ENVIRONMENT');
-                };
-                dataReader.readAsDataURL(blob);
-            };
-
-            reader.onerror = function() {
-                debugLog('File read failed', 'error');
-            };
-
-            reader.readAsArrayBuffer(file);
+            if (video.src && video.src.startsWith('blob:')) {
+                URL.revokeObjectURL(video.src);
+            }
+            video.src = URL.createObjectURL(file);
+            video.load();
         }
 
         // Video event handlers

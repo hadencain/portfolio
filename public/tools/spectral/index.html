@@ -8,16 +8,10 @@
   <style>
     :root { --error: #c0392b; }
 
-    /* Tool-specific overrides */
-
-    .main-layout {
-      height: calc(100vh - var(--nav-height) - 90px);
-    }
-
     /* Canvas area: video + capture canvas stacked */
     .canvas-wrap {
       position: relative;
-      overflow-y: auto;
+      overflow: hidden;
     }
 
     /* Dropzone */
@@ -50,8 +44,9 @@
 
     #videoPlayer {
       width: 100%;
-      height: auto;
+      height: 100%;
       display: block;
+      object-fit: contain;
     }
 
     /* Video overlay (baked stats, not controls) */
@@ -327,20 +322,9 @@
   <!-- Top nav -->
   <nav class="topnav">
     <a href="/" class="topnav-back">← hadencain.com</a>
+    <span class="topnav-kind">Audio-Reactive Temporal Displacement</span>
     <span class="topnav-name">SPECTRAL.EXE</span>
   </nav>
-
-  <!-- Header: 2-col -->
-  <header class="tool-header">
-    <div class="tool-header-left">
-      <p class="section-label">Sound / Video — 002</p>
-      <div class="glitch-title-wrap" id="glitch-title"></div>
-      <p class="kind-tag">Audio-Reactive Temporal Displacement</p>
-    </div>
-    <div class="header-desc">
-      Audio-reactive temporal displacement of video frames. Spectral energy drives frame buffering and displacement in real-time.
-    </div>
-  </header>
 
   <!-- Main layout: canvas area + controls panel -->
   <div class="main-layout">
@@ -524,8 +508,6 @@
     </div>
   </div>
 
-  <script src="/tools/shared/glitch-title.js"></script>
-  <script>initGlitchTitle('glitch-title', 'SPECTRAL.EXE');</script>
   <script>
     // --- State ---
     const video = document.getElementById('videoPlayer');

@@ -11,12 +11,9 @@
       --now-floor-bg: rgba(168,168,168,0.35);
     }
 
-    /* Layout: tool header is variable height, subtract it from main-layout */
     .main-layout {
       display: grid;
       grid-template-columns: 1fr var(--panel-width);
-      height: calc(100vh - var(--nav-height) - 90px);
-      /* 90px ≈ tool-header height; JS uses canvasWrap.clientHeight so this flexes */
     }
 
     /* Canvas column */
@@ -271,21 +268,10 @@
 
   <!-- Top nav -->
   <nav class="topnav">
-    <a href="/" class="topnav-back">&#8592; hadencain.com</a>
+    <a href="/" class="topnav-back">← hadencain.com</a>
+    <span class="topnav-kind">Audio-Reactive Temporal Compositor</span>
     <span class="topnav-name">PALIMPSEST.EXE</span>
   </nav>
-
-  <!-- Tool header -->
-  <header class="tool-header">
-    <div class="tool-header-left">
-      <p class="section-label">Sound / Video &#8212; 004</p>
-      <div class="glitch-title-wrap" id="glitch-title"></div>
-      <p class="kind-tag">Audio-Reactive Temporal Compositor</p>
-    </div>
-    <div class="header-desc">
-      Audio-reactive temporal compositor. Layers of video frames blended by spectral energy, with export to WEBM.
-    </div>
-  </header>
 
   <!-- Main layout -->
   <div class="main-layout">
@@ -440,8 +426,6 @@
     </div>
   </div>
 
-  <script src="/tools/shared/glitch-title.js"></script>
-  <script>initGlitchTitle('glitch-title', 'PALIMPSEST.EXE');</script>
   <script>
 // ============================================================
 // STATE
