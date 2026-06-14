@@ -14,7 +14,7 @@ interface Project {
   demo?: string;
 }
 
-const SOUND_VIDEO: Project[] = [
+const AUDIO: Project[] = [
   {
     title: "granular-synthesizer",
     description:
@@ -28,13 +28,6 @@ const SOUND_VIDEO: Project[] = [
       "Bandpass filter applied to the harmonics of incoming audio. Max for Live patch for spectral rhythm processing.",
     tags: ["Max/MSP"],
     github: "https://github.com/hadencain/harmonic-filter-sequencer",
-  },
-  {
-    title: "RGBA_blending",
-    description:
-      "Alpha-blend two files to generate cover art or video output. Max for Live patch for generative visual composition.",
-    tags: ["Max/MSP"],
-    github: "https://github.com/hadencain/RGBA_blending",
   },
   {
     title: "TCBBP",
@@ -66,7 +59,14 @@ const SOUND_VIDEO: Project[] = [
   },
 ];
 
-const BROWSER_VIDEO: Project[] = [
+const VIDEO: Project[] = [
+  {
+    title: "RGBA_blending",
+    description:
+      "Alpha-blend two files to generate cover art or video output. Max for Live patch for generative visual composition.",
+    tags: ["Max/MSP"],
+    github: "https://github.com/hadencain/RGBA_blending",
+  },
   {
     title: "glitch",
     description:
@@ -338,21 +338,21 @@ export function Projects() {
         Work
       </motion.p>
 
-      {/* ── Sound / Video ── */}
-      <div id="sound-video" className="mb-16 scroll-mt-24">
-        <SectionHeader label="Sound / Video" />
+      {/* ── Audio ── */}
+      <div id="audio" className="mb-16 scroll-mt-24">
+        <SectionHeader label="Audio" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
-          {SOUND_VIDEO.map((p, i) => (
+          {AUDIO.map((p, i) => (
             <CompactCard key={p.title} project={p} delay={i * 0.07} />
           ))}
         </div>
       </div>
 
-      {/* ── Interactive Demos ── */}
-      <div id="browser-video" className="mb-16 scroll-mt-24">
-        <SectionHeader label="Interactive Demos" />
+      {/* ── Video ── */}
+      <div id="video" className="mb-16 scroll-mt-24">
+        <SectionHeader label="Video" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
-          {BROWSER_VIDEO.map((p, i) => (
+          {VIDEO.map((p, i) => (
             <CompactCard key={p.title} project={p} delay={i * 0.07} />
           ))}
         </div>

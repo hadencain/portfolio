@@ -12,8 +12,8 @@ function fadeUp(delay: number) {
 }
 
 const SECTIONS = [
-  { n: "01", label: "SOUND / VIDEO", href: "#sound-video" },
-  { n: "02", label: "INTERACTIVE DEMOS", href: "#browser-video" },
+  { n: "01", label: "AUDIO", href: "#audio" },
+  { n: "02", label: "VIDEO", href: "#video" },
   { n: "03", label: "SECURITY", href: "#security" },
   { n: "04", label: "AR / MOBILE", href: "#ar-mobile" },
   { n: "05", label: "3D", href: "#threed" },
