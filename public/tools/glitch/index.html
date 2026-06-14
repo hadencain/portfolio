@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GLITCH.EXE</title>
+  <link rel="stylesheet" href="../shared/shared.css">
+  <style>
+    /* Tool-specific: video container and timeline */
+    .video-wrapper {
+      background: #000;
+      flex: 1;
+      display: flex;
+      align-items: stretch;
+      overflow: hidden;
+    }
+
+    #videoPlayer {
+      width: 100%;
+      height: auto;
+      display: block;
+      flex: 1;
+      object-fit: contain;
+    }
+
+    #videoContainer {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #videoContainer.visible {
+      display: flex;
+    }
+
+    /* Replaces .controls — shown after file loaded */
+    #controls {
+      display: none;
+    }
+
+    #controls.visible {
+      display: block;
+    }
+
+    /* Timeline bar */
+    .timeline-container {
+      flex: 1;
+      height: 4px;
+      background: var(--border2);
+      cursor: pointer;
+      position: relative;
+      min-width: 80px;
+    }
+
+    .timeline-progress {
+      height: 100%;
+      background: var(--secondary);
+      transition: width 0.1s ease;
+    }
+
+    /* Status line */
+    .status-line {
+      padding: 8px 12px;
+      border-top: 1px solid var(--border);
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--body);
+    }
+
+    .status-prefix {
+      color: var(--label);
+    }
+
+    /* Recording indicator */
+    .recording-indicator {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: #c0392b;
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* Debug line types in log */
+    .debug-line { margin-bottom: 2px; opacity: 1; transition: opacity 0.5s ease; }
+    .debug-line.fading { opacity: 0.3; }
+    .debug-line.error { color: #c0392b; }
+    .debug-line.warning { color: var(--body); }
+    .debug-line.info { color: var(--quiet); }
+    .debug-line.perf { color: var(--label); }
+
+    /* Debug stats */
+    .debug-stats {
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+      padding-top: 8px;
+    }
+
+    .debug-stat {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3px;
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--label);
+    }
+
+    /* Effect buttons active state */
+    .btn.active {
+      border-color: var(--secondary);
+      color: var(--text);
+    }
+
+    /* Dropzone dragover */
+    .dropzone.dragover {
+      border-color: var(--secondary);
+      background: var(--ghost);
+    }
+
+    /* Error zone */
+    .error-zone {
+      border: 1px solid var(--border2);
+      color: var(--body);
+      padding: 12px;
+      margin-top: 12px;
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
+    /* Playback row time display */
+    #timeDisplay {
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--body);
+      white-space: nowrap;
+    }
+
+    /* Volume display and probability display */
+    .probability-display {
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--body);
+      min-width: 36px;
+      text-align: right;
+    }
+
+    /* Controls panel content */
+    .main-layout {
+      height: calc(100vh - var(--nav-height) - 76px); /* subtract header height approx */
+    }
+  </style>
+</head>
+<body>
+  <!-- Top nav -->
+  <nav class="topnav">
+    <a href="/" class="topnav-back">← hadencain.com</a>
+    <span class="topnav-name">GLITCH.EXE</span>
+  </nav>
+
+  <!-- Header: 2-col -->
+  <header class="tool-header">
+    <div class="tool-header-left">
+      <p class="section-label">Sound / Video — 001</p>
+      <div class="glitch-title-wrap" id="glitch-title"></div>
+      <p class="kind-tag">Temporal Corruption Engine</p>
+    </div>
+    <div class="header-desc">
+      Browser-based video manipulation. Temporal corruption algorithms applied to uploaded video in real-time through Canvas.
+    </div>
+  </header>
+
+  <!-- Main layout: canvas area + controls -->
+  <div class="main-layout">
+    <div class="canvas-wrap">
+      <!-- File input (hidden) -->
+      <input type="file" id="fileInput" class="hidden" accept="video/*" />
+
+      <!-- Dropzone (shown before file loaded) -->
+      <div class="dropzone" id="uploadZone">
+        DROP VIDEO FILE HERE OR CLICK TO BROWSE
+      </div>
+
+      <!-- Video container (shown after file loaded) -->
+      <div id="videoContainer">
+        <div class="video-wrapper">
+          <video id="videoPlayer" playsinline preload="none"></video>
+        </div>
+      </div>
+
+      <!-- Status line -->
+      <div class="status-line">
+        <span class="status-prefix">STATUS:</span>
+        <span id="statusText">WAITING FOR VIDEO INPUT...</span>
+      </div>
+    </div>
+
+    <div class="controls-panel">
+      <!-- Playback controls -->
+      <div class="panel-section" id="controls">
+        <p class="panel-section-label">Playback</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+          <button class="btn" id="playBtn">PLAY</button>
+          <button class="btn" id="resetBtn">RESET</button>
+          <button class="btn" id="muteBtn">MUTE</button>
+          <button class="btn" id="recordBtn">REC</button>
+          <button class="btn" id="downloadBtn" disabled>EXPORT</button>
+        </div>
+        <!-- Timeline -->
+        <div class="slider-row">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="timeline-container" id="timelineContainer">
+              <div class="timeline-progress" id="timelineProgress"></div>
+            </div>
+            <span id="timeDisplay">00:00 / 00:00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Volume -->
+      <div class="panel-section" id="volume-section" style="display:none;">
+        <p class="panel-section-label">Volume</p>
+        <div class="slider-row">
+          <div class="slider-label-row">
+            <label>Level</label>
+            <span class="probability-display" id="volumeDisplay">70%</span>
+          </div>
+          <input type="range" id="volumeSlider" min="0" max="100" value="70" />
+        </div>
+      </div>
+
+      <!-- Visual Effects -->
+      <div class="panel-section" id="effects-section" style="display:none;">
+        <p class="panel-section-label">Effects</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+          <button class="btn" id="contrastBtn">CONTRAST</button>
+          <button class="btn" id="invertBtn">INVERT</button>
+          <button class="btn" id="blurBtn">BLUR</button>
+          <button class="btn" id="noiseBtn">NOISE</button>
+        </div>
+        <div class="slider-row">
+          <div class="slider-label-row">
+            <label>Intensity</label>
+            <span class="probability-display" id="intensityDisplay">50%</span>
+          </div>
+          <input type="range" id="effectIntensity" min="0" max="100" value="50" />
+        </div>
+      </div>
+
+      <!-- Frame Probability -->
+      <div class="panel-section" id="probability-section" style="display:none;">
+        <p class="panel-section-label">Frame Probability</p>
+        <div class="slider-row">
+          <div class="slider-label-row">
+            <label>Probability</label>
+            <span class="probability-display" id="probabilityDisplay">75%</span>
+          </div>
+          <input type="range" id="probabilitySlider" min="0" max="100" value="75" />
+        </div>
+      </div>
+
+      <!-- Export -->
+      <div class="panel-section">
+        <p class="panel-section-label">Export</p>
+        <div style="display:flex;gap:8px;">
+          <button class="btn primary" id="export-webm" onclick="document.getElementById('downloadBtn').click()">WEBM</button>
+        </div>
+      </div>
+
+      <!-- Debug log -->
+      <div class="panel-section" id="debugPanel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <p class="panel-section-label" style="margin-bottom:0;">Log</p>
+          <button class="btn" id="debugToggle">−</button>
+        </div>
+        <div class="log-wrap" id="debugLog"></div>
+        <div class="debug-stats" id="debugStats">
+          <div class="debug-stat">
+            <span>FPS</span>
+            <span id="fpsCounter">0</span>
+          </div>
+          <div class="debug-stat">
+            <span>Frame Time</span>
+            <span id="frameTime">0ms</span>
+          </div>
+          <div class="debug-stat">
+            <span>Video Ready</span>
+            <span id="videoReady">NO</span>
+          </div>
+          <div class="debug-stat">
+            <span>Effects</span>
+            <span id="activeEffects">NONE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../shared/glitch-title.js"></script>
+  <script>initGlitchTitle('glitch-title', 'GLITCH.EXE');</script>
+  <script>
+        // Global state
+        let video = document.getElementById('videoPlayer');
+        let canvas = document.createElement('canvas');
+        let ctx = canvas.getContext('2d');
+        let audioContext, audioSource, gainNode;
+        let mediaRecorder, recordedChunks = [];
+        let isPlaying = false;
+        let isRecording = false;
+        let isMuted = false;
+        let animationId;
+        let frameProbability = 0.75;
+        let currentFrameTime = 0;
+        let duration = 0;
+        let frameRate = 30;
+        let volume = 0.7;
+        let effectIntensity = 0.5;
+
+        // Performance monitoring
+        let frameCount = 0;
+        let lastFrameTime = 0;
+        let fpsHistory = [];
+        let debugLines = [];
+        const MAX_DEBUG_LINES = 12;
+
+        // Lightweight effects state
+        let activeEffects = {
+            contrast: false,
+            invert: false,
+            blur: false,
+            noise: false
+        };
+
+        // DOM elements
+        const elements = {
+            uploadZone: document.getElementById('uploadZone'),
+            fileInput: document.getElementById('fileInput'),
+            videoContainer: document.getElementById('videoContainer'),
+            controls: document.getElementById('controls'),
+            playBtn: document.getElementById('playBtn'),
+            resetBtn: document.getElementById('resetBtn'),
+            muteBtn: document.getElementById('muteBtn'),
+            volumeSlider: document.getElementById('volumeSlider'),
+            volumeDisplay: document.getElementById('volumeDisplay'),
+            probabilitySlider: document.getElementById('probabilitySlider'),
+            probabilityDisplay: document.getElementById('probabilityDisplay'),
+            effectIntensity: document.getElementById('effectIntensity'),
+            intensityDisplay: document.getElementById('intensityDisplay'),
+            timelineContainer: document.getElementById('timelineContainer'),
+            timelineProgress: document.getElementById('timelineProgress'),
+            timeDisplay: document.getElementById('timeDisplay'),
+            recordBtn: document.getElementById('recordBtn'),
+            downloadBtn: document.getElementById('downloadBtn'),
+            statusText: document.getElementById('statusText'),
+            // Simple effect buttons
+            contrastBtn: document.getElementById('contrastBtn'),
+            invertBtn: document.getElementById('invertBtn'),
+            blurBtn: document.getElementById('blurBtn'),
+            noiseBtn: document.getElementById('noiseBtn'),
+            // Debug elements
+            debugPanel: document.getElementById('debugPanel'),
+            debugToggle: document.getElementById('debugToggle'),
+            debugLog: document.getElementById('debugLog'),
+            fpsCounter: document.getElementById('fpsCounter'),
+            frameTime: document.getElementById('frameTime'),
+            videoReady: document.getElementById('videoReady'),
+            activeEffectsDisplay: document.getElementById('activeEffects')
+        };
+
+        // Debug logging system
+        function debugLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString().slice(-8);
+            const line = `${timestamp} ${message}`;
+
+            debugLines.unshift({ text: line, type: type, timestamp: Date.now() });
+
+            if (debugLines.length > MAX_DEBUG_LINES) {
+                debugLines = debugLines.slice(0, MAX_DEBUG_LINES);
+            }
+
+            updateDebugDisplay();
+        }
+
+        function updateDebugDisplay() {
+            const logContainer = elements.debugLog;
+            logContainer.innerHTML = '';
+
+            debugLines.forEach((line, index) => {
+                const div = document.createElement('div');
+                div.className = `debug-line ${line.type}`;
+                div.textContent = line.text;
+
+                if (index > 6) {
+                    div.classList.add('fading');
+                }
+
+                logContainer.appendChild(div);
+            });
+        }
+
+        function updatePerformanceStats() {
+            const now = performance.now();
+            const deltaTime = now - lastFrameTime;
+            lastFrameTime = now;
+
+            // Calculate FPS
+            fpsHistory.push(1000 / deltaTime);
+            if (fpsHistory.length > 10) {
+                fpsHistory.shift();
+            }
+            const avgFps = fpsHistory.reduce((a, b) => a + b, 0) / fpsHistory.length;
+
+            elements.fpsCounter.textContent = Math.round(avgFps);
+            elements.frameTime.textContent = Math.round(deltaTime) + 'ms';
+            elements.videoReady.textContent = video.readyState >= 2 ? 'YES' : 'NO';
+
+            const activeList = Object.keys(activeEffects).filter(key => activeEffects[key]);
+            elements.activeEffectsDisplay.textContent = activeList.length > 0 ? activeList.join(',').toUpperCase() : 'NONE';
+
+            // Performance warnings
+            if (avgFps < 25) {
+                debugLog(`Low FPS: ${Math.round(avgFps)}`, 'warning');
+            }
+        }
+
+        // File upload handlers
+        function initializeFileHandlers() {
+            elements.uploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                elements.uploadZone.classList.add('dragover');
+            });
+
+            elements.uploadZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                elements.uploadZone.classList.remove('dragover');
+            });
+
+            elements.uploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                elements.uploadZone.classList.remove('dragover');
+
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+
+            elements.uploadZone.addEventListener('click', () => {
+                elements.fileInput.click();
+            });
+
+            elements.fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+        }
+
+        function handleFile(file) {
+            debugLog(`Processing: ${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`, 'info');
+
+            if (!file.type.startsWith('video/')) {
+                debugLog('Invalid file type', 'error');
+                elements.statusText.textContent = 'ERROR: INVALID FILE TYPE. VIDEO REQUIRED.';
+                return;
+            }
+
+            elements.statusText.textContent = 'LOADING VIDEO DATA...';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                debugLog('File read complete', 'info');
+                const arrayBuffer = e.target.result;
+                const blob = new Blob([arrayBuffer], { type: file.type });
+
+                const dataReader = new FileReader();
+                dataReader.onload = function(event) {
+                    debugLog('Setting video source', 'info');
+                    video.src = event.target.result;
+                    video.load();
+                };
+                dataReader.onerror = function() {
+                    debugLog('Data URL creation failed', 'error');
+                    showError('CANNOT LOAD VIDEO IN SANDBOX ENVIRONMENT');
+                };
+                dataReader.readAsDataURL(blob);
+            };
+
+            reader.onerror = function() {
+                debugLog('File read failed', 'error');
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Video event handlers
+        function initializeVideoHandlers() {
+            video.addEventListener('loadedmetadata', () => {
+                debugLog(`Video loaded: ${video.videoWidth}x${video.videoHeight}, ${video.duration.toFixed(1)}s`, 'info');
+
+                duration = video.duration;
+                canvas.width = video.videoWidth || 640;
+                canvas.height = video.videoHeight || 480;
+                video.volume = volume;
+
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    audioSource = audioContext.createMediaElementSource(video);
+                    gainNode = audioContext.createGain();
+                    audioSource.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    gainNode.gain.value = volume;
+                    debugLog('Audio context ready', 'info');
+                } catch (error) {
+                    debugLog('Audio context failed: ' + error.message, 'warning');
+                }
+
+                elements.uploadZone.classList.add('hidden');
+                elements.videoContainer.classList.add('visible');
+                elements.controls.classList.add('visible');
+                document.getElementById('volume-section').style.display = '';
+                document.getElementById('effects-section').style.display = '';
+                document.getElementById('probability-section').style.display = '';
+                updateTimeDisplay();
+                elements.statusText.textContent = 'VIDEO LOADED. READY FOR GLITCH PROCESSING.';
+            });
+
+            video.addEventListener('error', (e) => {
+                debugLog('Video error: ' + (video.error ? video.error.message : 'Unknown'), 'error');
+                showError('VIDEO LOAD FAILED. TRY DIFFERENT FORMAT OR RUN LOCALLY.');
+            });
+
+            video.addEventListener('waiting', () => {
+                debugLog('Video buffering...', 'warning');
+            });
+
+            video.addEventListener('canplay', () => {
+                debugLog('Video ready to play', 'info');
+            });
+        }
+
+        // Control handlers
+        function initializeControls() {
+            // Debug panel toggle
+            elements.debugToggle.addEventListener('click', () => {
+                elements.debugPanel.classList.toggle('collapsed');
+                elements.debugToggle.textContent = elements.debugPanel.classList.contains('collapsed') ? '+' : '−';
+            });
+
+            // Playback controls
+            elements.playBtn.addEventListener('click', togglePlay);
+            elements.resetBtn.addEventListener('click', resetVideo);
+            elements.muteBtn.addEventListener('click', toggleMute);
+            elements.recordBtn.addEventListener('click', toggleRecording);
+
+            // Sliders
+            elements.volumeSlider.addEventListener('input', (e) => {
+                volume = e.target.value / 100;
+                video.volume = isMuted ? 0 : volume;
+                if (gainNode) gainNode.gain.value = isMuted ? 0 : volume;
+                elements.volumeDisplay.textContent = e.target.value + '%';
+            });
+
+            elements.probabilitySlider.addEventListener('input', (e) => {
+                frameProbability = e.target.value / 100;
+                elements.probabilityDisplay.textContent = e.target.value + '%';
+            });
+
+            elements.effectIntensity.addEventListener('input', (e) => {
+                effectIntensity = e.target.value / 100;
+                elements.intensityDisplay.textContent = e.target.value + '%';
+                updateVideoFilters();
+            });
+
+            // Simple effect buttons
+            setupEffectButton(elements.contrastBtn, 'contrast');
+            setupEffectButton(elements.invertBtn, 'invert');
+            setupEffectButton(elements.blurBtn, 'blur');
+            setupEffectButton(elements.noiseBtn, 'noise');
+
+            // Timeline
+            elements.timelineContainer.addEventListener('click', (e) => {
+                const rect = elements.timelineContainer.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const percentage = clickX / rect.width;
+                currentFrameTime = percentage * duration;
+                video.currentTime = currentFrameTime;
+                updateTimeDisplay();
+                updateTimeline();
+            });
+        }
+
+        function setupEffectButton(btn, effectName) {
+            btn.addEventListener('click', () => {
+                activeEffects[effectName] = !activeEffects[effectName];
+                btn.classList.toggle('active', activeEffects[effectName]);
+                updateVideoFilters();
+                updateEffectStatus();
+            });
+        }
+
+        function updateVideoFilters() {
+            // Use CSS filters instead of pixel manipulation for performance
+            let filters = ['contrast(1.1)', 'brightness(0.9)'];
+
+            if (activeEffects.contrast) {
+                const contrastVal = 1 + (effectIntensity * 2);
+                filters.push(`contrast(${contrastVal})`);
+            }
+
+            if (activeEffects.invert) {
+                filters.push(`invert(${effectIntensity})`);
+            }
+
+            if (activeEffects.blur) {
+                const blurVal = effectIntensity * 3;
+                filters.push(`blur(${blurVal}px)`);
+            }
+
+            video.style.filter = filters.join(' ');
+
+            // Apply noise to canvas if active
+            if (activeEffects.noise && video.readyState >= 2) {
+                applyNoiseToCanvas();
+            }
+        }
+
+        function applyNoiseToCanvas() {
+            // Lightweight noise effect applied to canvas
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            const noiseLevel = effectIntensity * 50;
+
+            // Apply noise to random pixels (much lighter than before)
+            for (let i = 0; i < data.length; i += 4) {
+                if (Math.random() < noiseLevel / 2000) {
+                    const noise = Math.random() * 255;
+                    data[i] = noise;     // R
+                    data[i + 1] = noise; // G
+                    data[i + 2] = noise; // B
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function updateEffectStatus() {
+            const activeList = Object.keys(activeEffects).filter(key => activeEffects[key]);
+            if (activeList.length > 0) {
+                elements.statusText.textContent = `EFFECTS: ${activeList.join(', ').toUpperCase()}`;
+            } else {
+                elements.statusText.textContent = isPlaying ? 'GLITCH PROCESSING ACTIVE...' : 'READY FOR GLITCH PROCESSING';
+            }
+        }
+
+        // Playback functions
+        function togglePlay() {
+            if (isPlaying) {
+                pause();
+            } else {
+                play();
+            }
+        }
+
+        function play() {
+            debugLog('Starting playback', 'info');
+
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
+            isPlaying = true;
+            elements.playBtn.textContent = 'PAUSE';
+            elements.statusText.textContent = 'GLITCH PROCESSING ACTIVE...';
+
+            video.play().catch(error => {
+                debugLog('Play failed: ' + error.message, 'error');
+            });
+
+            glitchLoop();
+        }
+
+        function pause() {
+            debugLog('Pausing playback', 'info');
+            isPlaying = false;
+            elements.playBtn.textContent = 'PLAY';
+            elements.statusText.textContent = 'PAUSED';
+            video.pause();
+            cancelAnimationFrame(animationId);
+        }
+
+        function resetVideo() {
+            pause();
+            currentFrameTime = 0;
+            video.currentTime = 0;
+            updateTimeDisplay();
+            updateTimeline();
+            debugLog('Video reset', 'info');
+            elements.statusText.textContent = 'RESET TO START POSITION';
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            video.muted = isMuted;
+            if (gainNode) gainNode.gain.value = isMuted ? 0 : volume;
+            elements.muteBtn.textContent = isMuted ? 'UNMUTE' : 'MUTE';
+            debugLog(isMuted ? 'Audio muted' : 'Audio enabled', 'info');
+        }
+
+        // Main glitch loop - optimized for performance
+        function glitchLoop() {
+            if (!isPlaying) return;
+
+            const loopStart = performance.now();
+            frameCount++;
+
+            // Probabilistic frame advancement with bidirectional movement
+            if (Math.random() < frameProbability) {
+                currentFrameTime += 1/frameRate;
+            } else {
+                if (Math.random() < 0.5) {
+                    currentFrameTime += (1/frameRate) * (0.5 + Math.random() * 0.5);
+                } else {
+                    currentFrameTime -= (1/frameRate) * (0.2 + Math.random() * 0.3);
+                }
+            }
+
+            currentFrameTime = Math.max(0, Math.min(currentFrameTime, duration));
+
+            if (currentFrameTime >= duration) {
+                currentFrameTime = duration;
+                pause();
+                debugLog('Playback complete', 'info');
+                elements.statusText.textContent = 'GLITCH SEQUENCE COMPLETE';
+                return;
+            }
+
+            // Only seek if time difference is significant (performance optimization)
+            if (Math.abs(video.currentTime - currentFrameTime) > 0.05) {
+                video.currentTime = currentFrameTime;
+            }
+
+            // Only apply canvas effects if noise is active and video is ready
+            if (activeEffects.noise && video.readyState >= 2) {
+                applyNoiseToCanvas();
+            } else if (video.readyState >= 2) {
+                // Just draw the video frame without effects for recording
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            }
+
+            updateTimeDisplay();
+            updateTimeline();
+
+            // Update performance stats every 30 frames
+            if (frameCount % 30 === 0) {
+                updatePerformanceStats();
+            }
+
+            const targetFrameTime = 1000 / frameRate;
+            const loopTime = performance.now() - loopStart;
+
+            animationId = requestAnimationFrame(() => {
+                const delay = Math.max(0, targetFrameTime - loopTime);
+                setTimeout(glitchLoop, delay);
+            });
+        }
+
+        // Timeline and display updates
+        function updateTimeline() {
+            const percentage = duration > 0 ? (currentFrameTime / duration) * 100 : 0;
+            elements.timelineProgress.style.width = percentage + '%';
+        }
+
+        function updateTimeDisplay() {
+            const formatTime = (seconds) => {
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            };
+
+            elements.timeDisplay.textContent = `${formatTime(currentFrameTime)} / ${formatTime(duration)}`;
+        }
+
+        // Recording functions
+        function toggleRecording() {
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        }
+
+        function startRecording() {
+            recordedChunks = [];
+            debugLog('Starting recording', 'info');
+
+            try {
+                const videoStream = canvas.captureStream(frameRate);
+                let combinedStream = videoStream;
+
+                if (audioContext) {
+                    try {
+                        const audioDestination = audioContext.createMediaStreamDestination();
+                        gainNode.connect(audioDestination);
+                        const audioStream = audioDestination.stream;
+
+                        combinedStream = new MediaStream([
+                            ...videoStream.getVideoTracks(),
+                            ...audioStream.getAudioTracks()
+                        ]);
+                    } catch (error) {
+                        debugLog('Audio recording failed, video only', 'warning');
+                    }
+                }
+
+                mediaRecorder = new MediaRecorder(combinedStream, {
+                    mimeType: 'video/webm;codecs=vp9,opus'
+                });
+
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) {
+                        recordedChunks.push(e.data);
+                    }
+                };
+
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                    const url = URL.createObjectURL(blob);
+                    elements.downloadBtn.disabled = false;
+                    elements.downloadBtn.onclick = () => {
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'glitched-output.webm';
+                        a.click();
+                    };
+                    debugLog('Recording saved', 'info');
+                    elements.statusText.textContent = 'RECORDING SAVED. READY FOR EXPORT.';
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+                elements.recordBtn.innerHTML = '<span class="recording-indicator"></span>STOP';
+                elements.statusText.textContent = 'RECORDING...';
+            } catch (error) {
+                debugLog('Recording failed: ' + error.message, 'error');
+                elements.statusText.textContent = 'ERROR: RECORDING NOT SUPPORTED';
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+            isRecording = false;
+            elements.recordBtn.textContent = 'REC';
+            debugLog('Recording stopped', 'info');
+        }
+
+        // Error handling
+        function showError(message) {
+            elements.statusText.textContent = 'ERROR: ' + message;
+
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-zone';
+            errorDiv.innerHTML = `
+                <strong>SYSTEM ERROR</strong><br>
+                ${message}<br>
+                TO USE THIS TOOL:<br>
+                1. SAVE THIS PAGE AS HTML FILE<br>
+                2. OPEN IN BROWSER LOCALLY<br>
+                3. OR RUN ON LOCAL SERVER
+            `;
+
+            if (!document.querySelector('.error-zone')) {
+                document.querySelector('.canvas-wrap').appendChild(errorDiv);
+            }
+        }
+
+        // Initialize application
+        function initializeApp() {
+            debugLog('GLITCH.EXE v1.3 initializing...', 'info');
+
+            initializeFileHandlers();
+            initializeVideoHandlers();
+            initializeControls();
+
+            // Set initial display values
+            elements.probabilityDisplay.textContent = '75%';
+            elements.volumeDisplay.textContent = '70%';
+            elements.intensityDisplay.textContent = '50%';
+
+            // Start performance monitoring
+            setInterval(updatePerformanceStats, 1000);
+
+            debugLog('Application ready', 'info');
+        }
+
+        // Start the application
+        document.addEventListener('DOMContentLoaded', initializeApp);
+  </script>
+</body>
+</html>
