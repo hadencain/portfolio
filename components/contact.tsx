@@ -45,10 +45,10 @@ export function Contact() {
         </motion.div>
 
         <div className="mt-28 md:mt-36 pt-6 border-t border-[#161616] flex items-center justify-between">
-          <span className="text-[10px] tracking-[0.3em] uppercase text-[#383838]">
+          <span className="text-[10px] tracking-[0.3em] uppercase text-[#505050]">
             Haden Cain
           </span>
-          <span className="text-[10px] text-[#303030]">{new Date().getFullYear()}</span>
+          <span className="text-[10px] text-[#484848]">{new Date().getFullYear()}</span>
         </div>
       </div>
     </section>

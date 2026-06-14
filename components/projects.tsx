@@ -23,22 +23,6 @@ const SOUND_VIDEO: Project[] = [
     github: "https://github.com/hadencain/granular-synthesizer",
   },
   {
-    title: "glitch",
-    description:
-      "Browser-based video manipulation. Temporal corruption algorithms applied to uploaded video in real-time through Canvas.",
-    tags: ["HTML5", "Canvas", "JavaScript"],
-    github: "https://github.com/hadencain/glitch",
-    demo: "/tools/glitch/",
-  },
-  {
-    title: "osmosis",
-    description:
-      "Pixel contamination between two videos. Bleed, bleed rate, and blend controls applied frame by frame in the browser.",
-    tags: ["HTML5", "Canvas", "JavaScript"],
-    github: "https://github.com/hadencain/osmosis",
-    demo: "/tools/osmosis/",
-  },
-  {
     title: "harmonic-filter-sequencer",
     description:
       "Bandpass filter applied to the harmonics of incoming audio. Max for Live patch for spectral rhythm processing.",
@@ -83,6 +67,22 @@ const SOUND_VIDEO: Project[] = [
 ];
 
 const BROWSER_VIDEO: Project[] = [
+  {
+    title: "glitch",
+    description:
+      "Browser-based video manipulation. Temporal corruption algorithms applied to uploaded video in real-time through Canvas.",
+    tags: ["HTML5", "Canvas", "JavaScript"],
+    github: "https://github.com/hadencain/glitch",
+    demo: "/tools/glitch/",
+  },
+  {
+    title: "osmosis",
+    description:
+      "Pixel contamination between two videos. Bleed, bleed rate, and blend controls applied frame by frame in the browser.",
+    tags: ["HTML5", "Canvas", "JavaScript"],
+    github: "https://github.com/hadencain/osmosis",
+    demo: "/tools/osmosis/",
+  },
   {
     title: "spectral",
     description:
@@ -197,7 +197,7 @@ function Tags({ tags }: { tags: string[] }) {
       {tags.map((t) => (
         <span
           key={t}
-          className="text-[10px] tracking-[0.18em] uppercase text-[#686868] border border-[#2c2c2c] px-2 py-[3px]"
+          className="text-[10px] tracking-[0.18em] uppercase text-[#787878] border border-[#2c2c2c] px-2 py-[3px]"
         >
           {t}
         </span>
@@ -245,7 +245,7 @@ function MediaCard({ project, delay }: { project: Project; delay: number }) {
               href={project.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#444] hover:text-[#888] transition-colors duration-300 mt-0.5"
+              className="text-[#555] hover:text-[#888] transition-colors duration-300 mt-0.5"
               aria-label={`${project.title} on GitHub`}
             >
               <Arrow />
@@ -266,7 +266,7 @@ function CompactCard({ project, delay }: { project: Project; delay: number }) {
   return (
     <motion.div
       onMouseEnter={emitFieldPulse}
-      className="border-b border-[#1a1a1a] py-5 flex flex-col gap-3"
+      className="border-b border-[#1a1a1a] py-4 flex flex-col gap-2"
       initial={{ opacity: 0, x: -8 }}
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true, margin: "-60px" }}
@@ -290,16 +290,13 @@ function CompactCard({ project, delay }: { project: Project; delay: number }) {
             href={project.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#444] hover:text-[#888] transition-colors duration-300"
+            className="text-[#555] hover:text-[#888] transition-colors duration-300"
             aria-label={`${project.title} on GitHub`}
           >
             <Arrow />
           </a>
         </div>
       </div>
-      <p className="text-[12px] text-[#606060] font-light leading-relaxed">
-        {project.description}
-      </p>
       <Tags tags={project.tags} />
     </motion.div>
   );
@@ -309,7 +306,7 @@ function CompactCard({ project, delay }: { project: Project; delay: number }) {
 function SectionHeader({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-5 mb-8">
-      <span className="text-[10px] tracking-[0.38em] uppercase text-[#505050] shrink-0">
+      <span className="text-[10px] tracking-[0.38em] uppercase text-[#606060] shrink-0">
         {label}
       </span>
       <div className="flex-1 h-px bg-[#1c1c1c]" />
@@ -341,18 +338,16 @@ export function Projects() {
       {/* ── Sound / Video ── */}
       <div id="sound-video" className="mb-16 scroll-mt-24">
         <SectionHeader label="Sound / Video" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-[#1a1a1a]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
           {SOUND_VIDEO.map((p, i) => (
-            <div key={p.title} className="bg-[#080808]">
-              <MediaCard project={p} delay={i * 0.06} />
-            </div>
+            <CompactCard key={p.title} project={p} delay={i * 0.07} />
           ))}
         </div>
       </div>
 
-      {/* ── Browser / Video ── */}
+      {/* ── Browser Tools ── */}
       <div id="browser-video" className="mb-16 scroll-mt-24">
-        <SectionHeader label="Browser / Video" />
+        <SectionHeader label="Browser Tools" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
           {BROWSER_VIDEO.map((p, i) => (
             <CompactCard key={p.title} project={p} delay={i * 0.07} />

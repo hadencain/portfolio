@@ -167,12 +167,6 @@
         </div>
       </div>
 
-      <!-- Playback row -->
-      <div class="playback-row">
-        <button class="btn primary" id="playBtn" disabled>PLAY</button>
-        <button class="btn" id="recBtn" disabled>REC</button>
-      </div>
-
     </div><!-- /canvas-wrap -->
 
     <!-- Controls panel -->
@@ -203,7 +197,9 @@
       <!-- Playback -->
       <div class="panel-section">
         <p class="panel-section-label">Playback</p>
-        <div class="btn-group">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn primary" id="playBtn" disabled>PLAY</button>
+          <button class="btn" id="recBtn" disabled>REC</button>
           <button class="btn" id="resetBtn">RESET</button>
           <button class="btn" id="loopBtn">LOOP: OFF</button>
         </div>
@@ -213,6 +209,12 @@
       <div class="panel-section">
         <p class="panel-section-label">Log</p>
         <div class="log-wrap" id="debugPanel">bleed=0.010 &nbsp; fps=— &nbsp; contamination=0%</div>
+      </div>
+
+      <!-- About -->
+      <div class="panel-section about-section">
+        <p class="panel-section-label">About</p>
+        <p class="about-text">Load two videos into slots A and B. Each frame, pixels bleed from one video into the other at the Bleed Rate. Direction sets which video contaminates which — Bidirectional applies both ways simultaneously. PLAY starts the contamination loop.</p>
       </div>
 
     </div><!-- /controls-panel -->

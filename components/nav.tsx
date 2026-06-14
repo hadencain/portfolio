@@ -24,7 +24,7 @@ export function Nav() {
           <a
             key={item}
             href={`#${item.toLowerCase()}`}
-            className="text-[11px] tracking-[0.25em] uppercase text-[#545454] hover:text-[#888] transition-colors duration-300"
+            className="text-[11px] tracking-[0.25em] uppercase text-[#666666] hover:text-[#888] transition-colors duration-300"
           >
             {item}
           </a>

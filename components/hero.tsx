@@ -58,7 +58,7 @@ export function Hero() {
           >
             {SECTIONS.map((s) => (
               <a key={s.href} href={s.href} className="group flex items-baseline gap-4 w-fit">
-                <span className="text-[10px] tracking-[0.2em] text-[#4a4a4a] group-hover:text-[#787878] transition-colors duration-300">
+                <span className="text-[10px] tracking-[0.2em] text-[#606060] group-hover:text-[#787878] transition-colors duration-300">
                   {s.n}
                 </span>
                 <span className="text-[12px] tracking-[0.3em] text-[#787878] group-hover:text-[#e8e8e8] transition-colors duration-300">

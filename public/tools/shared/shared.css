@@ -5,9 +5,9 @@
   --border2: #2c2c2c;
   --text: #e8e8e8;
   --secondary: #a8a8a8;
-  --body: #888888;
-  --label: #686868;
-  --quiet: #484848;
+  --body: #999999;
+  --label: #787878;
+  --quiet: #5e5e5e;
   --ghost: #383838;
   --nav-height: 48px;
   --panel-width: 280px;
@@ -330,7 +330,19 @@ input[type="range"]::-moz-range-progress {
   white-space: pre-wrap;
 }
 
-/* 12. Utility */
+/* 12. About section */
+.about-section {
+  margin-top: auto;
+}
+
+.about-text {
+  font-family: ui-sans-serif, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 11px;
+  color: var(--body);
+  line-height: 1.65;
+}
+
+/* 13. Utility */
 .hidden {
   display: none !important;
 }
