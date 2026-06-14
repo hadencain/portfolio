@@ -176,7 +176,8 @@ function MediaCard({ project, delay }: { project: Project; delay: number }) {
       onMouseEnter={emitFieldPulse}
       className="border border-[#1e1e1e] flex flex-col"
       initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {project.youtube && (
@@ -217,7 +218,8 @@ function CompactCard({ project, delay }: { project: Project; delay: number }) {
       onMouseEnter={emitFieldPulse}
       className="border-b border-[#1a1a1a] py-5 flex flex-col gap-3"
       initial={{ opacity: 0, x: -8 }}
-      animate={{ opacity: 1, x: 0 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="flex items-center justify-between gap-6">
@@ -252,20 +254,6 @@ function SectionHeader({ label }: { label: string }) {
   );
 }
 
-// ─── Section wrapper with scroll trigger ─────────────────────────────────────
-
-function AnimatedSection({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
-  // Clone children passing inView down would require context; instead
-  // we use a wrapper that controls visibility and let motion animate on mount.
-  return (
-    <div ref={ref} style={{ visibility: inView ? "visible" : "hidden" }}>
-      {children}
-    </div>
-  );
-}
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function Projects() {
@@ -288,54 +276,46 @@ export function Projects() {
       </motion.p>
 
       {/* ── Sound / Video ── */}
-      <AnimatedSection>
-        <div id="sound-video" className="mb-16 scroll-mt-24">
-          <SectionHeader label="Sound / Video" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-[#1a1a1a]">
-            {SOUND_VIDEO.map((p, i) => (
-              <div key={p.title} className="bg-[#080808]">
-                <MediaCard project={p} delay={i * 0.06} />
-              </div>
-            ))}
-          </div>
+      <div id="sound-video" className="mb-16 scroll-mt-24">
+        <SectionHeader label="Sound / Video" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-[#1a1a1a]">
+          {SOUND_VIDEO.map((p, i) => (
+            <div key={p.title} className="bg-[#080808]">
+              <MediaCard project={p} delay={i * 0.06} />
+            </div>
+          ))}
         </div>
-      </AnimatedSection>
+      </div>
 
       {/* ── Security ── */}
-      <AnimatedSection>
-        <div id="security" className="mb-16 scroll-mt-24">
-          <SectionHeader label="Security" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
-            {SECURITY.map((p, i) => (
-              <CompactCard key={p.title} project={p} delay={i * 0.07} />
-            ))}
-          </div>
+      <div id="security" className="mb-16 scroll-mt-24">
+        <SectionHeader label="Security" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
+          {SECURITY.map((p, i) => (
+            <CompactCard key={p.title} project={p} delay={i * 0.07} />
+          ))}
         </div>
-      </AnimatedSection>
+      </div>
 
       {/* ── AR / Mobile ── */}
-      <AnimatedSection>
-        <div id="ar-mobile" className="mb-16 scroll-mt-24">
-          <SectionHeader label="AR / Mobile" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
-            {AR_MOBILE.map((p, i) => (
-              <CompactCard key={p.title} project={p} delay={i * 0.07} />
-            ))}
-          </div>
+      <div id="ar-mobile" className="mb-16 scroll-mt-24">
+        <SectionHeader label="AR / Mobile" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
+          {AR_MOBILE.map((p, i) => (
+            <CompactCard key={p.title} project={p} delay={i * 0.07} />
+          ))}
         </div>
-      </AnimatedSection>
+      </div>
 
       {/* ── 3D ── */}
-      <AnimatedSection>
-        <div id="threed" className="scroll-mt-24">
-          <SectionHeader label="3D" />
-          <div className="max-w-xl">
-            {THREED.map((p, i) => (
-              <CompactCard key={p.title} project={p} delay={i * 0.07} />
-            ))}
-          </div>
+      <div id="threed" className="scroll-mt-24">
+        <SectionHeader label="3D" />
+        <div className="max-w-xl">
+          {THREED.map((p, i) => (
+            <CompactCard key={p.title} project={p} delay={i * 0.07} />
+          ))}
         </div>
-      </AnimatedSection>
+      </div>
     </section>
   );
 }
