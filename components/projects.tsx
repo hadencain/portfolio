@@ -2,7 +2,6 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { GlitchText } from "./glitch-label";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -236,10 +235,10 @@ function MediaCard({ project, delay }: { project: Project; delay: number }) {
                 href={project.demo}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[10px] font-mono tracking-[0.18em]"
+                className="demo-glitch text-[10px] font-mono"
                 aria-label={`${project.title} demo`}
               >
-                <GlitchText text="DEMO" className="text-[#999]" />
+                DEMO
               </a>
             )}
             <a
