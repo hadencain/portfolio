@@ -57,6 +57,20 @@ const AUDIO: Project[] = [
     tags: ["TypeScript", "React"],
     github: "https://github.com/hadencain/tunedown-theory",
   },
+  {
+    title: "fracturedReverb",
+    description:
+      "Granular reverb VST3. A feedback delay network tail fragmented by a grain engine — captures late reverb field as FFT frames and re-scatters them for disintegrating, crystalline textures.",
+    tags: ["C++", "JUCE"],
+    github: "https://github.com/hadencain/fracturedReverb",
+  },
+  {
+    title: "spectralShuffler",
+    description:
+      "Spectral shuffler VST3. Captures FFT frames from a user-defined frequency band and randomly replays them — freeze, scatter, or smear specific frequency ranges in real time while the rest of the signal passes through unmodified.",
+    tags: ["C++", "JUCE"],
+    github: "https://github.com/hadencain/spectralShuffler",
+  },
 ];
 
 const VIDEO: Project[] = [
