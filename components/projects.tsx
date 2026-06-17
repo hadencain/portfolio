@@ -71,6 +71,13 @@ const AUDIO: Project[] = [
     tags: ["C++", "JUCE"],
     github: "https://github.com/hadencain/spectralShuffler",
   },
+  {
+    title: "gravityWell",
+    description:
+      "Spectral black-hole VST3. Audio falls into a gravitational well below a configurable floor frequency — bins redshift (pitch lowers), energy pools into the sub-bass, and time dilates as mass accumulates. Decoherence thermalizes structured partials into rumble at full mass. Phase vocoder core with lock-free audio-to-UI spectrum bridge.",
+    tags: ["C++", "JUCE"],
+    github: "https://github.com/hadencain/gravityWell",
+  },
 ];
 
 const VIDEO: Project[] = [
