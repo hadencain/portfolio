@@ -78,6 +78,13 @@ const AUDIO: Project[] = [
     tags: ["C++", "JUCE"],
     github: "https://github.com/hadencain/gravityWell",
   },
+  {
+    title: "phaseMangler",
+    description:
+      "Spectral phase scrambler VST3. Three independent frequency bands each apply stochastic per-bin phase offsets via overlap-add FFT — magnitudes are preserved, waveforms are destroyed. From transparent bypass to full dissolution.",
+    tags: ["C++", "JUCE"],
+    github: "https://github.com/hadencain/phaseMangler",
+  },
 ];
 
 const VIDEO: Project[] = [
