@@ -174,6 +174,13 @@ const SECURITY: Project[] = [
     github: "https://github.com/hadencain/portCheck",
   },
   {
+    title: "cairn",
+    description:
+      "OSINT infrastructure pivot tool. Given a domain or IP, correlates across WHOIS, DNS, certificate transparency, passive DNS, ASN ownership, reverse IP, and HTTP fingerprint to map infrastructure relationships. Flags new domains, bulletproof hosting, and CDN-diluted edges. Exports JSON and a self-contained D3 force graph.",
+    tags: ["Python"],
+    github: "https://github.com/hadencain/cairn",
+  },
+  {
     title: "mlb-ev-analysis",
     description:
       "Model-generated win probabilities compared against sportsbook lines. Baseball analytics with edge detection.",
