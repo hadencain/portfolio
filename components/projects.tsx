@@ -141,16 +141,23 @@ const SECURITY: Project[] = [
   {
     title: "secret-scanner",
     description:
-      "Scans source files for accidentally committed secrets — API keys, private keys, AWS credentials, passwords, and connection strings. Named regex patterns plus optional entropy-based detection. Git pre-commit hook blocks commits before exposure.",
+      "Scans source files for accidentally committed secrets — API keys, private keys, AWS credentials, passwords, and connection strings. Named regex patterns plus optional entropy-based detection. Git pre-commit hook blocks commits before exposure. git-history.py scans the full commit history for secrets introduced and later removed — splits output into still-in-HEAD (rotate now) vs removed-from-HEAD (treat as exposed if repo is public).",
     tags: ["Python"],
     github: "https://github.com/hadencain/secret-scanner",
   },
   {
     title: "dependency-risk-scan",
     description:
-      "CLI tool that audits Python dependencies for outdated packages, abandoned libraries, and known CVEs — from a local requirements.txt or any GitHub repo URL.",
+      "CLI tool that audits Python dependencies for outdated packages, abandoned libraries, and known CVEs — from a local requirements.txt or any GitHub repo URL. --graph exports a self-contained D3 force graph of the full transitive dependency tree, risk-colored per node (red=CVE, yellow=outdated, gray=abandoned).",
     tags: ["Python"],
     github: "https://github.com/hadencain/dependency-risk-scan",
+  },
+  {
+    title: "dns-request-logger",
+    description:
+      "Live TUI that monitors DNS lookups on Windows, grouped by domain with frequency counts. Flags high-entropy hostnames (DGA detection), uncommon or abused TLDs, deep subdomain chains, and first-seen domains.",
+    tags: ["Python"],
+    github: "https://github.com/hadencain/dns-request-logger",
   },
   {
     title: "capabilityaccessmanager-monitor",
