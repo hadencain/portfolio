@@ -181,6 +181,13 @@ const SECURITY: Project[] = [
     github: "https://github.com/hadencain/cairn",
   },
   {
+    title: "magpie",
+    description:
+      "Seller-centric OSINT for organized retail crime. Pulls listings from the eBay Browse API and Craigslist RSS, scores each on a confluence of fencing signals — sealed and bulk inventory, below-market pricing, new-account sellers, liquidation language — then rolls listings up into ranked sellers and maps where the goods move from. ToS-clean sources only, no scraping.",
+    tags: ["Python", "Flask"],
+    github: "https://github.com/hadencain/magpie",
+  },
+  {
     title: "mlb-ev-analysis",
     description:
       "Model-generated win probabilities compared against sportsbook lines. Baseball analytics with edge detection.",
