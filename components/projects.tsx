@@ -215,6 +215,13 @@ const AR_MOBILE: Project[] = [
 
 const THREED: Project[] = [
   {
+    title: "3d-print-asset-manager",
+    description:
+      "Desktop catalog for 3D-print files. Indexes a folder of STL/OBJ/3MF and G-code in place — never moving them — extracting dimensions, volume, and version/assembly relationships, rendering a real isometric 3D thumbnail of each mesh into a searchable, filterable grid. G-code shows measured print time and filament weight from the slicer header; STLs show an estimate, badged distinctly. Geometry-hash duplicate detection, recoverable delete to the recycle bin, and persistent failure-history tags. Layered parser → store → UI so the file logic runs headless.",
+    tags: ["Python", "PyQt6", "trimesh", "SQLite"],
+    github: "https://github.com/hadencain/3d-print-asset-manager",
+  },
+  {
     title: "openlock-terrain-gen",
     description:
       "Browser-based OpenLOCK dungeon tile generator. Configurable piece types (straight, corner, T, cross, doorway, window, curved, column, staircase), six surface themes with parametric detail, and batch STL export — powered by manifold-3d WASM CSG for watertight boolean geometry.",
