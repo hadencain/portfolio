@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export function Nav() {
@@ -20,14 +21,19 @@ export function Nav() {
       }`}
     >
       <div className="flex gap-8">
-        {["Work", "About", "Contact"].map((item) => (
-          <a
-            key={item}
-            href={`#${item.toLowerCase()}`}
+        {[
+          { label: "Work", href: "/#work" },
+          { label: "About", href: "/#about" },
+          { label: "Contact", href: "/#contact" },
+          { label: "Store", href: "/store" },
+        ].map((item) => (
+          <Link
+            key={item.label}
+            href={item.href}
             className="text-[11px] tracking-[0.25em] uppercase text-[#666666] hover:text-[#888] transition-colors duration-300"
           >
-            {item}
-          </a>
+            {item.label}
+          </Link>
         ))}
       </div>
     </nav>

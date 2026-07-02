@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { PRODUCTS, type StoreProduct } from "./products";
 import { BuyButton } from "./buy-button";
@@ -121,10 +122,9 @@ export function StoreSection() {
       )}
 
       <div className="mt-24 pt-8 border-t border-[#1c1c1c] flex gap-8">
-        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-        <a href="/#work" className="text-[10px] font-mono tracking-[0.22em] text-[#555] hover:text-[#888] transition-colors duration-300">
+        <Link href="/#work" className="text-[10px] font-mono tracking-[0.22em] text-[#555] hover:text-[#888] transition-colors duration-300">
           FREE BROWSER TOOLS
-        </a>
+        </Link>
         <a
           href="https://github.com/hadencain"
           target="_blank"
