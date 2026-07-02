@@ -60,7 +60,7 @@ const AUDIO: Project[] = [
   {
     title: "fracturedReverb",
     description:
-      "Granular reverb VST3. A feedback delay network tail fragmented by a grain engine — captures late reverb field as FFT frames and re-scatters them for disintegrating, crystalline textures.",
+      "Granular reverb VST3. A feedback delay network tail feeds a live ring buffer; a grain engine re-scatters it across the stereo field for disintegrating, crystalline decays. Live visualization in three switchable modes — tail field, decay scope, glass shards — driven by a lock-free telemetry bus from the audio thread.",
     tags: ["C++", "JUCE"],
     github: "https://github.com/hadencain/fracturedReverb",
   },
