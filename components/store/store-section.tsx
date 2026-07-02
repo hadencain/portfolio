@@ -1,6 +1,5 @@
 "use client";
 
-import Script from "next/script";
 import { motion } from "framer-motion";
 import { PRODUCTS, type StoreProduct } from "./products";
 import { BuyButton } from "./buy-button";
@@ -81,8 +80,6 @@ export function StoreSection() {
 
   return (
     <section className="min-h-screen pt-40 pb-28 px-8 md:px-16 lg:px-24">
-      <Script src="https://gumroad.com/js/gumroad.js" strategy="lazyOnload" />
-
       {/* Header — two lines, homepage register */}
       <motion.h1
         className="text-6xl md:text-7xl font-extralight tracking-[-0.02em] text-[#e8e8e8] leading-[0.92] mb-4 select-none"

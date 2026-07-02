@@ -1,8 +1,11 @@
 "use client";
 
-// The ONLY component that knows Gumroad exists. Gumroad's overlay script
-// (loaded once in store-section) hooks any <a class="gumroad-button"> and
-// opens checkout in an overlay — PWYW, tax, and delivery are Gumroad's.
+import Script from "next/script";
+
+// The ONLY component that knows Gumroad exists. It loads Gumroad's overlay
+// script itself (next/script dedupes by src, so multiple BuyButton instances
+// on one page still only load it once) and hooks any <a class="gumroad-button">
+// to open checkout in an overlay — PWYW, tax, and delivery are Gumroad's.
 // Swapping to native checkout later replaces this file and nothing else.
 
 export function BuyButton({ gumroadUrl, title }: { gumroadUrl?: string; title: string }) {
@@ -17,12 +20,15 @@ export function BuyButton({ gumroadUrl, title }: { gumroadUrl?: string; title: s
     );
   }
   return (
-    <a
-      className="gumroad-button inline-block border border-[#343434] text-[#c8c8c8] text-[10px] font-mono tracking-[0.22em] px-4 py-2 hover:border-[#666] hover:text-[#e8e8e8] transition-colors duration-300"
-      href={gumroadUrl}
-      aria-label={`Buy ${title} — pay what you want`}
-    >
-      PAY WHAT YOU WANT
-    </a>
+    <>
+      <Script src="https://gumroad.com/js/gumroad.js" strategy="lazyOnload" />
+      <a
+        className="gumroad-button inline-block border border-[#343434] text-[#c8c8c8] text-[10px] font-mono tracking-[0.22em] px-4 py-2 hover:border-[#666] hover:text-[#e8e8e8] transition-colors duration-300"
+        href={gumroadUrl}
+        aria-label={`Buy ${title} — pay what you want`}
+      >
+        PAY WHAT YOU WANT
+      </a>
+    </>
   );
 }
