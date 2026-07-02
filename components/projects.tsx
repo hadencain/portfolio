@@ -92,6 +92,13 @@ const AUDIO: Project[] = [
     tags: ["C++", "JUCE"],
     github: "https://github.com/hadencain/smear",
   },
+  {
+    title: "whiteHole",
+    description:
+      "Anti-mass spectral leveler VST3 — the black hole's phase-preserving opposite. A repulsion field hinged at a floor level lifts buried content into audibility and flattens peaks down toward it, per bin, each bin's gain smoothed by its own follower. At full repulsion and thin the spectrum flattens into the floor band; the radial display draws the dead zone as an annulus that spoke tips converge onto.",
+    tags: ["C++", "JUCE"],
+    github: "https://github.com/hadencain/whiteHole",
+  },
 ];
 
 const VIDEO: Project[] = [
