@@ -27,6 +27,8 @@ function Media({ product }: { product: StoreProduct }) {
         src={product.screenshot}
         alt={`${product.title} UI`}
         className="aspect-video w-full object-cover object-top border-b border-[#1e1e1e]"
+        loading="lazy"
+        decoding="async"
       />
     );
   }

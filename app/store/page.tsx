@@ -7,6 +7,11 @@ export const metadata: Metadata = {
   title: "Store — Haden Cain",
   description:
     "Experimental audio tools. Pay what you want. Source on GitHub.",
+  openGraph: {
+    title: "Store — Haden Cain",
+    description: "Experimental audio tools. Pay what you want. Source on GitHub.",
+    type: "website",
+  },
 };
 
 export default function Store() {

@@ -11,11 +11,9 @@ import Script from "next/script";
 export function BuyButton({ gumroadUrl, title }: { gumroadUrl?: string; title: string }) {
   if (!gumroadUrl) {
     return (
-      <span
-        className="inline-block border border-[#222] text-[#4a4a4a] text-[10px] font-mono tracking-[0.22em] px-4 py-2 select-none"
-        aria-label={`${title} — coming soon`}
-      >
+      <span className="inline-block border border-[#222] text-[#4a4a4a] text-[10px] font-mono tracking-[0.22em] px-4 py-2 select-none">
         SOON
+        <span className="sr-only">{title} — coming soon</span>
       </span>
     );
   }
