@@ -85,6 +85,13 @@ const AUDIO: Project[] = [
     tags: ["C++", "JUCE"],
     github: "https://github.com/hadencain/phaseMangler",
   },
+  {
+    title: "smear",
+    description:
+      "Spectral blur VST3. Per-bin magnitudes smear through a leaky integrator while a single phase-coherence axis sweeps from intact pitch to a Paulstretch-style wash — freeze latches the spectrum and holds it indefinitely. A two-layer radial display draws the live input as a ghost under the processed spectrum, so every control reads as visible cause and effect.",
+    tags: ["C++", "JUCE"],
+    github: "https://github.com/hadencain/smear",
+  },
 ];
 
 const VIDEO: Project[] = [
