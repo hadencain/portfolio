@@ -209,6 +209,20 @@ const SECURITY: Project[] = [
     github: "https://github.com/hadencain/magpie",
   },
   {
+    title: "installSandbox",
+    description:
+      "Behavioral install-time sandbox for pip and npm. Detonates a package install inside a disposable WSL2 guest, watches what it actually does — DNS, network egress, file writes, shell spawns — and returns an allow/block verdict plus a diff of everything that changed. The dynamic complement to dependency-risk-scan's static pre-check: catches clean-looking packages whose setup.py or postinstall phones home, drops persistence, or opens a port the moment you install.",
+    tags: ["Python", "WSL2", "strace"],
+    github: "https://github.com/hadencain/installSandbox",
+  },
+  {
+    title: "repoAuditor",
+    description:
+      "Pre-publish gate. Point it at a local git repo and it emits a single SAFE/UNSAFE verdict (exit 0/1) plus a report before you flip a repo public. Scans full git history for secrets — not just HEAD — plus committed credential files, high-entropy strings, PII (Windows user paths, author emails), oversized binaries, and a missing LICENSE. Stdlib only, no runtime deps.",
+    tags: ["Python"],
+    github: "https://github.com/hadencain/repoAuditor",
+  },
+  {
     title: "mlb-ev-analysis",
     description:
       "Model-generated win probabilities compared against sportsbook lines. Baseball analytics with edge detection.",
