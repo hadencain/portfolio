@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>bleed — datamosh sonification</title>
+  <meta name="description" content="bleed channel-surfs live broadcast, datamoshes the video, and reads the decoded melt back as sound — noise-music stems for a DAW.">
+  <link rel="stylesheet" href="../shared/shared.css">
+  <style>
+    /* This page is a scrolling case study, not a live app — override the
+       app-shell body reset from shared.css. */
+    html, body { height: auto; overflow: auto; }
+    body { display: block; }
+
+    .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px 120px; }
+
+    /* Hero */
+    .hero { padding: 90px 0 40px; border-bottom: 1px solid var(--border); }
+    .hero h1 {
+      margin: 0;
+      font-family: ui-sans-serif, -apple-system, 'Segoe UI', sans-serif;
+      font-weight: 200;
+      font-size: clamp(3.2rem, 11vw, 7rem);
+      line-height: 0.9;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      /* the signature: chromatic aberration — the "bleed" motif, static */
+      text-shadow: 0.035em 0 rgba(255, 35, 35, 0.55), -0.035em 0 rgba(0, 215, 205, 0.55);
+    }
+    .hero p {
+      margin: 22px 0 0;
+      max-width: 56ch;
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--body);
+    }
+    .kicker {
+      display: block;
+      margin-bottom: 20px;
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--quiet);
+    }
+
+    /* Section scaffolding */
+    section { padding: 48px 0; border-bottom: 1px solid var(--border); }
+    .sec-label {
+      display: flex; align-items: center; gap: 18px; margin-bottom: 30px;
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 10px; letter-spacing: 0.34em; text-transform: uppercase;
+      color: var(--label);
+    }
+    .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* Pipeline steps — a genuine ordered sequence */
+    .steps { display: grid; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+    .step { background: var(--bg); padding: 20px 22px; display: grid;
+      grid-template-columns: 44px 1fr; gap: 18px; align-items: start; }
+    .step .n {
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 11px; color: var(--ghost); letter-spacing: 0.1em; padding-top: 2px;
+    }
+    .step h3 {
+      margin: 0 0 6px;
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--secondary); font-weight: 400;
+    }
+    .step p { margin: 0; font-size: 13px; line-height: 1.65; color: var(--body); max-width: 62ch; }
+
+    /* Example cards */
+    .examples { display: grid; gap: 28px; }
+    .ex { border: 1px solid var(--border); }
+    .ex video { width: 100%; display: block; border-bottom: 1px solid var(--border);
+      background: var(--ghost); aspect-ratio: 16 / 9; object-fit: cover; }
+    .ex-body { padding: 18px 20px 22px; }
+    .ex-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .ex-head h3 {
+      margin: 0; font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 13px; letter-spacing: 0.1em; color: var(--text); font-weight: 400;
+    }
+    .ex-head .note {
+      font-family: ui-monospace, 'Courier New', monospace; font-size: 10px;
+      letter-spacing: 0.14em; text-transform: uppercase; color: var(--quiet);
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 16px; }
+    .chip {
+      font-family: ui-monospace, 'Courier New', monospace; font-size: 10px;
+      letter-spacing: 0.12em; color: var(--label);
+      border: 1px solid var(--border2); padding: 2px 8px;
+    }
+    .stems { display: grid; gap: 10px; margin-top: 4px; }
+    .stem { display: grid; grid-template-columns: 74px 1fr; align-items: center; gap: 12px; }
+    .stem span {
+      font-family: ui-monospace, 'Courier New', monospace; font-size: 10px;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--label);
+    }
+    .stem audio { width: 100%; height: 32px; }
+
+    /* Outro / usage */
+    .usage p { font-size: 13px; line-height: 1.7; color: var(--body); max-width: 62ch; margin: 0 0 14px; }
+    .usage code {
+      font-family: ui-monospace, 'Courier New', monospace; font-size: 12px;
+      color: var(--secondary); background: #101010; border: 1px solid var(--border);
+      padding: 2px 7px;
+    }
+    .backline { padding-top: 40px; }
+    .backline a {
+      font-family: ui-monospace, 'Courier New', monospace; font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--label);
+      text-decoration: none;
+    }
+    .backline a:hover { color: var(--secondary); }
+
+    @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <nav class="topnav">
+    <a class="topnav-back" href="/#video">&larr; index</a>
+    <span class="topnav-kind">datamosh &middot; sonification</span>
+    <span class="topnav-name">bleed</span>
+  </nav>
+
+  <div class="wrap">
+    <header class="hero">
+      <span class="kicker">python &middot; fastapi &middot; ffmpeg &middot; numpy</span>
+      <h1>bleed</h1>
+      <p>
+        bleed channel-surfs live broadcast (or any video you feed it), datamoshes
+        the picture until it melts, then reads that decoded melt back as sound.
+        The video corruption <em>is</em> the instrument — colour and signal bleed
+        across frames become noise-music stems you drop straight into a DAW.
+      </p>
+    </header>
+
+    <section>
+      <div class="sec-label">how it works</div>
+      <div class="steps">
+        <div class="step">
+          <div class="n">01</div>
+          <div>
+            <h3>capture &amp; mosh</h3>
+            <p>Segments are pulled live from broadcast streams (or split from a local
+              file), then datamoshed — the MPEG-4 keyframes are stripped so the decoder
+              hallucinates a continuous smear as one clip bleeds into the next.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="n">02</div>
+          <div>
+            <h3>sonify the melt</h3>
+            <p>The melt only exists at decode time, so the decoded frames are read as
+              sound through two lanes: a scanline wavetable that scans pixel rows, and a
+              spectral resynthesizer that treats each frame as a spectrum. Motion in the
+              picture bends pitch and scatters the sound — a bloom you see is a burst you hear.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="n">03</div>
+          <div>
+            <h3>tame &amp; render</h3>
+            <p>Each lane runs a curated chain — chop, wash, grit, with a safety limiter
+              always on — and writes three 48&nbsp;kHz stems (scan, spectral, mix) plus the
+              moshed video. Deterministic per seed; the examples below are rendered from a
+              synthetic generative source.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-label">renders</div>
+      <div class="examples">
+
+        <div class="ex">
+          <video controls loop playsinline preload="none" poster="media/drone.jpg">
+            <source src="media/drone.mp4" type="video/mp4">
+          </video>
+          <div class="ex-body">
+            <div class="ex-head">
+              <h3>drone</h3>
+              <span class="note">play it — the audio is the video</span>
+            </div>
+            <div class="chips">
+              <span class="chip">intensity 0.9</span>
+              <span class="chip">wash 0.9</span>
+              <span class="chip">chop 0.1</span>
+              <span class="chip">grit 0.2</span>
+              <span class="chip">repeat 3</span>
+            </div>
+            <div class="stems">
+              <div class="stem"><span>scan</span><audio controls preload="none" src="media/drone-scan.mp3"></audio></div>
+              <div class="stem"><span>spectral</span><audio controls preload="none" src="media/drone-spectral.mp3"></audio></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ex">
+          <video controls loop playsinline preload="none" poster="media/grit.jpg">
+            <source src="media/grit.mp4" type="video/mp4">
+          </video>
+          <div class="ex-body">
+            <div class="ex-head">
+              <h3>grit</h3>
+              <span class="note">play it — the audio is the video</span>
+            </div>
+            <div class="chips">
+              <span class="chip">intensity 1.0</span>
+              <span class="chip">wash 0.2</span>
+              <span class="chip">chop 0.5</span>
+              <span class="chip">grit 0.8</span>
+              <span class="chip">repeat 4</span>
+            </div>
+            <div class="stems">
+              <div class="stem"><span>scan</span><audio controls preload="none" src="media/grit-scan.mp3"></audio></div>
+              <div class="stem"><span>spectral</span><audio controls preload="none" src="media/grit-spectral.mp3"></audio></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="usage">
+      <div class="sec-label">running it</div>
+      <p>
+        bleed is a local tool — it needs ffmpeg and a network connection for live
+        capture, so it runs on your machine rather than in the browser. It ships with
+        a queue-based web UI (<code>python -m iptvmosh.web</code>) for firing off
+        several renders at once and browsing a saved library, and a CLI
+        (<code>python -m iptvmosh noise</code>) for one-offs and scripting.
+      </p>
+      <p>
+        Every render is deterministic per seed, and any output can be fed back in as
+        the next source — each pass compounds the melt further.
+      </p>
+      <div class="backline"><a href="/#video">&larr; back to index</a></div>
+    </section>
+  </div>
+</body>
+</html>
