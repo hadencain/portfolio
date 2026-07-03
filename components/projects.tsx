@@ -103,6 +103,13 @@ const AUDIO: Project[] = [
 
 const VIDEO: Project[] = [
   {
+    title: "bleed",
+    description:
+      "Datamoshes broadcast video and reads the decoded melt back as sound — a channel-surfing noise-music generator. Two sonification lanes (scanline wavetable + spectral resynthesis) driven by the picture's own corruption, rendered to DAW stems through a CLI and a local queue-based web UI.",
+    tags: ["Python", "FastAPI", "ffmpeg"],
+    github: "https://github.com/hadencain/bleed",
+  },
+  {
     title: "RGBA_blending",
     description:
       "Alpha-blend two files to generate cover art or video output. Max for Live patch for generative visual composition.",
