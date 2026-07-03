@@ -9,7 +9,7 @@ interface Project {
   title: string;
   description: string;
   tags: string[];
-  github?: string;
+  github: string;
   youtube?: string;
   demo?: string;
 }
@@ -102,13 +102,6 @@ const AUDIO: Project[] = [
 ];
 
 const VIDEO: Project[] = [
-  {
-    title: "bleed",
-    description:
-      "Datamoshes live broadcast video and reads the decoded melt back as sound — a channel-surfing noise-music generator. Two sonification lanes (scanline wavetable + spectral resynthesis) driven by the picture's own corruption, rendered to DAW stems through a queue-based web UI.",
-    tags: ["Python", "FastAPI", "ffmpeg"],
-    demo: "/tools/bleed/",
-  },
   {
     title: "RGBA_blending",
     description:
@@ -318,17 +311,15 @@ function MediaCard({ project, delay }: { project: Project; delay: number }) {
                 DEMO
               </a>
             )}
-            {project.github && (
-              <a
-                href={project.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#555] hover:text-[#888] transition-colors duration-300 mt-0.5"
-                aria-label={`${project.title} on GitHub`}
-              >
-                <Arrow />
-              </a>
-            )}
+            <a
+              href={project.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#555] hover:text-[#888] transition-colors duration-300 mt-0.5"
+              aria-label={`${project.title} on GitHub`}
+            >
+              <Arrow />
+            </a>
           </div>
         </div>
         <p className="text-[12px] text-[#606060] font-light leading-relaxed flex-1">
@@ -366,17 +357,15 @@ function CompactCard({ project, delay }: { project: Project; delay: number }) {
               DEMO
             </a>
           )}
-          {project.github && (
-            <a
-              href={project.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#555] hover:text-[#888] transition-colors duration-300"
-              aria-label={`${project.title} on GitHub`}
-            >
-              <Arrow />
-            </a>
-          )}
+          <a
+            href={project.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#555] hover:text-[#888] transition-colors duration-300"
+            aria-label={`${project.title} on GitHub`}
+          >
+            <Arrow />
+          </a>
         </div>
       </div>
       <p className="text-[12px] text-[#606060] font-light leading-relaxed">
