@@ -99,6 +99,13 @@ const AUDIO: Project[] = [
     tags: ["C++", "JUCE"],
     github: "https://github.com/hadencain/whiteHole",
   },
+  {
+    title: "corrode",
+    description:
+      "Seven-stage noise mangler VST3. Audio runs in series through granular, spectral, glitch, bitcrush, distortion, convolution, and pitch-smear stages — each with its own bypass, wet/dry, and feedback — all wrapped in a filtered global feedback loop so the chain feeds on its own artifacts. Three LFOs and a signal-following chaos engine (RMS + spectral centroid, with periodic bursts) route to almost any parameter through a runtime mod matrix. Amber-on-black monospace UI. Built to find the sound past the sound.",
+    tags: ["C++", "JUCE"],
+    github: "https://github.com/hadencain/corrode",
+  },
 ];
 
 const VIDEO: Project[] = [
