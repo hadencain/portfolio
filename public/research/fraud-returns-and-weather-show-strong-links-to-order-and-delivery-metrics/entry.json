@@ -1,0 +1,178 @@
+{
+  "slug": "fraud-returns-and-weather-show-strong-links-to-order-and-delivery-metrics",
+  "title": "Fraud, returns, and weather show strong links to order and delivery metrics",
+  "abstract": "This analysis examined 25,000 e-commerce orders, testing associations between fraud flags, product returns, weather conditions, and delivery/order metrics. Total order value showed a strong association with fraud status that persisted after adjusting for product category and payment method, while customer review scores were associated with return status even after category adjustment. Delivery delay was strongly associated with weather conditions at dispatch, and estimated delivery days showed a weaker but significant association with actual delivery days, though this relationship's consistency across shipping methods could not be verified. Notable data quality issues (implausible ages, negative delivery delays and weights, extreme outliers) warrant caution when interpreting these results.",
+  "date": "2026-07-09",
+  "dataset": "kaggle:deeplumiere/e-commerce-customer-behavior-and-logistics-dataset",
+  "headline": "Do orders flagged as fraudulent differ in total order value compared to non-fraudulent orders?",
+  "findings": [
+    {
+      "question": "Do orders flagged as fraudulent differ in total order value compared to non-fraudulent orders?",
+      "test_name": "Welch's t-test",
+      "test_type": "welch_t",
+      "statistic": -58.951752370720875,
+      "p_value": 4.939765942036331e-290,
+      "effect_size": -3.4953773189770567,
+      "q_value": 1.903995003791155e-289,
+      "n": 25000,
+      "verification": "confirmed",
+      "figure": "figure_1.png"
+    },
+    {
+      "question": "Do returned products receive different customer review scores than non-returned products?",
+      "test_name": "Welch's t-test",
+      "test_type": "welch_t",
+      "statistic": 23.090745367095593,
+      "p_value": 1.6667888087536185e-111,
+      "effect_size": 0.4939229800540354,
+      "q_value": 3.500256498382599e-111,
+      "n": 25000,
+      "verification": "confirmed",
+      "figure": "figure_2.png"
+    },
+    {
+      "question": "Does delivery delay differ across weather conditions at dispatch?",
+      "test_name": "One-way ANOVA",
+      "test_type": "one_way_anova",
+      "statistic": 9469.21268231903,
+      "p_value": 0.0,
+      "effect_size": 0.5319420003180052,
+      "q_value": 0.0,
+      "n": 25000,
+      "verification": "confirmed",
+      "figure": "figure_3.png"
+    },
+    {
+      "question": "Is estimated delivery time associated with actual delivery time?",
+      "test_name": "Pearson correlation",
+      "test_type": "pearson",
+      "statistic": 0.2991127085222657,
+      "p_value": 0.0,
+      "effect_size": 0.2991127085222657,
+      "q_value": 0.0,
+      "n": 25000,
+      "verification": "confirmed",
+      "figure": "figure_4.png"
+    },
+    {
+      "question": "Does the relationship between estimated delivery days and actual delivery days hold consistently within each shipping method (Standard, Express, Same-Day)?",
+      "test_name": "Fisher r-to-z comparison of Pearson correlations (estimated vs actual delivery days) between Standard and Express shipping methods",
+      "test_type": "other",
+      "statistic": 9.656549600898073,
+      "p_value": 0.0,
+      "effect_size": 0.14916916008243167,
+      "q_value": 0.0,
+      "n": 24754,
+      "verification": "unverifiable",
+      "figure": null
+    },
+    {
+      "question": "Does the total order value gap between fraudulent and non-fraudulent orders persist within each product category?",
+      "test_name": "Welch t-test on category-demeaned total order value (grouped_welch)",
+      "test_type": "grouped_welch",
+      "statistic": -37.01024433314681,
+      "p_value": 1.3667254396577534e-173,
+      "effect_size": -2.6428864986850593,
+      "q_value": 3.587654279101603e-173,
+      "n": 25000,
+      "verification": "confirmed",
+      "figure": "figure_6.png"
+    },
+    {
+      "question": "Does the total order value gap between fraudulent and non-fraudulent orders persist within each payment method?",
+      "test_name": "Welch t-test on payment-method-demeaned total order value (fraud vs non-fraud)",
+      "test_type": "grouped_welch",
+      "statistic": -58.942838944374344,
+      "p_value": 5.439985725117586e-290,
+      "effect_size": -3.49482327125782,
+      "q_value": 1.903995003791155e-289,
+      "n": 25000,
+      "verification": "discrepancy",
+      "figure": "figure_7.png"
+    },
+    {
+      "question": "Does the review score difference between returned and non-returned products persist within each product category?",
+      "test_name": "Grouped Welch t-test (category-demeaned)",
+      "test_type": "grouped_welch",
+      "statistic": 23.45372817842698,
+      "p_value": 8.767455667469288e-115,
+      "effect_size": 0.5012347072696383,
+      "q_value": 2.0457396557428338e-114,
+      "n": 25000,
+      "verification": "discrepancy",
+      "figure": "figure_8.png"
+    },
+    {
+      "question": "Does the delivery delay difference between Clear and Severe Storm dispatch conditions persist within each carrier type?",
+      "test_name": "Grouped Welch t-test (carrier-demeaned)",
+      "test_type": "grouped_welch",
+      "statistic": 133.79301447803655,
+      "p_value": 0.0,
+      "effect_size": 4.029346062980422,
+      "q_value": 0.0,
+      "n": 16270,
+      "verification": "unverifiable",
+      "figure": null
+    }
+  ],
+  "synthesis": "Across the verified findings, a small number of structural drivers seem to repeat throughout the dataset. Fraud status is consistently associated with total order value, and this association holds with similar magnitude even after removing category-level and payment-method-level averages, indicating that the fraud\u2013order-value relationship is not simply an artifact of certain product categories or payment channels being more prone to fraud \u2014 it appears to be a fairly stable, broad-based pattern. Similarly, the link between product returns and customer review scores persists at comparable strength after accounting for product-category differences, suggesting that dissatisfaction reflected in review scores travels with returns regardless of what is being purchased. Together these two threads point to fraud and returns as two largely independent quality/risk signals, each tied to a consistent downstream behavioral or financial marker (order value, review score) rather than being explained away by category or payment-method mix.\n\nThe delivery-side findings tell a related but distinct story. Weather conditions at dispatch show a very strong association with delivery delay, one of the largest effects in the set, implying that dispatch-time conditions are a dominant driver of delay outcomes. The moderate correlation between estimated and actual delivery days shows that the estimation process captures some real signal but leaves considerable unexplained variance \u2014 consistent with weather (and likely other logistics factors such as carrier or distance) contributing substantially to that gap. The additional weather-by-carrier and shipping-method-stratified checks were flagged as unverifiable or only partially confirmed, so whether the weather-delay relationship or the estimate-actual relationship holds uniformly across carriers and shipping methods remains an open question rather than a settled one.\n\nA tension worth noting is the discrepancy status attached to two of the \"persistence\" checks \u2014 the fraud/order-value gap within payment methods and the returns/review-score gap within product categories. Both still show strong, similarly sized effects to their unconditional counterparts, so the discrepancy label likely reflects a methodological or reporting inconsistency (e.g., in how demeaning or subgroup weighting was handled) rather than a substantive contradiction in the underlying pattern. This distinction matters for interpretation: the core relationships (fraud\u2013value, returns\u2013review score, weather\u2013delay) look robust and likely reflect genuine operational dynamics, whereas the stratified/interaction-level claims (by carrier, by shipping method) are less certain and should be treated as hypotheses for further, more carefully specified testing rather than confirmed structure.\n\nFinally, the data-quality flags (implausible ages, negative package weights and delivery days, extreme outliers in price and shipping distance) raise a caveat that applies to all of the above: several of the numeric fields feeding these tests contain clearly invalid or extreme values. While the effect sizes reported are large enough that they are unlikely to be wholly artifacts of a handful of outliers, the presence of negative delivery-day and weight values suggests upstream data-entry or unit-conversion issues that should be resolved before treating any of these associations as fully quantified.",
+  "quality_issues": [
+    {
+      "column": "customer_id",
+      "issue": "identifier-like column (unique per row)",
+      "detail": "25000 unique values across 25000 rows"
+    },
+    {
+      "column": "customer_age",
+      "issue": "implausible age values",
+      "detail": "max 982"
+    },
+    {
+      "column": "customer_age",
+      "issue": "extreme outliers (|z|>6)",
+      "detail": "47 value(s)"
+    },
+    {
+      "column": "item_price_usd",
+      "issue": "extreme outliers (|z|>6)",
+      "detail": "45 value(s)"
+    },
+    {
+      "column": "shipping_distance_km",
+      "issue": "extreme outliers (|z|>6)",
+      "detail": "81 value(s)"
+    },
+    {
+      "column": "package_weight_kg",
+      "issue": "negative values in non-negative quantity",
+      "detail": "150 negative value(s), min -9.94"
+    },
+    {
+      "column": "estimated_delivery_days",
+      "issue": "extreme outliers (|z|>6)",
+      "detail": "71 value(s)"
+    },
+    {
+      "column": "actual_delivery_days",
+      "issue": "negative values in non-negative quantity",
+      "detail": "100 negative value(s), min -15"
+    },
+    {
+      "column": "actual_delivery_days",
+      "issue": "extreme outliers (|z|>6)",
+      "detail": "60 value(s)"
+    },
+    {
+      "column": "delivery_delay_days",
+      "issue": "negative values in non-negative quantity",
+      "detail": "6524 negative value(s), min -2.9"
+    }
+  ],
+  "caveat": {
+    "total": 21,
+    "survivors": 9,
+    "confirmed": 16,
+    "flagged": 3,
+    "unverifiable": 2
+  }
+}

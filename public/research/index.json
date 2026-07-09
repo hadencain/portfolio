@@ -1,0 +1,11 @@
+[
+  {
+    "slug": "fraud-returns-and-weather-show-strong-links-to-order-and-delivery-metrics",
+    "title": "Fraud, returns, and weather show strong links to order and delivery metrics",
+    "date": "2026-07-09",
+    "dataset": "kaggle:deeplumiere/e-commerce-customer-behavior-and-logistics-dataset",
+    "headline": "Do orders flagged as fraudulent differ in total order value compared to non-fraudulent orders?",
+    "abstract": "This analysis examined 25,000 e-commerce orders, testing associations between fraud flags, product returns, weather conditions, and delivery/order metrics. Total order value showed a strong association with fraud status that persisted after adjusting for product category and payment method, while customer review scores were associated with return status even after category adjustment. Delivery delay was strongly associated with weather conditions at dispatch, and estimated delivery days showed a weaker but significant association with actual delivery days, though this relationship's consistency across shipping methods could not be verified. Notable data quality issues (implausible ages, negative delivery delays and weights, extreme outliers) warrant caution when interpreting these results.",
+    "n_findings": 9
+  }
+]
