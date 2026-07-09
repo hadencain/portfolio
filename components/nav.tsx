@@ -8,6 +8,7 @@ const ITEMS = [
   { label: "Work", href: "/#work" },
   { label: "About", href: "/#about" },
   { label: "Contact", href: "/#contact" },
+  { label: "Research", href: "/research" },
   { label: "Store", href: "/store" },
 ];
 
@@ -35,7 +36,8 @@ export function Nav() {
           trailing letter-spacing (0.25em @ 11px = 2.75px) otherwise leaves it short */}
       <div className="flex gap-8 -mr-[2.75px]">
         {ITEMS.map((item) => {
-          const current = item.href === "/store" && pathname === "/store";
+          const current =
+            !item.href.startsWith("/#") && pathname.startsWith(item.href);
           return (
             <Link
               key={item.label}
