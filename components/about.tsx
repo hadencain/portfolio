@@ -14,7 +14,7 @@ export function About() {
     >
       <div ref={ref}>
         <motion.p
-          className="text-[11px] tracking-[0.35em] uppercase text-[#888888] mb-12"
+          className="text-[11px] tracking-[0.35em] uppercase text-[#888] mb-12"
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
           transition={{ duration: 0.8 }}

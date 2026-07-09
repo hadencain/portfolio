@@ -20,7 +20,7 @@ export function WaitlistForm() {
         required
         disabled={!configured}
         placeholder={configured ? "email" : "beta opening soon"}
-        className="flex-1 min-w-0 bg-transparent border border-[#2c2c2c] px-3 py-2 text-[12px] text-[#c8c8c8] placeholder:text-[#4a4a4a] focus:border-[#555] focus:outline-none disabled:opacity-60"
+        className="flex-1 min-w-0 bg-transparent border border-[#343434] px-3 py-2 text-[12px] text-[#c8c8c8] placeholder:text-[#4a4a4a] focus:border-[#666] focus:outline-none disabled:opacity-60 disabled:border-[#222]"
         aria-label="email for sampleViewer beta"
       />
       <button

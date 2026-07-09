@@ -2,6 +2,7 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import { emitFieldPulse } from "./field-pulse";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -274,14 +275,9 @@ const THREED: Project[] = [
 
 // ─── Shared UI ────────────────────────────────────────────────────────────────
 
-function emitFieldPulse(e: React.MouseEvent<HTMLDivElement>) {
-  const r = e.currentTarget.getBoundingClientRect();
-  window.dispatchEvent(
-    new CustomEvent("field-pulse", {
-      detail: { x: r.left + r.width / 2, y: r.top + r.height / 2 },
-    })
-  );
-}
+// Entrance stagger reads for the first visible batch; past that a card should
+// answer the scroll promptly, not serve out a queue position it inherited.
+const stagger = (i: number) => Math.min(i * 0.07, 0.28);
 
 const Arrow = () => (
   <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
@@ -295,7 +291,7 @@ function Tags({ tags }: { tags: string[] }) {
       {tags.map((t) => (
         <span
           key={t}
-          className="text-[10px] tracking-[0.18em] uppercase text-[#787878] border border-[#2c2c2c] px-2 py-[3px]"
+          className="text-[10px] font-mono tracking-[0.18em] uppercase text-[#787878] border border-[#2c2c2c] px-2 py-[3px]"
         >
           {t}
         </span>
@@ -309,7 +305,8 @@ function MediaCard({ project, delay }: { project: Project; delay: number }) {
   return (
     <motion.div
       onMouseEnter={emitFieldPulse}
-      className="border border-[#1e1e1e] flex flex-col"
+      onFocus={emitFieldPulse}
+      className="border border-[#1e1e1e] hover:border-[#2c2c2c] transition-colors duration-500 flex flex-col"
       initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
@@ -320,6 +317,7 @@ function MediaCard({ project, delay }: { project: Project; delay: number }) {
           className="aspect-video w-full border-b border-[#1e1e1e]"
           src={project.youtube}
           title={project.title}
+          loading="lazy"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
         />
@@ -333,7 +331,7 @@ function MediaCard({ project, delay }: { project: Project; delay: number }) {
                 href={project.demo}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[10px] font-mono tracking-[0.22em] text-[#e0e0e0] underline underline-offset-2 decoration-[#383838] hover:decoration-[#888] transition-colors duration-300"
+                className="text-[10px] font-mono tracking-[0.22em] text-[#e0e0e0] underline underline-offset-2 decoration-[#383838] hover:decoration-[#888] transition-colors duration-300 py-2 -my-2"
                 aria-label={`${project.title} demo`}
               >
                 DEMO
@@ -343,14 +341,14 @@ function MediaCard({ project, delay }: { project: Project; delay: number }) {
               href={project.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#555] hover:text-[#888] transition-colors duration-300 mt-0.5"
+              className="text-[#555] hover:text-[#888] transition-colors duration-300 p-2 -m-2 -mt-1.5"
               aria-label={`${project.title} on GitHub`}
             >
               <Arrow />
             </a>
           </div>
         </div>
-        <p className="text-[12px] text-[#606060] font-light leading-relaxed flex-1">
+        <p className="text-[12px] text-[#787878] font-light leading-relaxed flex-1 max-w-[78ch]">
           {project.description}
         </p>
         <Tags tags={project.tags} />
@@ -364,7 +362,8 @@ function CompactCard({ project, delay }: { project: Project; delay: number }) {
   return (
     <motion.div
       onMouseEnter={emitFieldPulse}
-      className="border-b border-[#1a1a1a] py-5 flex flex-col gap-3"
+      onFocus={emitFieldPulse}
+      className="border-b border-[#1a1a1a] hover:border-[#2c2c2c] transition-colors duration-500 py-5 flex flex-col gap-3"
       initial={{ opacity: 0, x: -8 }}
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true, margin: "-60px" }}
@@ -378,8 +377,7 @@ function CompactCard({ project, delay }: { project: Project; delay: number }) {
               href={project.demo}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[10px] font-mono tracking-[0.18em] text-[#c8c8c8] border border-[#2c2c2c] px-1.5 py-0.5 hover:border-[#666] transition-colors duration-300"
-              style={{ animation: "glitch-demo 2.2s infinite" }}
+              className="relative text-[10px] font-mono tracking-[0.22em] text-[#c8c8c8] border border-[#343434] px-1.5 py-0.5 hover:border-[#666] transition-colors duration-300 before:absolute before:-inset-2 before:content-['']"
               aria-label={`${project.title} demo`}
             >
               DEMO
@@ -389,14 +387,14 @@ function CompactCard({ project, delay }: { project: Project; delay: number }) {
             href={project.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#555] hover:text-[#888] transition-colors duration-300"
+            className="text-[#555] hover:text-[#888] transition-colors duration-300 p-2 -m-2"
             aria-label={`${project.title} on GitHub`}
           >
             <Arrow />
           </a>
         </div>
       </div>
-      <p className="text-[12px] text-[#606060] font-light leading-relaxed">
+      <p className="text-[12px] text-[#787878] font-light leading-relaxed max-w-[78ch]">
         {project.description}
       </p>
       <Tags tags={project.tags} />
@@ -404,14 +402,21 @@ function CompactCard({ project, delay }: { project: Project; delay: number }) {
   );
 }
 
-// Section header with extending rule
+// Section header with extending rule — the rule plots itself out from the
+// label on first view; reduced-motion renders it settled.
 function SectionHeader({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-5 mb-8">
-      <span className="text-[10px] tracking-[0.38em] uppercase text-[#606060] shrink-0">
+      <span className="text-[10px] tracking-[0.35em] uppercase text-[#606060] shrink-0">
         {label}
       </span>
-      <div className="flex-1 h-px bg-[#1c1c1c]" />
+      <motion.div
+        className="flex-1 h-px bg-[#1c1c1c] origin-left"
+        initial={{ scaleX: 0 }}
+        whileInView={{ scaleX: 1 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+      />
     </div>
   );
 }
@@ -442,7 +447,7 @@ export function Projects() {
         <SectionHeader label="Audio" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
           {AUDIO.map((p, i) => (
-            <CompactCard key={p.title} project={p} delay={i * 0.07} />
+            <CompactCard key={p.title} project={p} delay={stagger(i)} />
           ))}
         </div>
       </div>
@@ -452,7 +457,7 @@ export function Projects() {
         <SectionHeader label="Video" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
           {VIDEO.map((p, i) => (
-            <CompactCard key={p.title} project={p} delay={i * 0.07} />
+            <CompactCard key={p.title} project={p} delay={stagger(i)} />
           ))}
         </div>
       </div>
@@ -462,7 +467,7 @@ export function Projects() {
         <SectionHeader label="Security" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
           {SECURITY.map((p, i) => (
-            <CompactCard key={p.title} project={p} delay={i * 0.07} />
+            <CompactCard key={p.title} project={p} delay={stagger(i)} />
           ))}
         </div>
       </div>
@@ -472,7 +477,7 @@ export function Projects() {
         <SectionHeader label="AR / Mobile" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
           {AR_MOBILE.map((p, i) => (
-            <CompactCard key={p.title} project={p} delay={i * 0.07} />
+            <CompactCard key={p.title} project={p} delay={stagger(i)} />
           ))}
         </div>
       </div>
@@ -482,7 +487,7 @@ export function Projects() {
         <SectionHeader label="3D" />
         <div className="max-w-xl">
           {THREED.map((p, i) => (
-            <CompactCard key={p.title} project={p} delay={i * 0.07} />
+            <CompactCard key={p.title} project={p} delay={stagger(i)} />
           ))}
         </div>
       </div>

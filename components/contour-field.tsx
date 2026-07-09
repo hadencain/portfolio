@@ -13,7 +13,9 @@ import { useEffect, useRef } from "react";
  * Decorative only — every failure path is a silent no-op.
  */
 
-const ANCHOR_IDS = ["sound-video", "security", "ar-mobile", "threed", "about"];
+// First anchor is #audio: the ridge holds through hero + audio + video, then
+// interpolates toward network as the viewport center approaches #security.
+const ANCHOR_IDS = ["audio", "security", "ar-mobile", "threed", "about"];
 
 const ACCENTS: [number, number, number][] = [
   [232, 228, 220], // ridge — warm white
@@ -105,7 +107,9 @@ export function ContourField() {
     let w = 0;
     let h = 0;
     let anchors: { top: number; mode: number }[] = [];
-    const mouse = { x: -1e4, y: -1e4 };
+    // tx/ty is the raw cursor; x/y trails it each frame so the dent moves
+    // like a disturbance in a medium with viscosity, not a glued decal.
+    const mouse = { x: -1e4, y: -1e4, tx: -1e4, ty: -1e4 };
     const pulses: Pulse[] = [];
     let raf = 0;
     let running = false;
@@ -175,6 +179,15 @@ export function ContourField() {
         if (t - pulses[i].t0 > 1.4) pulses.splice(i, 1);
       }
 
+      // Cursor smoothing: snap across the offscreen sentinel, trail otherwise.
+      if (mouse.tx < -9e3 || mouse.x < -9e3) {
+        mouse.x = mouse.tx;
+        mouse.y = mouse.ty;
+      } else {
+        mouse.x += (mouse.tx - mouse.x) * 0.16;
+        mouse.y += (mouse.ty - mouse.y) * 0.16;
+      }
+
       for (let li = 0; li < nLines; li++) {
         const l = li / (nLines - 1);
         const baseY = h * 0.04 + l * h * 0.92;
@@ -194,13 +207,15 @@ export function ContourField() {
           const mdx = cx - mouse.x;
           const mdy = baseY - mouse.y;
           e -= Math.exp(-(mdx * mdx + mdy * mdy) / 3800) * 30;
+          // Pulses propagate: a wavefront leaves the card at 260px/s and
+          // decays — a ping through the medium, not a dent that fades in place.
           for (const pu of pulses) {
+            const age = t - pu.t0;
             const dx2 = cx - pu.x;
             const dy2 = baseY - pu.y;
-            e -=
-              26 *
-              Math.exp(-(dx2 * dx2 + dy2 * dy2) / 6000) *
-              Math.exp(-(t - pu.t0) * 2.2);
+            const ring = Math.sqrt(dx2 * dx2 + dy2 * dy2) - age * 260;
+            if (ring > 120 || ring < -120) continue;
+            e -= 20 * Math.exp((-ring * ring) / 2600) * Math.exp(-age * 2.6);
           }
           const y = baseY + e;
           if (cx === 0) ctx.moveTo(cx, y);
@@ -228,12 +243,12 @@ export function ContourField() {
 
     const onVis = () => (document.hidden ? stop() : start());
     const onMouse = (e: MouseEvent) => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
+      mouse.tx = e.clientX;
+      mouse.ty = e.clientY;
     };
     const onMouseOut = () => {
-      mouse.x = -1e4;
-      mouse.y = -1e4;
+      mouse.tx = -1e4;
+      mouse.ty = -1e4;
     };
     const onScrollStatic = () => draw(performance.now());
     const onPulse = (e: Event) => {

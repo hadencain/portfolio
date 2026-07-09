@@ -2,6 +2,7 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import { emitFieldPulse } from "./field-pulse";
 
 export function Contact() {
   const ref = useRef<HTMLDivElement>(null);
@@ -14,7 +15,7 @@ export function Contact() {
     >
       <div ref={ref}>
         <motion.p
-          className="text-[11px] tracking-[0.35em] uppercase text-[#888888] mb-12"
+          className="text-[11px] tracking-[0.35em] uppercase text-[#888] mb-12"
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
           transition={{ duration: 0.8 }}
@@ -30,6 +31,8 @@ export function Contact() {
         >
           <a
             href="mailto:haden.cain@gmail.com"
+            onMouseEnter={emitFieldPulse}
+            onFocus={emitFieldPulse}
             className="border border-[#343434] text-[#787878] text-[11px] tracking-[0.25em] px-5 py-3 hover:border-[#555] hover:text-[#aaa] transition-all duration-300 inline-block"
           >
             EMAIL
@@ -38,6 +41,8 @@ export function Contact() {
             href="https://keybase.io/hadencain"
             target="_blank"
             rel="noopener noreferrer"
+            onMouseEnter={emitFieldPulse}
+            onFocus={emitFieldPulse}
             className="border border-[#343434] text-[#787878] text-[11px] tracking-[0.25em] px-5 py-3 hover:border-[#555] hover:text-[#aaa] transition-all duration-300 inline-block"
           >
             KEYBASE
@@ -48,7 +53,8 @@ export function Contact() {
           <span className="text-[10px] tracking-[0.3em] uppercase text-[#505050]">
             Haden Cain
           </span>
-          <span className="text-[10px] text-[#484848]">{new Date().getFullYear()}</span>
+          {/* -mr compensates the trailing tracking space so the year sits flush right */}
+          <span className="text-[10px] tracking-[0.3em] -mr-[0.3em] text-[#505050]">{new Date().getFullYear()}</span>
         </div>
       </div>
     </section>

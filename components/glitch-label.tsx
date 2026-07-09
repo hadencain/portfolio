@@ -19,6 +19,8 @@ export function GlitchText({ text, className }: { text: string; className?: stri
   const alive = useRef(true);
 
   useEffect(() => {
+    // Reduced motion: the text simply is what it says. No flicker, ever.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     alive.current = true;
     let idle: ReturnType<typeof setTimeout>;
     let ticker: ReturnType<typeof setInterval>;
@@ -66,7 +68,7 @@ export function GlitchText({ text, className }: { text: string; className?: stri
   }, [text]);
 
   const mono: React.CSSProperties = {
-    fontFamily: "ui-monospace, 'Courier New', monospace",
+    fontFamily: "var(--font-geist-mono), ui-monospace, monospace",
     fontSize: "inherit",
     letterSpacing: "inherit",
     whiteSpace: "nowrap" as const,
@@ -135,6 +137,22 @@ export function GlitchLabel() {
     alive.current = true;
     let idle: ReturnType<typeof setTimeout>;
     let ticker: ReturnType<typeof setInterval>;
+
+    // Reduced motion: the label still cycles (the content matters) but as a
+    // plain swap — no substitution frames, no chromatic split, no tears.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const cycle = setInterval(() => {
+        if (!alive.current) return;
+        const next = (currentIdx.current + 1) % LABELS.length;
+        currentIdx.current = next;
+        setLabelIdx(next);
+        setFrame({ ...BASE, chars: LABELS[next] });
+      }, 4000);
+      return () => {
+        alive.current = false;
+        clearInterval(cycle);
+      };
+    }
 
     function makeTears(n: number, intense: boolean): Tear[] {
       return Array.from({ length: n }, () => ({
@@ -217,7 +235,7 @@ export function GlitchLabel() {
 
   const { chars, chromatic, redX, cyanX, skewX, tears } = frame;
   const base: React.CSSProperties = {
-    fontFamily: "monospace",
+    fontFamily: "var(--font-geist-mono), ui-monospace, monospace",
     fontSize: "15px",
     letterSpacing: "0.22em",
     textTransform: "uppercase",

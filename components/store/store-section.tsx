@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { PRODUCTS, type StoreProduct } from "./products";
 import { BuyButton } from "./buy-button";
 import { WaitlistForm } from "./waitlist-form";
+import { emitFieldPulse } from "../field-pulse";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -38,7 +39,9 @@ function Media({ product }: { product: StoreProduct }) {
 function ProductCard({ product, delay }: { product: StoreProduct; delay: number }) {
   return (
     <motion.div
-      className="border border-[#1a1a1a] bg-[#0a0a0a] flex flex-col"
+      onMouseEnter={emitFieldPulse}
+      onFocus={emitFieldPulse}
+      className="border border-[#1e1e1e] hover:border-[#2c2c2c] transition-colors duration-500 bg-[#0a0a0a] flex flex-col"
       initial={{ opacity: 0, y: 14 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
@@ -52,17 +55,17 @@ function ProductCard({ product, delay }: { product: StoreProduct; delay: number 
             href={product.githubUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[10px] font-mono tracking-[0.22em] text-[#555] hover:text-[#888] transition-colors duration-300 shrink-0"
+            className="text-[10px] font-mono tracking-[0.22em] text-[#555] hover:text-[#888] transition-colors duration-300 shrink-0 py-2 -my-2"
           >
             SOURCE
           </a>
         </div>
-        <p className="text-[12px] text-[#606060] font-light leading-relaxed flex-1">
+        <p className="text-[12px] text-[#787878] font-light leading-relaxed flex-1 max-w-[78ch]">
           {product.hook}
         </p>
         <div className="flex flex-wrap gap-2">
           {product.tags.map((t) => (
-            <span key={t} className="text-[9px] font-mono tracking-[0.18em] uppercase text-[#4a4a4a]">
+            <span key={t} className="text-[9px] font-mono tracking-[0.18em] uppercase text-[#606060]">
               {t}
             </span>
           ))}
@@ -82,20 +85,31 @@ export function StoreSection() {
   const waitlist = PRODUCTS.filter((p) => p.status === "waitlist");
 
   return (
-    <section className="min-h-screen pt-40 pb-28 px-8 md:px-16 lg:px-24">
+    <section className="relative min-h-screen pt-40 pb-28 px-8 md:px-16 lg:px-24">
+      {/* Readability scrim behind the header — same treatment as the hero,
+          sized to the header block. Sits above the field, below content. */}
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-[60vh] pointer-events-none -z-[5]"
+        style={{
+          background:
+            "radial-gradient(ellipse 55% 70% at 22% 35%, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.22) 55%, transparent 100%)",
+        }}
+      />
+
       {/* Header — two lines, homepage register */}
       <motion.h1
         className="text-6xl md:text-7xl font-extralight tracking-[-0.02em] text-[#e8e8e8] leading-[0.92] mb-4 select-none"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, ease: EASE }}
       >
         Instruments.
       </motion.h1>
       <motion.p
         className="text-[11px] tracking-[0.3em] uppercase text-[#606060] mb-20"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, delay: 0.15, ease: EASE }}
       >
         experimental audio tools · pay what you want · source on GitHub
@@ -110,10 +124,16 @@ export function StoreSection() {
       {waitlist.length > 0 && (
         <div className="mt-16 max-w-5xl">
           <div className="flex items-center gap-5 mb-8">
-            <span className="text-[10px] tracking-[0.38em] uppercase text-[#606060] shrink-0">
+            <span className="text-[10px] tracking-[0.35em] uppercase text-[#606060] shrink-0">
               In development
             </span>
-            <div className="flex-1 h-px bg-[#1c1c1c]" />
+            <motion.div
+              className="flex-1 h-px bg-[#1c1c1c] origin-left"
+              initial={{ scaleX: 0 }}
+              whileInView={{ scaleX: 1 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 1.2, ease: EASE }}
+            />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {waitlist.map((p, i) => (
@@ -124,14 +144,14 @@ export function StoreSection() {
       )}
 
       <div className="mt-24 pt-8 border-t border-[#1c1c1c] flex gap-8">
-        <Link href="/#work" className="text-[10px] font-mono tracking-[0.22em] text-[#555] hover:text-[#888] transition-colors duration-300">
+        <Link href="/#work" className="text-[10px] font-mono tracking-[0.22em] text-[#555] hover:text-[#888] transition-colors duration-300 py-2 -my-2">
           FREE BROWSER TOOLS
         </Link>
         <a
           href="https://github.com/hadencain"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[10px] font-mono tracking-[0.22em] text-[#555] hover:text-[#888] transition-colors duration-300"
+          className="text-[10px] font-mono tracking-[0.22em] text-[#555] hover:text-[#888] transition-colors duration-300 py-2 -my-2"
         >
           GITHUB
         </a>

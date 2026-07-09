@@ -2,12 +2,16 @@
 
 import { motion } from "framer-motion";
 import { GlitchLabel } from "./glitch-label";
+import { emitFieldPulse } from "./field-pulse";
 
-function fadeUp(delay: number) {
+// Entrance choreography: the name is the mass — it travels further and
+// settles slower; the micro elements are instrumentation — shorter throw,
+// quicker settle. Same curve, same order, differentiated weight.
+function fadeUp(delay: number, y = 10, duration = 0.7) {
   return {
-    initial: { opacity: 0, y: 16 },
+    initial: { opacity: 0, y },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] as const },
+    transition: { duration, delay, ease: [0.22, 1, 0.36, 1] as const },
   };
 }
 
@@ -27,7 +31,7 @@ const SOCIALS = [
 
 export function Hero() {
   return (
-    <section id="hero" className="relative min-h-screen h-screen overflow-x-hidden">
+    <section id="hero" className="relative min-h-screen overflow-x-hidden">
       {/* Readability gradient — the contour field shows through everywhere else */}
       <div
         className="absolute inset-0 pointer-events-none"
@@ -37,7 +41,7 @@ export function Hero() {
         }}
       />
 
-      <div className="relative z-10 flex items-center h-full px-8 md:px-16 lg:px-24 pt-24">
+      <div className="relative z-10 flex items-center min-h-screen px-8 md:px-16 lg:px-24 pt-24">
         <div>
           <motion.div className="mb-8" {...fadeUp(0.1)}>
             <GlitchLabel />
@@ -45,7 +49,7 @@ export function Hero() {
 
           <motion.h1
             className="text-7xl md:text-8xl lg:text-9xl font-extralight tracking-[-0.02em] text-[#e8e8e8] leading-[0.92] mb-10 select-none"
-            {...fadeUp(0.2)}
+            {...fadeUp(0.2, 22, 1.1)}
           >
             HADEN
             <br />
@@ -55,10 +59,16 @@ export function Hero() {
           <motion.nav
             className="flex flex-col gap-3 mb-12"
             aria-label="Project sections"
-            {...fadeUp(0.35)}
+            {...fadeUp(0.35, 12, 0.8)}
           >
             {SECTIONS.map((s) => (
-              <a key={s.href} href={s.href} className="group flex items-baseline gap-4 w-fit">
+              <a
+                key={s.href}
+                href={s.href}
+                onMouseEnter={emitFieldPulse}
+                onFocus={emitFieldPulse}
+                className="group flex items-baseline gap-4 w-fit py-1 -my-1"
+              >
                 <span className="text-[10px] tracking-[0.2em] text-[#606060] group-hover:text-[#787878] transition-colors duration-300">
                   {s.n}
                 </span>
