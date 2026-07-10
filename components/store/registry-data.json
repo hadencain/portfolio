@@ -1,0 +1,159 @@
+{
+  "niches": [
+    { "id": "audio", "label": "Audio & music production" },
+    { "id": "local-ai", "label": "Local-first AI" },
+    { "id": "data", "label": "Data" },
+    { "id": "spatial", "label": "Spatial" },
+    { "id": "training", "label": "Training" },
+    { "id": "desktop", "label": "Desktop & dev tools" }
+  ],
+  "tools": [
+    {
+      "slug": "smear",
+      "title": "Smear",
+      "niche": "audio",
+      "pitch": "Spectral blur — sound smears through time, from intact pitch to infinite wash.",
+      "audience": "For sound designers and ambient producers who want motion frozen into texture.",
+      "tag": "smear",
+      "status": "listed",
+      "capturePrompt": "Get the installer",
+      "captureCta": "NOTIFY ME"
+    },
+    {
+      "slug": "gravity-well",
+      "title": "Gravity Well",
+      "niche": "audio",
+      "pitch": "A spectral black hole — audio redshifts toward a floor frequency and time dilates as mass accumulates.",
+      "audience": "For sound designers chasing weight — scores, drones, sound that collapses inward.",
+      "tag": "gravity-well",
+      "status": "listed",
+      "screenshot": "/store/gravity-well.png",
+      "ogImage": "/store/gravity-well.png",
+      "capturePrompt": "Get the installer",
+      "captureCta": "NOTIFY ME"
+    },
+    {
+      "slug": "white-hole",
+      "title": "White Hole",
+      "niche": "audio",
+      "pitch": "An anti-mass spectral leveler — buried detail lifts into audibility, peaks flatten toward the floor.",
+      "audience": "For producers who want buried detail surfaced without a compressor's pumping.",
+      "tag": "white-hole",
+      "status": "listed",
+      "screenshot": "/store/white-hole.png",
+      "ogImage": "/store/white-hole.png",
+      "capturePrompt": "Get the installer",
+      "captureCta": "NOTIFY ME"
+    },
+    {
+      "slug": "fracture",
+      "title": "Fracture",
+      "niche": "audio",
+      "pitch": "Granular reverb — a reverb tail fragmented into crystalline, disintegrating decays.",
+      "audience": "For producers who want reverbs that fall apart beautifully instead of just fading.",
+      "tag": "fracture",
+      "status": "listed",
+      "capturePrompt": "Get the installer",
+      "captureCta": "NOTIFY ME"
+    },
+    {
+      "slug": "sample-viewer",
+      "title": "sampleViewer",
+      "niche": "audio",
+      "pitch": "Your sample library as a navigable map — tempo, key, and sonic similarity, drag straight into your DAW.",
+      "audience": "For producers whose sample library outgrew their memory of it.",
+      "tag": "sample-viewer",
+      "status": "listed",
+      "capturePrompt": "Join the beta",
+      "captureCta": "JOIN BETA"
+    },
+    {
+      "slug": "anchor",
+      "title": "anchor",
+      "niche": "local-ai",
+      "pitch": "Web search → local-LLM synthesis with cited answers. Perplexity, without sending your queries anywhere.",
+      "audience": "For people who want cited answers without handing their questions to a cloud.",
+      "tag": "anchor",
+      "status": "listed",
+      "capturePrompt": "Get notified",
+      "captureCta": "NOTIFY ME"
+    },
+    {
+      "slug": "vox",
+      "title": "Vox",
+      "niche": "local-ai",
+      "pitch": "Offline dictation — hold a key, talk, and cleaned-up text lands in whatever window has focus.",
+      "audience": "For writers and devs who talk faster than they type and won't install cloud dictation.",
+      "tag": "vox",
+      "status": "listed",
+      "capturePrompt": "Get notified",
+      "captureCta": "NOTIFY ME"
+    },
+    {
+      "slug": "local-ai-voiceover",
+      "title": "localAIVoiceover",
+      "niche": "local-ai",
+      "pitch": "Local text-to-speech that reads your notes back as chapterized audiobooks.",
+      "audience": "For note-takers who want their writing read back — locally, on their own machine.",
+      "tag": "local-ai-voiceover",
+      "status": "listed",
+      "capturePrompt": "Get notified",
+      "captureCta": "NOTIFY ME"
+    },
+    {
+      "slug": "assay",
+      "title": "Assay",
+      "niche": "data",
+      "pitch": "A dataset investigation workbench — from a raw download to verified findings.",
+      "audience": "For people who investigate datasets instead of just downloading them.",
+      "tag": "assay",
+      "status": "listed",
+      "capturePrompt": "Get notified",
+      "captureCta": "NOTIFY ME"
+    },
+    {
+      "slug": "indoor-maps",
+      "title": "indoorMaps",
+      "niche": "spatial",
+      "pitch": "Indoor mapping and wayfinding authoring — floors, rooms, doors, cross-floor routing.",
+      "audience": "For anyone who needs wayfinding in a building Google doesn't map.",
+      "tag": "indoor-maps",
+      "status": "listed",
+      "capturePrompt": "Get notified",
+      "captureCta": "NOTIFY ME"
+    },
+    {
+      "slug": "poker-coach",
+      "title": "pokerCoach",
+      "niche": "training",
+      "pitch": "A single-player poker table that tracks the stats conversation — VPIP, PFR, aggression — while you play.",
+      "audience": "For players who want the numbers conversation without staking real tables.",
+      "tag": "poker-coach",
+      "status": "listed",
+      "capturePrompt": "Get notified",
+      "captureCta": "NOTIFY ME"
+    },
+    {
+      "slug": "pomodoro",
+      "title": "pomodoro-timer",
+      "niche": "desktop",
+      "pitch": "A desktop pomodoro timer that stays out of the way — tray-native, no account, no sync.",
+      "audience": "For desk workers who want a timer, not a productivity platform.",
+      "tag": "pomodoro",
+      "status": "listed",
+      "capturePrompt": "Get notified",
+      "captureCta": "NOTIFY ME"
+    },
+    {
+      "slug": "claude-dispatch",
+      "title": "claude-dispatch",
+      "niche": "desktop",
+      "pitch": "A dispatch hub for Claude Code sessions — queue work, launch sessions, watch tokens and cost.",
+      "audience": "For Claude Code users running more sessions than they can hold in their head.",
+      "tag": "claude-dispatch",
+      "status": "listed",
+      "capturePrompt": "Get notified",
+      "captureCta": "NOTIFY ME"
+    }
+  ]
+}
