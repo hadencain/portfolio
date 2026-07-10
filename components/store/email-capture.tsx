@@ -16,7 +16,7 @@ export function EmailCapture({
   const configured = BUTTONDOWN_USERNAME.length > 0;
   return (
     <div className="flex flex-col gap-3 max-w-md">
-      <p className="text-[11px] tracking-[0.3em] uppercase text-[#606060]">{prompt}</p>
+      <p className="text-[11px] font-mono tracking-[0.3em] uppercase text-[#606060]">{prompt}</p>
       {hint && (
         <p className="text-[12px] text-[#787878] font-light leading-relaxed">{hint}</p>
       )}
