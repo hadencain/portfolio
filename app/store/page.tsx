@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import { Nav } from "@/components/nav";
 import { ContourField } from "@/components/contour-field";
-import { StoreSection } from "@/components/store/store-section";
+import { StoreHub } from "@/components/store/store-hub";
 
 export const metadata: Metadata = {
-  title: "Store — Haden Cain",
+  title: "Tools — Haden Cain",
   description:
-    "Experimental audio tools. Pay what you want. Source on GitHub.",
+    "Small software for specific people — audio, local-first AI, data, spatial, training, desktop tools.",
   openGraph: {
-    title: "Store — Haden Cain",
-    description: "Experimental audio tools. Pay what you want. Source on GitHub.",
+    title: "Tools — Haden Cain",
+    description:
+      "Small software for specific people — audio, local-first AI, data, spatial, training, desktop tools.",
     type: "website",
   },
 };
@@ -20,7 +21,7 @@ export default function Store() {
       <ContourField />
       <Nav />
       <main>
-        <StoreSection />
+        <StoreHub />
       </main>
     </>
   );
