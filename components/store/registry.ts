@@ -10,6 +10,7 @@ export type NicheId =
   | "data"
   | "spatial"
   | "training"
+  | "mobile"
   | "desktop";
 
 // "retired" is reserved (spec: declined for v1) — the type admits it so the
@@ -37,7 +38,7 @@ export interface Tool {
 
 // Buttondown username. Empty string = every capture form renders disabled
 // with a "soon" hint; the site deploys before the account exists.
-export const BUTTONDOWN_USERNAME = "";
+export const BUTTONDOWN_USERNAME = "hadencain";
 
 export const NICHES = data.niches as Niche[];
 export const TOOLS = data.tools as unknown as Tool[];

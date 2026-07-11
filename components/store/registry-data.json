@@ -5,6 +5,7 @@
     { "id": "data", "label": "Data" },
     { "id": "spatial", "label": "Spatial" },
     { "id": "training", "label": "Training" },
+    { "id": "mobile", "label": "Mobile" },
     { "id": "desktop", "label": "Desktop & dev tools" }
   ],
   "tools": [
@@ -129,6 +130,17 @@
       "pitch": "A single-player poker table that tracks the stats conversation — VPIP, PFR, aggression — while you play.",
       "audience": "For players who want the numbers conversation without staking real tables.",
       "tag": "poker-coach",
+      "status": "page",
+      "capturePrompt": "Get notified",
+      "captureCta": "NOTIFY ME"
+    },
+    {
+      "slug": "daily-prayer",
+      "title": "dailyPrayer",
+      "niche": "mobile",
+      "pitch": "A pray-to-unlock app blocker — your phone opens after a guided prayer, not before.",
+      "audience": "For Christians who want prayer to come before the scroll.",
+      "tag": "daily-prayer",
       "status": "page",
       "capturePrompt": "Get notified",
       "captureCta": "NOTIFY ME"
