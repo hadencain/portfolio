@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 export default function Store() {
   return (
     <>
-      <ContourField />
+      <ContourField calm />
       <Nav />
       <main>
         <StoreHub />

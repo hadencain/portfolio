@@ -9,7 +9,7 @@ export const metadata: Metadata = toolMetadata("fracture");
 export default function FracturePage() {
   return (
     <>
-      <ContourField />
+      <ContourField calm />
       <Nav />
       <main>
         <FractureLanding />

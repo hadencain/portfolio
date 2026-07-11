@@ -9,7 +9,7 @@ export const metadata: Metadata = toolMetadata("gravity-well");
 export default function GravityWellPage() {
   return (
     <>
-      <ContourField />
+      <ContourField calm />
       <Nav />
       <main>
         <GravityWellLanding />

@@ -9,7 +9,7 @@ export const metadata: Metadata = toolMetadata("smear");
 export default function SmearPage() {
   return (
     <>
-      <ContourField />
+      <ContourField calm />
       <Nav />
       <main>
         <SmearLanding />

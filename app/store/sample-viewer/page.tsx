@@ -9,7 +9,7 @@ export const metadata: Metadata = toolMetadata("sample-viewer");
 export default function SampleViewerPage() {
   return (
     <>
-      <ContourField />
+      <ContourField calm />
       <Nav />
       <main>
         <SampleViewerLanding />

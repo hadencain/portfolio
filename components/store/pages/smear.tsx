@@ -59,10 +59,10 @@ export function SmearLanding() {
     <section className="relative min-h-screen pt-40 pb-28 px-8 md:px-16 lg:px-24">
       <div
         aria-hidden
-        className="absolute inset-x-0 top-0 h-[60vh] pointer-events-none -z-[5]"
+        className="absolute inset-0 pointer-events-none -z-[5]"
         style={{
           background:
-            "radial-gradient(ellipse 55% 70% at 22% 35%, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.22) 55%, transparent 100%)",
+            "linear-gradient(to right, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.52) 62%, rgba(0,0,0,0.18) 85%, transparent 100%)",
         }}
       />
 

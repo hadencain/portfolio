@@ -91,7 +91,7 @@ interface Pulse {
   t0: number;
 }
 
-export function ContourField() {
+export function ContourField({ calm = false }: { calm?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -170,7 +170,10 @@ export function ContourField() {
       });
 
       // Full amplitude in the hero, dimmed ~45% once content arrives.
-      const dim = 1 - 0.55 * sstep(0.3, 1, window.scrollY / (h * 0.9));
+      // calm pages (reading-first, text from the top) cap the field at the
+      // dimmed level from scroll 0 — they have no hero to earn full brightness.
+      const scrollDim = 1 - 0.55 * sstep(0.3, 1, window.scrollY / (h * 0.9));
+      const dim = calm ? Math.min(scrollDim, 0.32) : scrollDim;
       const spacing = coarse ? 22 : 14;
       const nLines = Math.max(10, Math.floor(h / spacing));
       const step = Math.max(4, Math.floor(w / 160));
@@ -291,7 +294,7 @@ export function ContourField() {
       document.removeEventListener("mouseleave", onMouseOut);
       window.removeEventListener("scroll", onScrollStatic);
     };
-  }, []);
+  }, [calm]);
 
   return (
     <canvas ref={ref} className="fixed inset-0 -z-10 pointer-events-none" aria-hidden />

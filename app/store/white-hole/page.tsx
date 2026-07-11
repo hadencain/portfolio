@@ -9,7 +9,7 @@ export const metadata: Metadata = toolMetadata("white-hole");
 export default function WhiteHolePage() {
   return (
     <>
-      <ContourField />
+      <ContourField calm />
       <Nav />
       <main>
         <WhiteHoleLanding />
