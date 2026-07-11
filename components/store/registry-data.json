@@ -151,7 +151,7 @@
       "pitch": "A dispatch hub for Claude Code sessions — queue work, launch sessions, watch tokens and cost.",
       "audience": "For Claude Code users running more sessions than they can hold in their head.",
       "tag": "claude-dispatch",
-      "status": "listed",
+      "status": "page",
       "capturePrompt": "Get notified",
       "captureCta": "NOTIFY ME"
     }
