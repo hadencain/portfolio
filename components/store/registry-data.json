@@ -85,7 +85,7 @@
       "pitch": "Offline dictation — hold a key, talk, and cleaned-up text lands in whatever window has focus.",
       "audience": "For writers and devs who talk faster than they type and won't install cloud dictation.",
       "tag": "vox",
-      "status": "listed",
+      "status": "page",
       "capturePrompt": "Get notified",
       "captureCta": "NOTIFY ME"
     },
