@@ -140,7 +140,7 @@
       "pitch": "A desktop pomodoro timer that stays out of the way — tray-native, no account, no sync.",
       "audience": "For desk workers who want a timer, not a productivity platform.",
       "tag": "pomodoro",
-      "status": "listed",
+      "status": "page",
       "capturePrompt": "Get notified",
       "captureCta": "NOTIFY ME"
     },
