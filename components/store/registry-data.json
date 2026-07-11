@@ -96,7 +96,7 @@
       "pitch": "Local text-to-speech that reads your notes back as chapterized audiobooks.",
       "audience": "For note-takers who want their writing read back — locally, on their own machine.",
       "tag": "local-ai-voiceover",
-      "status": "listed",
+      "status": "page",
       "capturePrompt": "Get notified",
       "captureCta": "NOTIFY ME"
     },
