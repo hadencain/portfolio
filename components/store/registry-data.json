@@ -129,7 +129,7 @@
       "pitch": "A single-player poker table that tracks the stats conversation — VPIP, PFR, aggression — while you play.",
       "audience": "For players who want the numbers conversation without staking real tables.",
       "tag": "poker-coach",
-      "status": "listed",
+      "status": "page",
       "capturePrompt": "Get notified",
       "captureCta": "NOTIFY ME"
     },
