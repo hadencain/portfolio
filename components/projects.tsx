@@ -45,6 +45,13 @@ const AUDIO: Project[] = [
     github: "https://github.com/hadencain/TCGS",
   },
   {
+    title: "TCDM",
+    description:
+      "Terminal-controlled drum machine. Sample-accurate step transport, per-step Elektron-style param locks, an 8-slot pattern bank with chaining, a full master FX chain (waveshaper/EQ/chorus/delay/reverb/limiter), and a live Textual TUI with a sweeping step-grid.",
+    tags: ["Python", "numpy", "scipy", "Textual"],
+    github: "https://github.com/hadencain/TCDM",
+  },
+  {
     title: "audioSort",
     description:
       "Audio sample organizer evolved from keyword matching into a weighted multi-signal classifier — path context, metadata, librosa spectral analysis, and an AST ML model.",
