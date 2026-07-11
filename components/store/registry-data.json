@@ -74,7 +74,7 @@
       "pitch": "Web search → local-LLM synthesis with cited answers. Perplexity, without sending your queries anywhere.",
       "audience": "For people who want cited answers without handing their questions to a cloud.",
       "tag": "anchor",
-      "status": "listed",
+      "status": "page",
       "capturePrompt": "Get notified",
       "captureCta": "NOTIFY ME"
     },
