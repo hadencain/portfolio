@@ -11,20 +11,20 @@ function ToolRow({ tool, delay }: { tool: Tool; delay: number }) {
   const inner = (
     <>
       <div className="flex items-baseline justify-between gap-6">
-        <h3 className="text-[15px] font-light text-[#c8c8c8] leading-snug shrink-0">
+        <h3 className="text-[15px] font-light text-[#c2bbab] leading-snug shrink-0">
           {tool.title}
         </h3>
         {tool.status === "page" ? (
-          <span className="text-[10px] font-mono tracking-[0.22em] text-[#555] uppercase shrink-0">
+          <span className="text-[10px] font-mono tracking-[0.22em] text-[#5c564a] uppercase shrink-0">
             →
           </span>
         ) : (
-          <span className="text-[9px] font-mono tracking-[0.22em] text-[#3d3d3d] uppercase shrink-0">
+          <span className="text-[9px] font-mono tracking-[0.22em] text-[#4e483c] uppercase shrink-0">
             soon
           </span>
         )}
       </div>
-      <p className="text-[12px] text-[#787878] font-light leading-relaxed max-w-[70ch]">
+      <p className="text-[12px] text-[#7d7566] font-light leading-relaxed max-w-[70ch]">
         {tool.pitch}
       </p>
     </>
@@ -42,12 +42,12 @@ function ToolRow({ tool, delay }: { tool: Tool; delay: number }) {
           href={`/store/${tool.slug}`}
           onMouseEnter={emitFieldPulse}
           onFocus={emitFieldPulse}
-          className="flex flex-col gap-2 py-5 border-b border-[#161616] hover:border-[#2c2c2c] transition-colors duration-500 group"
+          className="flex flex-col gap-2 py-5 border-b border-[#1d1a15] hover:border-[#322d24] transition-colors duration-500 group"
         >
           {inner}
         </Link>
       ) : (
-        <div className="flex flex-col gap-2 py-5 border-b border-[#161616] opacity-45 select-none">
+        <div className="flex flex-col gap-2 py-5 border-b border-[#1d1a15] opacity-45 select-none">
           {inner}
         </div>
       )}
@@ -66,12 +66,12 @@ export function StoreHub() {
         className="absolute inset-0 pointer-events-none -z-[5]"
         style={{
           background:
-            "linear-gradient(to right, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.52) 62%, rgba(0,0,0,0.18) 85%, transparent 100%)",
+            "linear-gradient(to right, rgba(18,16,12,0.62) 0%, rgba(18,16,12,0.52) 62%, rgba(18,16,12,0.18) 85%, transparent 100%)",
         }}
       />
 
       <motion.h1
-        className="text-6xl md:text-7xl font-extralight tracking-[-0.02em] text-[#e8e8e8] leading-[0.92] mb-4 select-none"
+        className="display text-6xl md:text-7xl tracking-[-0.01em] text-[#e3ddd0] leading-[0.9] mb-4 select-none"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, ease: EASE }}
@@ -79,7 +79,7 @@ export function StoreHub() {
         Tools.
       </motion.h1>
       <motion.p
-        className="text-[11px] tracking-[0.3em] uppercase text-[#606060] mb-20"
+        className="text-[11px] tracking-[0.3em] uppercase text-[#665f51] mb-20"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, delay: 0.15, ease: EASE }}
@@ -94,11 +94,11 @@ export function StoreHub() {
           return (
             <div key={niche.id}>
               <div className="flex items-center gap-5 mb-2">
-                <span className="text-[10px] tracking-[0.35em] uppercase text-[#606060] shrink-0">
+                <span className="text-[10px] tracking-[0.35em] uppercase text-[#665f51] shrink-0">
                   {niche.label}
                 </span>
                 <motion.div
-                  className="flex-1 h-px bg-[#1c1c1c] origin-left"
+                  className="flex-1 h-px bg-[#24201a] origin-left"
                   initial={{ scaleX: 0 }}
                   whileInView={{ scaleX: 1 }}
                   viewport={{ once: true, margin: "-60px" }}
@@ -113,10 +113,10 @@ export function StoreHub() {
         })}
       </div>
 
-      <div className="mt-24 pt-8 border-t border-[#1c1c1c] flex gap-8">
+      <div className="mt-24 pt-8 border-t border-[#24201a] flex gap-8">
         <Link
           href="/#work"
-          className="text-[10px] font-mono tracking-[0.22em] text-[#555] hover:text-[#888] transition-colors duration-300 py-2 -my-2"
+          className="text-[10px] font-mono tracking-[0.22em] text-[#5c564a] hover:text-[#8d867a] transition-colors duration-300 py-2 -my-2"
         >
           FREE BROWSER TOOLS
         </Link>
@@ -124,7 +124,7 @@ export function StoreHub() {
           href="https://github.com/hadencain"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[10px] font-mono tracking-[0.22em] text-[#555] hover:text-[#888] transition-colors duration-300 py-2 -my-2"
+          className="text-[10px] font-mono tracking-[0.22em] text-[#5c564a] hover:text-[#8d867a] transition-colors duration-300 py-2 -my-2"
         >
           GITHUB
         </a>

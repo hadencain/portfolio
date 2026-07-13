@@ -44,13 +44,13 @@ function fmtP(p: number) {
 function FindingBlock({ f, slug, i }: { f: Finding; slug: string; i: number }) {
   return (
     <motion.div
-      className="border-t border-[#1e1e1e] py-10"
+      className="border-t border-[#262218] py-10"
       initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.7, delay: 0.05 * i, ease: EASE }}
     >
-      <h3 className="text-[15px] font-light text-[#c8c8c8] leading-snug mb-3">
+      <h3 className="text-[15px] font-light text-[#c2bbab] leading-snug mb-3">
         {f.question}
       </h3>
       <p className="text-[11px] font-mono text-[#777] mb-1">
@@ -65,7 +65,7 @@ function FindingBlock({ f, slug, i }: { f: Finding; slug: string; i: number }) {
         <img
           src={`/research/${slug}/${f.figure}`}
           alt={f.question}
-          className="w-full max-w-2xl border border-[#1e1e1e] bg-[#fcfcfb]"
+          className="w-full max-w-2xl border border-[#262218] bg-[#fcfcfb]"
           loading="lazy"
           decoding="async"
         />
@@ -85,12 +85,12 @@ export function EntryView({ slug }: { slug: string }) {
   }, [slug]);
 
   if (entry === null)
-    return <p className="px-8 md:px-16 lg:px-24 pt-36 text-[12px] font-mono text-[#555]">loading…</p>;
+    return <p className="px-8 md:px-16 lg:px-24 pt-36 text-[12px] font-mono text-[#5c564a]">loading…</p>;
   if (entry === "missing")
     return (
       <div className="px-8 md:px-16 lg:px-24 pt-36">
-        <p className="text-[12px] font-mono text-[#555] mb-4">Entry not found.</p>
-        <Link href="/research" className="text-[10px] font-mono tracking-[0.22em] uppercase text-[#777] hover:text-[#aaa]">
+        <p className="text-[12px] font-mono text-[#5c564a] mb-4">Entry not found.</p>
+        <Link href="/research" className="text-[10px] font-mono tracking-[0.22em] uppercase text-[#777] hover:text-[#a69f8f]">
           ← Research
         </Link>
       </div>
@@ -101,16 +101,16 @@ export function EntryView({ slug }: { slug: string }) {
     <article className="px-8 md:px-16 lg:px-24 pt-36 pb-28 max-w-3xl">
       <Link
         href="/research"
-        className="text-[10px] font-mono tracking-[0.22em] uppercase text-[#555] hover:text-[#999] transition-colors"
+        className="text-[10px] font-mono tracking-[0.22em] uppercase text-[#5c564a] hover:text-[#999] transition-colors"
       >
         ← Research
       </Link>
       <div className="flex items-baseline gap-6 mt-8 mb-3">
-        <span className="text-[10px] font-mono tracking-[0.22em] text-[#555] uppercase">{entry.date}</span>
-        <span className="text-[10px] font-mono tracking-[0.22em] text-[#555] uppercase">{entry.dataset}</span>
+        <span className="text-[10px] font-mono tracking-[0.22em] text-[#5c564a] uppercase">{entry.date}</span>
+        <span className="text-[10px] font-mono tracking-[0.22em] text-[#5c564a] uppercase">{entry.dataset}</span>
       </div>
       <motion.h1
-        className="text-[26px] md:text-[32px] font-light text-[#c8c8c8] leading-tight mb-5"
+        className="text-[26px] md:text-[32px] font-light text-[#c2bbab] leading-tight mb-5"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: EASE }}
@@ -120,7 +120,7 @@ export function EntryView({ slug }: { slug: string }) {
       {entry.abstract && (
         <p className="text-[14px] leading-relaxed text-[#999] mb-6">{entry.abstract}</p>
       )}
-      <p className="text-[11px] font-mono text-[#555] mb-12">
+      <p className="text-[11px] font-mono text-[#5c564a] mb-12">
         {c.total} tests · {c.survivors} survived correction · {c.confirmed} independently
         confirmed{c.flagged ? ` · ${c.flagged} flagged` : ""}{c.unverifiable ? ` · ${c.unverifiable} unverifiable` : ""}
       </p>
@@ -141,8 +141,8 @@ export function EntryView({ slug }: { slug: string }) {
       ))}
 
       {entry.synthesis && (
-        <div className="border-t border-[#1e1e1e] pt-10 mt-2">
-          <p className="text-[10px] font-mono tracking-[0.22em] uppercase text-[#555] mb-4">
+        <div className="border-t border-[#262218] pt-10 mt-2">
+          <p className="text-[10px] font-mono tracking-[0.22em] uppercase text-[#5c564a] mb-4">
             Synthesis — interpretation
           </p>
           {entry.synthesis.split(/\n\n+/).map((para, i) => (

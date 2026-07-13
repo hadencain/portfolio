@@ -22,7 +22,7 @@ function EntryCard({ card, delay }: { card: ResearchCard; delay: number }) {
     <motion.div
       onMouseEnter={emitFieldPulse}
       onFocus={emitFieldPulse}
-      className="border border-[#1e1e1e] hover:border-[#2c2c2c] transition-colors duration-500 bg-[#0a0a0a]"
+      className="border border-[#262218] hover:border-[#322d24] transition-colors duration-500 bg-[#0a0a0a]"
       initial={{ opacity: 0, y: 14 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
@@ -30,20 +30,20 @@ function EntryCard({ card, delay }: { card: ResearchCard; delay: number }) {
     >
       <Link href={`/research/${card.slug}`} className="flex flex-col gap-4 p-6">
         <div className="flex items-baseline justify-between gap-4">
-          <span className="text-[10px] font-mono tracking-[0.22em] text-[#555] uppercase">
+          <span className="text-[10px] font-mono tracking-[0.22em] text-[#5c564a] uppercase">
             {card.date ?? ""}
           </span>
-          <span className="text-[10px] font-mono tracking-[0.22em] text-[#555] uppercase truncate">
+          <span className="text-[10px] font-mono tracking-[0.22em] text-[#5c564a] uppercase truncate">
             {card.dataset ?? ""}
           </span>
         </div>
-        <h3 className="text-[15px] font-light text-[#c8c8c8] leading-snug">
+        <h3 className="text-[15px] font-light text-[#c2bbab] leading-snug">
           {card.title}
         </h3>
         {card.abstract && (
           <p className="text-[12px] leading-relaxed text-[#777]">{card.abstract}</p>
         )}
-        <span className="text-[10px] font-mono tracking-[0.22em] text-[#555] uppercase">
+        <span className="text-[10px] font-mono tracking-[0.22em] text-[#5c564a] uppercase">
           {card.n_findings ?? 0} verified finding{(card.n_findings ?? 0) === 1 ? "" : "s"} →
         </span>
       </Link>
@@ -64,9 +64,9 @@ export function ResearchSection() {
   return (
     <section className="px-8 md:px-16 lg:px-24 pt-36 pb-28 max-w-5xl">
       {cards === null ? (
-        <p className="text-[12px] font-mono text-[#555]">loading…</p>
+        <p className="text-[12px] font-mono text-[#5c564a]">loading…</p>
       ) : cards.length === 0 ? (
-        <p className="text-[12px] font-mono text-[#555]">No published research yet.</p>
+        <p className="text-[12px] font-mono text-[#5c564a]">No published research yet.</p>
       ) : (
         <div className="grid gap-6 md:grid-cols-2">
           {cards.map((c, i) => (
