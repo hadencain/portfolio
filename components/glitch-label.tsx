@@ -79,12 +79,12 @@ export function GlitchText({ text, className }: { text: string; className?: stri
   return (
     <span style={{ position: "relative", display: "inline-block", transform: chromatic ? `skewX(${skewX}deg)` : "none" }}>
       {chromatic && (
-        <span aria-hidden style={{ ...mono, position: "absolute", inset: 0, color: "rgba(255,35,35,0.60)", transform: `translateX(${redX}px)`, pointerEvents: "none", userSelect: "none" }}>
+        <span aria-hidden style={{ ...mono, position: "absolute", inset: 0, color: "rgba(158,43,37,0.9)", transform: `translateX(${redX}px)`, pointerEvents: "none", userSelect: "none" }}>
           {chars}
         </span>
       )}
       {chromatic && (
-        <span aria-hidden style={{ ...mono, position: "absolute", inset: 0, color: "rgba(0,215,205,0.60)", transform: `translateX(${cyanX}px)`, pointerEvents: "none", userSelect: "none" }}>
+        <span aria-hidden style={{ ...mono, position: "absolute", inset: 0, color: "rgba(227,221,208,0.38)", transform: `translateX(${cyanX}px)`, pointerEvents: "none", userSelect: "none" }}>
           {chars}
         </span>
       )}
@@ -259,7 +259,7 @@ export function GlitchLabel() {
             ...base,
             position: "absolute",
             inset: 0,
-            color: "rgba(255,35,35,0.60)",
+            color: "rgba(158,43,37,0.9)",
             transform: `translateX(${redX}px)`,
             pointerEvents: "none",
             userSelect: "none",
@@ -275,7 +275,7 @@ export function GlitchLabel() {
             ...base,
             position: "absolute",
             inset: 0,
-            color: "rgba(0,215,205,0.60)",
+            color: "rgba(227,221,208,0.38)",
             transform: `translateX(${cyanX}px)`,
             pointerEvents: "none",
             userSelect: "none",
@@ -286,7 +286,7 @@ export function GlitchLabel() {
       {/* Main text */}
       <span
         aria-label={LABELS[labelIdx]}
-        style={{ ...base, color: "#aaa", position: "relative", zIndex: 1 }}
+        style={{ ...base, color: "#b3ac9b", position: "relative", zIndex: 1 }}
       >{chars}</span>
 
       {/* Scan-line tears — extend spatially into the canvas behind */}
@@ -300,7 +300,7 @@ export function GlitchLabel() {
             top:     `${t.y}px`,
             width:   `${t.w}px`,
             height:  `${t.h}px`,
-            background: "rgba(200,200,200,0.06)",
+            background: "rgba(227,221,208,0.06)",
             backdropFilter: "brightness(2)",
             pointerEvents: "none",
             zIndex: 0,

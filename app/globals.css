@@ -1,8 +1,26 @@
 @import "tailwindcss";
 
+/* ── PRESSWORK token system ──────────────────────────────────────────────────
+   Ink and paper, one blood accent. The site reads as a printed instrument
+   catalog run through its own tools: dithered, annotated, mis-registered. */
+
+@theme {
+  --color-ink: #12100c;      /* warm near-black — the black plate */
+  --color-ink-2: #1c1913;    /* raised ink surface / rules on ink */
+  --color-ink-3: #2b2720;    /* interactive borders on ink */
+  --color-paper: #e3ddd0;    /* bone paper */
+  --color-paper-dim: #b3ac9b;/* secondary text on ink */
+  --color-paper-mute: #7d7566; /* tertiary text on ink */
+  --color-blood: #9e2b25;    /* the red plate — functional only */
+  --color-ink-faded: #565146;  /* secondary text on paper */
+  --color-ink-ghost: #8d867a;  /* tertiary text on paper */
+  --color-paper-rule: #c6bfae; /* hairlines on paper */
+}
+
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-bodoni);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -12,19 +30,19 @@
 }
 
 body {
-  background-color: #080808;
-  color: #e8e8e8;
+  background-color: #12100c;
+  color: #e3ddd0;
   font-family: var(--font-geist-sans), ui-sans-serif, sans-serif;
 }
 
-/* Selection reads as a measurement marker: inverted, warm-white on ink */
+/* Selection reads as a press proof mark: blood plate over paper */
 ::selection {
-  background-color: #e8e4dc;
-  color: #080808;
+  background-color: #9e2b25;
+  color: #e3ddd0;
 }
 
 :focus-visible {
-  outline: 2px solid rgba(232, 228, 220, 0.6);
+  outline: 2px solid rgba(158, 43, 37, 0.85);
   outline-offset: 3px;
 }
 
@@ -33,9 +51,103 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #080808;
+  background: #12100c;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #222;
+  background: #3a352b;
+}
+
+/* ── Print artifacts ───────────────────────────────────────────────────────── */
+
+/* Photocopy grain — one fixed compositor layer over everything. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.055;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 240px 240px;
+}
+
+/* Halftone dot field — the xerox mid-tone. Color via currentColor. */
+.halftone {
+  background-image: radial-gradient(currentColor 1px, transparent 1px);
+  background-size: 5px 5px;
+}
+
+.halftone-coarse {
+  background-image: radial-gradient(currentColor 1.2px, transparent 1.2px);
+  background-size: 9px 9px;
+}
+
+/* Display face — poster setting: tight, tall, condensed by the letterforms */
+.display {
+  font-family: var(--font-bodoni), "Bodoni Moda", Didot, serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Registration crosshair, drawn with borders so it stays crisp at any DPR */
+.regmark {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  opacity: 0.5;
+}
+.regmark::before,
+.regmark::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+.regmark::before {
+  left: 50%;
+  top: -4px;
+  bottom: -4px;
+  width: 1px;
+  transform: translateX(-0.5px);
+}
+.regmark::after {
+  top: 50%;
+  left: -4px;
+  right: -4px;
+  height: 1px;
+  transform: translateY(-0.5px);
+}
+
+/* Mis-registration on hover — the black plate slips, blood shows underneath.
+   Applied to text via a data-text shadow layer. */
+.misreg {
+  position: relative;
+  display: inline-block;
+}
+.misreg::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  color: #9e2b25;
+  transform: translate(0, 0);
+  transition: transform 120ms steps(2, end), opacity 120ms steps(2, end);
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  z-index: -1;
+}
+@media (hover: hover) {
+  a:hover .misreg::before,
+  .misreg-trigger:hover .misreg::before,
+  .misreg:hover::before {
+    opacity: 1;
+    transform: translate(3px, 2px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .misreg::before {
+    transition: none;
+  }
 }

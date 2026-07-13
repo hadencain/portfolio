@@ -1,9 +1,7 @@
 "use client";
 
-import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { motion } from "framer-motion";
 import Link from "next/link";
-import { emitFieldPulse } from "./field-pulse";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -297,21 +295,48 @@ const THREED: Project[] = [
   },
 ];
 
+// ─── Plates ───────────────────────────────────────────────────────────────────
+
+const PLATES = [
+  { id: "audio", plate: "01", label: "AUDIO", projects: AUDIO },
+  { id: "video", plate: "02", label: "VIDEO", projects: VIDEO },
+  { id: "security", plate: "03", label: "SECURITY", projects: SECURITY },
+  { id: "ar-mobile", plate: "04", label: "AR / MOBILE", projects: AR_MOBILE },
+  { id: "threed", plate: "05", label: "3D", projects: THREED },
+];
+
+// Continuous catalog numbering — entry 001 through 035 across all plates.
+const PLATE_OFFSETS = PLATES.reduce<number[]>((acc, p, i) => {
+  acc.push(i === 0 ? 0 : acc[i - 1] + PLATES[i - 1].projects.length);
+  return acc;
+}, []);
+
 // ─── Shared UI ────────────────────────────────────────────────────────────────
 
-// Entrance stagger reads for the first visible batch; past that a card should
+// Entrance stagger reads for the first visible batch; past that a row should
 // answer the scroll promptly, not serve out a queue position it inherited.
-const stagger = (i: number) => Math.min(i * 0.07, 0.28);
+const stagger = (i: number) => Math.min(i * 0.05, 0.2);
 
 const Arrow = () => (
   <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
-    <path d="M1 11L11 1M11 1H2.5M11 1V9.5" stroke="currentColor" strokeWidth="1.1" strokeLinecap="square" />
+    <path
+      d="M1 11L11 1M11 1H2.5M11 1V9.5"
+      stroke="currentColor"
+      strokeWidth="1.1"
+      strokeLinecap="square"
+    />
   </svg>
 );
 
-// The card's arrow link. External (GitHub) opens in a new tab; internal
+// The row's arrow link. External (GitHub) opens in a new tab; internal
 // landing pages navigate in place via next/link.
-function ProjectLink({ project, className }: { project: Project; className: string }) {
+function ProjectLink({
+  project,
+  className,
+}: {
+  project: Project;
+  className: string;
+}) {
   const href = project.href ?? project.github;
   const external = /^https?:\/\//.test(href);
   if (external) {
@@ -328,134 +353,100 @@ function ProjectLink({ project, className }: { project: Project; className: stri
     );
   }
   return (
-    <Link href={href} className={className} aria-label={`${project.title} — details`}>
+    <Link
+      href={href}
+      className={className}
+      aria-label={`${project.title} — details`}
+    >
       <Arrow />
     </Link>
   );
 }
 
-function Tags({ tags }: { tags: string[] }) {
-  return (
-    <div className="flex flex-wrap gap-2">
-      {tags.map((t) => (
-        <span
-          key={t}
-          className="text-[10px] font-mono tracking-[0.18em] uppercase text-[#787878] border border-[#2c2c2c] px-2 py-[3px]"
-        >
-          {t}
-        </span>
-      ))}
-    </div>
-  );
-}
-
-// Large card — for Sound/Video, shows youtube iframe when available
-function MediaCard({ project, delay }: { project: Project; delay: number }) {
+// Catalog specimen row. Hover flips the row to the ink plate — a print
+// inversion, immediate, not a soft fade.
+function SpecimenRow({
+  project,
+  no,
+  delay,
+}: {
+  project: Project;
+  no: number;
+  delay: number;
+}) {
   return (
     <motion.div
-      onMouseEnter={emitFieldPulse}
-      onFocus={emitFieldPulse}
-      className="border border-[#1e1e1e] hover:border-[#2c2c2c] transition-colors duration-500 flex flex-col"
-      initial={{ opacity: 0, y: 12 }}
+      className="group relative border-b border-paper-rule py-5 px-3 -mx-3 flex flex-col gap-2.5 hover:bg-ink transition-colors duration-150"
+      initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
     >
-      {project.youtube && (
-        <iframe
-          className="aspect-video w-full border-b border-[#1e1e1e]"
-          src={project.youtube}
-          title={project.title}
-          loading="lazy"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      )}
-      <div className="flex flex-col gap-4 p-6 flex-1">
-        <div className="flex items-start justify-between gap-4">
-          <h3 className="text-[13px] font-light text-[#c8c8c8] leading-tight">{project.title}</h3>
-          <div className="flex items-center gap-3 shrink-0">
-            {project.demo && (
-              <a
-                href={project.demo}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[10px] font-mono tracking-[0.22em] text-[#e0e0e0] underline underline-offset-2 decoration-[#383838] hover:decoration-[#888] transition-colors duration-300 py-2 -my-2"
-                aria-label={`${project.title} demo`}
-              >
-                DEMO
-              </a>
-            )}
-            <ProjectLink
-              project={project}
-              className="text-[#555] hover:text-[#888] transition-colors duration-300 p-2 -m-2 -mt-1.5"
-            />
-          </div>
-        </div>
-        <p className="text-[12px] text-[#787878] font-light leading-relaxed flex-1 max-w-[78ch]">
-          {project.description}
-        </p>
-        <Tags tags={project.tags} />
-      </div>
-    </motion.div>
-  );
-}
-
-// Compact card — for Security / AR / 3D / Browser tools
-function CompactCard({ project, delay }: { project: Project; delay: number }) {
-  return (
-    <motion.div
-      onMouseEnter={emitFieldPulse}
-      onFocus={emitFieldPulse}
-      className="border-b border-[#1a1a1a] hover:border-[#2c2c2c] transition-colors duration-500 py-5 flex flex-col gap-3"
-      initial={{ opacity: 0, x: -8 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
-    >
-      <div className="flex items-center justify-between gap-6">
-        <h3 className="text-[13px] font-light text-[#c8c8c8]">{project.title}</h3>
-        <div className="flex items-center gap-4 shrink-0">
+      <div className="flex items-baseline gap-4">
+        <span className="font-mono text-[9px] tracking-[0.2em] text-ink-ghost group-hover:text-blood transition-colors duration-150 shrink-0">
+          {String(no).padStart(3, "0")}
+        </span>
+        <h3 className="font-mono text-[13px] tracking-[0.02em] text-ink group-hover:text-paper transition-colors duration-150">
+          {project.title}
+        </h3>
+        <div className="ml-auto flex items-center gap-4 shrink-0">
           {project.demo && (
             <a
               href={project.demo}
               target="_blank"
               rel="noopener noreferrer"
-              className="relative text-[10px] font-mono tracking-[0.22em] text-[#c8c8c8] border border-[#343434] px-1.5 py-0.5 hover:border-[#666] transition-colors duration-300 before:absolute before:-inset-2 before:content-['']"
+              className="relative font-mono text-[9px] tracking-[0.25em] text-blood border border-blood/60 px-1.5 py-0.5 hover:bg-blood hover:text-paper transition-colors duration-150 before:absolute before:-inset-2 before:content-['']"
               aria-label={`${project.title} demo`}
             >
-              DEMO
+              LIVE
             </a>
           )}
           <ProjectLink
             project={project}
-            className="text-[#555] hover:text-[#888] transition-colors duration-300 p-2 -m-2"
+            className="text-ink-ghost group-hover:text-paper hover:!text-blood transition-colors duration-150 p-2 -m-2"
           />
         </div>
       </div>
-      <p className="text-[12px] text-[#787878] font-light leading-relaxed max-w-[78ch]">
+      <p className="text-[12px] leading-relaxed text-ink-faded group-hover:text-paper-dim transition-colors duration-150 max-w-[74ch]">
         {project.description}
       </p>
-      <Tags tags={project.tags} />
+      <p className="font-mono text-[9px] tracking-[0.22em] uppercase text-ink-ghost group-hover:text-paper-mute transition-colors duration-150">
+        {project.tags.join(" · ")}
+      </p>
     </motion.div>
   );
 }
 
-// Section header with extending rule — the rule plots itself out from the
-// label on first view; reduced-motion renders it settled.
-function SectionHeader({ label }: { label: string }) {
+// Plate header — number, label in the display face, entry count, rule.
+function PlateHeader({
+  plate,
+  label,
+  count,
+}: {
+  plate: string;
+  label: string;
+  count: number;
+}) {
   return (
-    <div className="flex items-center gap-5 mb-8">
-      <span className="text-[10px] tracking-[0.35em] uppercase text-[#606060] shrink-0">
+    <div className="mb-8">
+      <div className="flex items-baseline gap-5">
+        <span className="font-mono text-[10px] tracking-[0.3em] text-blood shrink-0">
+          PLATE {plate}
+        </span>
+        <motion.div
+          className="flex-1 h-px bg-ink/30 origin-left"
+          initial={{ scaleX: 0 }}
+          whileInView={{ scaleX: 1 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+        />
+        <span className="font-mono text-[10px] tracking-[0.25em] text-ink-ghost shrink-0">
+          {String(count).padStart(2, "0")} ENTRIES
+        </span>
+      </div>
+      <h2 className="display text-ink text-[clamp(2.6rem,7vw,5.5rem)] leading-[0.95] tracking-[-0.01em] mt-3 select-none">
         {label}
-      </span>
-      <motion.div
-        className="flex-1 h-px bg-[#1c1c1c] origin-left"
-        initial={{ scaleX: 0 }}
-        whileInView={{ scaleX: 1 }}
-        viewport={{ once: true, margin: "-60px" }}
-        transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-      />
+      </h2>
     </div>
   );
 }
@@ -463,72 +454,52 @@ function SectionHeader({ label }: { label: string }) {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function Projects() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
-
   return (
-    <section
-      id="work"
-      className="py-28 md:py-36 px-8 md:px-16 lg:px-24 border-t border-[#1c1c1c]"
-    >
-      <motion.p
-        ref={ref}
-        className="text-[11px] tracking-[0.35em] uppercase text-[#888] mb-16"
-        initial={{ opacity: 0 }}
-        animate={inView ? { opacity: 1 } : {}}
-        transition={{ duration: 0.8 }}
-      >
-        Work
-      </motion.p>
+    <section id="work" className="relative bg-paper text-ink">
+      {/* Hard press edge into the paper stock */}
+      <div className="h-[3px] bg-blood" aria-hidden />
 
-      {/* ── Audio ── */}
-      <div id="audio" className="mb-16 scroll-mt-24">
-        <SectionHeader label="Audio" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
-          {AUDIO.map((p, i) => (
-            <CompactCard key={p.title} project={p} delay={stagger(i)} />
-          ))}
+      <div className="px-8 md:px-16 lg:px-24 py-24 md:py-32">
+        {/* Index masthead */}
+        <div className="mb-20 flex flex-wrap items-end justify-between gap-6">
+          <div>
+            <p className="font-mono text-[10px] tracking-[0.35em] uppercase text-ink-ghost mb-4">
+              INDEX OF INSTRUMENTS
+            </p>
+            <h2 className="display text-ink text-[clamp(3.4rem,10vw,8.5rem)] leading-[0.85] tracking-[-0.015em] select-none">
+              THE WORK
+            </h2>
+          </div>
+          <p className="font-mono text-[10px] tracking-[0.25em] text-ink-ghost text-right leading-loose">
+            35 ENTRIES / 5 PLATES
+            <br />
+            ALL BUILT, ALL REAL
+          </p>
         </div>
-      </div>
 
-      {/* ── Video ── */}
-      <div id="video" className="mb-16 scroll-mt-24">
-        <SectionHeader label="Video" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
-          {VIDEO.map((p, i) => (
-            <CompactCard key={p.title} project={p} delay={stagger(i)} />
-          ))}
-        </div>
-      </div>
-
-      {/* ── Security ── */}
-      <div id="security" className="mb-16 scroll-mt-24">
-        <SectionHeader label="Security" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
-          {SECURITY.map((p, i) => (
-            <CompactCard key={p.title} project={p} delay={stagger(i)} />
-          ))}
-        </div>
-      </div>
-
-      {/* ── AR / Mobile ── */}
-      <div id="ar-mobile" className="mb-16 scroll-mt-24">
-        <SectionHeader label="AR / Mobile" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
-          {AR_MOBILE.map((p, i) => (
-            <CompactCard key={p.title} project={p} delay={stagger(i)} />
-          ))}
-        </div>
-      </div>
-
-      {/* ── 3D ── */}
-      <div id="threed" className="scroll-mt-24">
-        <SectionHeader label="3D" />
-        <div className="max-w-xl">
-          {THREED.map((p, i) => (
-            <CompactCard key={p.title} project={p} delay={stagger(i)} />
-          ))}
-        </div>
+        {PLATES.map((plate, pi) => (
+          <div
+            key={plate.id}
+            id={plate.id}
+            className={`scroll-mt-24 ${pi < PLATES.length - 1 ? "mb-24" : ""}`}
+          >
+            <PlateHeader
+              plate={plate.plate}
+              label={plate.label}
+              count={plate.projects.length}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
+              {plate.projects.map((p, i) => (
+                <SpecimenRow
+                  key={p.title}
+                  project={p}
+                  no={PLATE_OFFSETS[pi] + i + 1}
+                  delay={stagger(i)}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );

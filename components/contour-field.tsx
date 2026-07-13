@@ -17,12 +17,14 @@ import { useEffect, useRef } from "react";
 // interpolates toward network as the viewport center approaches #security.
 const ANCHOR_IDS = ["audio", "security", "ar-mobile", "threed", "about"];
 
+// Plate tones — the field draws in bone ink on the black plate. Mode color
+// stays in one family (print doesn't do neon); differentiation is amplitude.
 const ACCENTS: [number, number, number][] = [
-  [232, 228, 220], // ridge — warm white
-  [160, 255, 190], // network — green
-  [255, 130, 175], // scan — pink
-  [150, 200, 255], // layers — blue
-  [170, 170, 170], // idle — dim white
+  [227, 221, 208], // ridge — bone
+  [206, 197, 178], // network — pressed bone
+  [216, 205, 188], // scan — warm bone
+  [199, 192, 176], // layers — faded bone
+  [172, 165, 149], // idle — ghost
 ];
 
 const tri = (v: number) => Math.abs(((v % 1) + 1) % 1 - 0.5) * 4 - 1;
