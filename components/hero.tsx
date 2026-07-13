@@ -77,7 +77,7 @@ export function Hero() {
       <div className="relative z-10 flex-1 flex flex-col justify-center px-8 md:px-16 lg:px-24 pt-28 pb-16">
         {/* Eyebrow: the tagline split across the measure, poster-register */}
         <motion.div
-          className="flex items-baseline justify-between mb-5 font-mono text-[10px] tracking-[0.35em] text-paper-dim"
+          className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between mb-5 font-mono text-[10px] tracking-[0.35em] text-paper-dim"
           {...fadeUp(0.55, 6)}
         >
           <span>THINGS THAT MAKE NOISE</span>
@@ -107,7 +107,7 @@ export function Hero() {
           className="mt-6 flex items-center gap-6 border-t border-paper/25 pt-4"
           {...fadeUp(0.45, 8)}
         >
-          <span className="font-mono text-[9px] tracking-[0.3em] text-blood shrink-0">
+          <span className="font-mono text-[9px] tracking-[0.3em] text-blood-bright shrink-0">
             NOW PRINTING
           </span>
           <GlitchLabel />
@@ -128,7 +128,7 @@ export function Hero() {
                 onFocus={emitFieldPulse}
                 className="group flex items-baseline gap-5 w-full max-w-md py-[7px] border-b border-paper/12 hover:border-paper/40 transition-colors duration-300"
               >
-                <span className="font-mono text-[10px] tracking-[0.2em] text-paper-mute group-hover:text-blood transition-colors duration-200">
+                <span className="font-mono text-[10px] tracking-[0.2em] text-paper-mute group-hover:text-blood-bright transition-colors duration-200">
                   {s.n}
                 </span>
                 <span className="font-mono text-[12px] tracking-[0.3em] text-paper-dim group-hover:text-paper transition-colors duration-200">
@@ -156,7 +156,7 @@ export function Hero() {
                   href={s.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-mono text-[10px] tracking-[0.25em] text-paper-dim hover:text-paper underline underline-offset-4 decoration-paper/25 hover:decoration-blood transition-colors duration-200 py-2 -my-2"
+                  className="font-mono text-[10px] tracking-[0.25em] text-paper-dim hover:text-paper underline underline-offset-4 decoration-paper/25 hover:decoration-blood-bright transition-colors duration-200 py-2 -my-2"
                 >
                   {s.label}
                 </a>

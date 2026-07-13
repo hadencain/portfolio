@@ -48,7 +48,7 @@ export function Contact() {
             href="mailto:haden.cain@gmail.com"
             onMouseEnter={emitFieldPulse}
             onFocus={emitFieldPulse}
-            className="border border-ink-3 font-mono text-paper-dim text-[11px] tracking-[0.25em] px-5 py-3 hover:border-blood hover:text-paper transition-all duration-200 inline-block"
+            className="border border-ink-3 font-mono text-paper-dim text-[11px] tracking-[0.25em] px-5 py-3 hover:border-blood-bright hover:text-paper transition-all duration-200 inline-block"
           >
             EMAIL
           </a>
@@ -58,7 +58,7 @@ export function Contact() {
             rel="noopener noreferrer"
             onMouseEnter={emitFieldPulse}
             onFocus={emitFieldPulse}
-            className="border border-ink-3 font-mono text-paper-dim text-[11px] tracking-[0.25em] px-5 py-3 hover:border-blood hover:text-paper transition-all duration-200 inline-block"
+            className="border border-ink-3 font-mono text-paper-dim text-[11px] tracking-[0.25em] px-5 py-3 hover:border-blood-bright hover:text-paper transition-all duration-200 inline-block"
           >
             KEYBASE
           </a>

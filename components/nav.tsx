@@ -28,7 +28,7 @@ export function Nav() {
   return (
     <nav
       aria-label="Primary"
-      className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 md:px-16 lg:px-24 py-5 border-b transition-colors duration-500 ${
+      className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-8 md:px-16 lg:px-24 py-5 border-b transition-colors duration-500 ${
         scrolled
           ? "border-paper/15 bg-ink/95 backdrop-blur-sm"
           : "border-transparent"
@@ -44,7 +44,7 @@ export function Nav() {
 
       {/* -mr trues the last label's glyph edge against the page margin —
           trailing letter-spacing (0.25em @ 11px = 2.75px) otherwise leaves it short */}
-      <div className="flex gap-6 md:gap-8 -mr-[2.75px]">
+      <div className="flex gap-3 sm:gap-6 md:gap-8 -mr-[2.75px]">
         {ITEMS.map((item) => {
           const current =
             !item.href.startsWith("/#") && pathname.startsWith(item.href);
@@ -53,7 +53,7 @@ export function Nav() {
               key={item.label}
               href={item.href}
               aria-current={current ? "page" : undefined}
-              className={`relative font-mono text-[11px] tracking-[0.25em] uppercase transition-colors duration-300 py-2 -my-2 ${
+              className={`relative font-mono text-[10px] sm:text-[11px] tracking-[0.16em] sm:tracking-[0.25em] uppercase transition-colors duration-300 py-2 -my-2 ${
                 current
                   ? "text-paper"
                   : "text-paper-mute hover:text-paper-dim"
@@ -61,7 +61,7 @@ export function Nav() {
             >
               {current && (
                 <span
-                  className="absolute -left-3 top-1/2 -translate-y-1/2 w-[5px] h-[5px] bg-blood"
+                  className="absolute -left-3 top-1/2 -translate-y-1/2 w-[5px] h-[5px] bg-blood-bright"
                   aria-hidden
                 />
               )}

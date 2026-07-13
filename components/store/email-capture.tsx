@@ -38,12 +38,12 @@ export function EmailCapture({
           disabled={!configured}
           placeholder={configured ? "email" : "opening soon"}
           aria-label={`email signup for ${tag}`}
-          className="flex-1 min-w-0 bg-transparent border border-[#3a352b] px-3 py-2 text-[12px] text-[#c2bbab] placeholder:text-[#4e483c] focus:border-[#9e2b25] focus:outline-none disabled:opacity-60 disabled:border-[#292520]"
+          className="flex-1 min-w-0 bg-transparent border border-[#3a352b] px-3 py-2 text-[12px] text-[#c2bbab] placeholder:text-[#4e483c] focus:border-[#d8453a] focus:outline-none disabled:opacity-60 disabled:border-[#292520]"
         />
         <button
           type="submit"
           disabled={!configured}
-          className="border border-[#3a352b] text-[#c2bbab] text-[10px] font-mono tracking-[0.22em] px-4 py-2 hover:border-[#9e2b25] transition-colors duration-300 disabled:text-[#4e483c] disabled:border-[#292520] disabled:hover:border-[#292520]"
+          className="border border-[#3a352b] text-[#c2bbab] text-[10px] font-mono tracking-[0.22em] px-4 py-2 hover:border-[#d8453a] transition-colors duration-300 disabled:text-[#4e483c] disabled:border-[#292520] disabled:hover:border-[#292520]"
         >
           {cta}
         </button>

@@ -10,10 +10,11 @@
   --color-ink-3: #2b2720;    /* interactive borders on ink */
   --color-paper: #e3ddd0;    /* bone paper */
   --color-paper-dim: #b3ac9b;/* secondary text on ink */
-  --color-paper-mute: #7d7566; /* tertiary text on ink */
-  --color-blood: #9e2b25;    /* the red plate — functional only */
+  --color-paper-mute: #8a8274; /* tertiary text on ink — AA at annotation size */
+  --color-blood: #9e2b25;    /* the red plate — functional only, on paper */
+  --color-blood-bright: #d8453a; /* the red plate lifted for ink surfaces — AA */
   --color-ink-faded: #565146;  /* secondary text on paper */
-  --color-ink-ghost: #8d867a;  /* tertiary text on paper */
+  --color-ink-ghost: #665f52;  /* tertiary text on paper — AA at annotation size */
   --color-paper-rule: #c6bfae; /* hairlines on paper */
 }
 
@@ -42,7 +43,7 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid rgba(158, 43, 37, 0.85);
+  outline: 2px solid rgba(216, 69, 58, 0.9);
   outline-offset: 3px;
 }
 

@@ -383,7 +383,7 @@ function SpecimenRow({
       transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="flex items-baseline gap-4">
-        <span className="font-mono text-[9px] tracking-[0.2em] text-ink-ghost group-hover:text-blood transition-colors duration-150 shrink-0">
+        <span className="font-mono text-[9px] tracking-[0.2em] text-ink-ghost group-hover:text-blood-bright transition-colors duration-150 shrink-0">
           {String(no).padStart(3, "0")}
         </span>
         <h3 className="font-mono text-[13px] tracking-[0.02em] text-ink group-hover:text-paper transition-colors duration-150">
