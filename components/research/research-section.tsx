@@ -63,33 +63,6 @@ export function ResearchSection() {
 
   return (
     <section className="px-8 md:px-16 lg:px-24 pt-36 pb-28 max-w-5xl">
-      <motion.p
-        className="text-[10px] font-mono tracking-[0.22em] text-[#555] uppercase mb-3"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, ease: EASE }}
-      >
-        Research
-      </motion.p>
-      <motion.h1
-        className="text-[26px] md:text-[32px] font-light text-[#c8c8c8] leading-tight mb-4"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.1, ease: EASE }}
-      >
-        Dataset investigations
-      </motion.h1>
-      <motion.p
-        className="text-[13px] leading-relaxed text-[#777] max-w-xl mb-14"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, delay: 0.2, ease: EASE }}
-      >
-        Statistical explorations of public datasets. Every reported number is
-        independently recomputed from the raw data; findings survive
-        false-discovery correction before they appear here.
-      </motion.p>
-
       {cards === null ? (
         <p className="text-[12px] font-mono text-[#555]">loading…</p>
       ) : cards.length === 0 ? (

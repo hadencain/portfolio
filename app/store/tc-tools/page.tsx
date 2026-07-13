@@ -2,17 +2,17 @@ import type { Metadata } from "next";
 import { Nav } from "@/components/nav";
 import { ContourField } from "@/components/contour-field";
 import { toolMetadata } from "@/lib/store-metadata";
-import { LocalAiVoiceoverLanding } from "@/components/store/pages/local-ai-voiceover";
+import { TcToolsLanding } from "@/components/store/pages/tc-tools";
 
-export const metadata: Metadata = toolMetadata("local-ai-voiceover");
+export const metadata: Metadata = toolMetadata("tc-tools");
 
-export default function LocalAiVoiceoverPage() {
+export default function TcToolsPage() {
   return (
     <>
       <ContourField calm />
       <Nav />
       <main>
-        <LocalAiVoiceoverLanding />
+        <TcToolsLanding />
       </main>
     </>
   );

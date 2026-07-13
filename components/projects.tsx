@@ -2,6 +2,7 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import Link from "next/link";
 import { emitFieldPulse } from "./field-pulse";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -13,6 +14,11 @@ interface Project {
   github: string;
   youtube?: string;
   demo?: string;
+  // Destination override for the card's arrow. Public repos omit it and link
+  // straight to GitHub. Private repos set it to an internal landing page (or
+  // the GitHub profile) so nothing on the page links to a repo a visitor
+  // can't open.
+  href?: string;
 }
 
 const AUDIO: Project[] = [
@@ -36,6 +42,7 @@ const AUDIO: Project[] = [
       "Terminal-controlled beat-based probability system. Stochastic sequencing driven entirely from the command line.",
     tags: ["ChucK"],
     github: "https://github.com/hadencain/TCBBP",
+    href: "/store/tc-tools",
   },
   {
     title: "TCGS",
@@ -43,6 +50,7 @@ const AUDIO: Project[] = [
       "Terminal-controlled granular synthesizer. Full grain engine with playhead, FX chain, 4-LFO modulation matrix, polyphonic voices, and a live Textual TUI with waveform display and grain-field visualizer.",
     tags: ["Python", "numpy", "Textual"],
     github: "https://github.com/hadencain/TCGS",
+    href: "/store/tc-tools",
   },
   {
     title: "TCDM",
@@ -50,6 +58,7 @@ const AUDIO: Project[] = [
       "Terminal-controlled drum machine. Sample-accurate step transport, per-step Elektron-style param locks, an 8-slot pattern bank with chaining, a full master FX chain (waveshaper/EQ/chorus/delay/reverb/limiter), and a live Textual TUI with a sweeping step-grid.",
     tags: ["Python", "numpy", "scipy", "Textual"],
     github: "https://github.com/hadencain/TCDM",
+    href: "/store/tc-tools",
   },
   {
     title: "audioSort",
@@ -57,6 +66,7 @@ const AUDIO: Project[] = [
       "Audio sample organizer evolved from keyword matching into a weighted multi-signal classifier — path context, metadata, librosa spectral analysis, and an AST ML model.",
     tags: ["Python", "librosa", "HuggingFace"],
     github: "https://github.com/hadencain/audioSort",
+    href: "/store/audio-sort",
   },
   {
     title: "tunedown-theory",
@@ -71,6 +81,7 @@ const AUDIO: Project[] = [
       "Granular reverb VST3. A feedback delay network tail feeds a live ring buffer; a grain engine re-scatters it across the stereo field for disintegrating, crystalline decays. Live visualization in three switchable modes — tail field, decay scope, glass shards — driven by a lock-free telemetry bus from the audio thread.",
     tags: ["C++", "JUCE"],
     github: "https://github.com/hadencain/fracturedReverb",
+    href: "/store/fracture",
   },
   {
     title: "spectralShuffler",
@@ -78,6 +89,7 @@ const AUDIO: Project[] = [
       "Spectral shuffler VST3. Captures FFT frames from a user-defined frequency band and randomly replays them — freeze, scatter, or smear specific frequency ranges in real time while the rest of the signal passes through unmodified.",
     tags: ["C++", "JUCE"],
     github: "https://github.com/hadencain/spectralShuffler",
+    href: "/store/spectral-shuffler",
   },
   {
     title: "gravityWell",
@@ -85,6 +97,7 @@ const AUDIO: Project[] = [
       "Spectral black-hole VST3. Audio falls into a gravitational well below a configurable floor frequency — bins redshift (pitch lowers), energy pools into the sub-bass, and time dilates as mass accumulates. Decoherence thermalizes structured partials into rumble at full mass. Phase vocoder core with lock-free audio-to-UI spectrum bridge.",
     tags: ["C++", "JUCE"],
     github: "https://github.com/hadencain/gravityWell",
+    href: "/store/gravity-well",
   },
   {
     title: "phaseMangler",
@@ -106,6 +119,7 @@ const AUDIO: Project[] = [
       "Anti-mass spectral leveler VST3 — the black hole's phase-preserving opposite. A repulsion field hinged at a floor level lifts buried content into audibility and flattens peaks down toward it, per bin, each bin's gain smoothed by its own follower. At full repulsion and thin the spectrum flattens into the floor band; the radial display draws the dead zone as an annulus that spoke tips converge onto.",
     tags: ["C++", "JUCE"],
     github: "https://github.com/hadencain/whiteHole",
+    href: "/store/white-hole",
   },
   {
     title: "corrode",
@@ -222,6 +236,7 @@ const SECURITY: Project[] = [
       "Seller-centric OSINT for organized retail crime. Pulls listings from the eBay Browse API and Craigslist RSS, scores each on a confluence of fencing signals — sealed and bulk inventory, below-market pricing, new-account sellers, liquidation language — then rolls listings up into ranked sellers and maps where the goods move from. ToS-clean sources only, no scraping.",
     tags: ["Python", "Flask"],
     github: "https://github.com/hadencain/magpie",
+    href: "https://github.com/hadencain",
   },
   {
     title: "installSandbox",
@@ -243,6 +258,7 @@ const SECURITY: Project[] = [
       "Model-generated win probabilities compared against sportsbook lines. Baseball analytics with edge detection.",
     tags: ["Python"],
     github: "https://github.com/hadencain/mlb-ev-analysis",
+    href: "https://github.com/hadencain",
   },
 ];
 
@@ -260,6 +276,7 @@ const AR_MOBILE: Project[] = [
       "Modular AR audio-visual instruments for Android. Camera, motion, and generative audio as playable pieces.",
     tags: ["React Native", "Skia", "Web Audio"],
     github: "https://github.com/hadencain/senses",
+    href: "/store/senses",
   },
 ];
 
@@ -291,6 +308,31 @@ const Arrow = () => (
     <path d="M1 11L11 1M11 1H2.5M11 1V9.5" stroke="currentColor" strokeWidth="1.1" strokeLinecap="square" />
   </svg>
 );
+
+// The card's arrow link. External (GitHub) opens in a new tab; internal
+// landing pages navigate in place via next/link.
+function ProjectLink({ project, className }: { project: Project; className: string }) {
+  const href = project.href ?? project.github;
+  const external = /^https?:\/\//.test(href);
+  if (external) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+        aria-label={`${project.title} on GitHub`}
+      >
+        <Arrow />
+      </a>
+    );
+  }
+  return (
+    <Link href={href} className={className} aria-label={`${project.title} — details`}>
+      <Arrow />
+    </Link>
+  );
+}
 
 function Tags({ tags }: { tags: string[] }) {
   return (
@@ -344,15 +386,10 @@ function MediaCard({ project, delay }: { project: Project; delay: number }) {
                 DEMO
               </a>
             )}
-            <a
-              href={project.github}
-              target="_blank"
-              rel="noopener noreferrer"
+            <ProjectLink
+              project={project}
               className="text-[#555] hover:text-[#888] transition-colors duration-300 p-2 -m-2 -mt-1.5"
-              aria-label={`${project.title} on GitHub`}
-            >
-              <Arrow />
-            </a>
+            />
           </div>
         </div>
         <p className="text-[12px] text-[#787878] font-light leading-relaxed flex-1 max-w-[78ch]">
@@ -390,15 +427,10 @@ function CompactCard({ project, delay }: { project: Project; delay: number }) {
               DEMO
             </a>
           )}
-          <a
-            href={project.github}
-            target="_blank"
-            rel="noopener noreferrer"
+          <ProjectLink
+            project={project}
             className="text-[#555] hover:text-[#888] transition-colors duration-300 p-2 -m-2"
-            aria-label={`${project.title} on GitHub`}
-          >
-            <Arrow />
-          </a>
+          />
         </div>
       </div>
       <p className="text-[12px] text-[#787878] font-light leading-relaxed max-w-[78ch]">

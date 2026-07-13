@@ -7,60 +7,59 @@ import { AudienceLine, FeatureBeats, MediaSlot } from "../landing-kit";
 import { EmailCapture } from "../email-capture";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-const tool = toolBySlug("local-ai-voiceover")!;
+const tool = toolBySlug("audio-sort")!;
 
 const BEATS = [
-  { name: "Your notes, read", text: "Any note becomes a chapterized m4a audiobook." },
-  { name: "Local TTS", text: "The voice model runs on your own GPU — nothing is uploaded." },
-  { name: "Chapterized", text: "Headings become chapters you can skip between." },
-  { name: "Lands in the note", text: "The audio embeds back into the note, ready to play." },
+  { name: "Read", text: "Path context, file metadata, and librosa spectral + onset analysis on every sample." },
+  { name: "Classify", text: "A weighted multi-signal classifier — with an optional AST ML model — not just filename keyword matching." },
+  { name: "Sort", text: "WAV, MP3, AIF, AIFF, FLAC, and OGG filed into categorized folders you can actually navigate." },
+  { name: "In place", text: "Point it at a folder and it organizes what's already there. Nothing leaves your machine." },
 ];
 
 const CAPTURE_HINT =
   "Leave an email and you'll hear when a packaged release ships. One email per release, nothing else.";
 
-const CHAPTERS = [
-  { y: 62, w: 70 },
-  { y: 80, w: 88 },
-  { y: 98, w: 62 },
-  { y: 116, w: 92 },
-  { y: 134, w: 56 },
-  { y: 152, w: 80 },
-];
-const ARCS = [24, 40, 56, 72];
+// Twelve unsorted squares that slide from a scattered column into three tidy
+// stacks and back — the sort, looping. Deterministic start via index math.
+const COLS = [78, 130, 182];
+const SQUARES = Array.from({ length: 12 }, (_, i) => ({
+  col: COLS[i % 3],
+  y: 44 + Math.floor(i / 3) * 34,
+  startX: 118 + 54 * Math.sin(i * 2.11),
+  dur: 3 + (i % 4) * 0.5,
+  delay: (i % 3) * 0.25,
+}));
 
 function HeroVisual() {
   return (
     <svg width="260" height="240" viewBox="0 0 260 240" aria-hidden className="opacity-80">
-      {CHAPTERS.map((c, i) => (
-        <line
+      {COLS.map((x) => (
+        <line key={x} x1={x + 7} y1="34" x2={x + 7} y2="196" stroke="#262626" strokeWidth="1" />
+      ))}
+      {SQUARES.map((s, i) => (
+        <motion.rect
           key={i}
-          x1="24"
-          y1={c.y}
-          x2={24 + c.w}
-          y2={c.y}
-          stroke={i === 2 ? "#a08fc4" : "#3a3a3a"}
-          strokeWidth="3"
-          strokeOpacity={i === 2 ? 0.8 : 0.9}
+          y={s.y}
+          width="14"
+          height="14"
+          fill="#8aa98f"
+          fillOpacity="0.72"
+          initial={{ x: s.startX }}
+          animate={{ x: [s.startX, s.col, s.col, s.startX] }}
+          transition={{
+            duration: s.dur,
+            times: [0, 0.35, 0.7, 1],
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: s.delay,
+          }}
         />
       ))}
-      {ARCS.map((r, i) => (
-        <motion.path
-          key={r}
-          d={`M 190 ${107 - r} A ${r} ${r} 0 0 1 190 ${107 + r}`}
-          fill="none"
-          stroke="#a08fc4"
-          strokeWidth="1"
-          animate={{ opacity: [0.15, 0.6, 0.15] }}
-          transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut", delay: i * 0.4 }}
-        />
-      ))}
-      <circle cx="190" cy="107" r="3" fill="#a08fc4" opacity="0.8" />
     </svg>
   );
 }
 
-export function LocalAiVoiceoverLanding() {
+export function AudioSortLanding() {
   return (
     <section className="relative min-h-screen pt-40 pb-28 px-8 md:px-16 lg:px-24">
       <div
