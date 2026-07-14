@@ -29,7 +29,7 @@ const SOCIALS = [
   { label: "YOUTUBE", href: "https://www.youtube.com/@hadencain" },
 ];
 
-const FIELDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const FIELDS = Array.from({ length: 15 }, (_, i) => i + 1);
 
 export function Hero() {
   const [field, setField] = useState(1);

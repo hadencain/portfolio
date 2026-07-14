@@ -18,6 +18,11 @@ import { useEffect, useRef } from "react";
  *   8 LISSAJOUS    — a parametric figure tracing itself in light
  *   9 VORTEX       — spiral arms winding around a wandering eye
  *  10 SCOPE        — an oscilloscope trace over slow static
+ *  11 ANTS         — Langton's ants building highways out of rule-following
+ *  12 DUNES        — wind-warped strata creeping sideways
+ *  13 CONSTELLATION— drifting stars joined by dotted hairlines
+ *  14 METABALLS    — solid masses merging and splitting
+ *  15 TYPESETTER   — a document typing and retyping itself
  *
  * Deliberately calm: ~30fps, motion is erratic but brightness never spikes.
  * Decorative only — every failure path is a silent no-op.
@@ -116,6 +121,26 @@ export function ContourField({ mode = 1 }: { mode?: number }) {
     let arms = 3;
     let scopeF1 = 0.02;
     let scopeF2 = 0.011;
+    // Ants walk cells; stars drift; typeset rows carry their own layout.
+    let ants: { cx: number; cy: number; dir: number }[] = [];
+    let stars: { x: number; y: number; ph: number }[] = [];
+    let rowStart = new Float32Array(0);
+    let rowLen = new Float32Array(0);
+    let rowSpeed = new Float32Array(0);
+    let rowPhase = new Float32Array(0);
+
+    const regenLayout = () => {
+      for (let r = 0; r < rows; r++) {
+        if (Math.random() < 0.28) {
+          rowLen[r] = 0; // paragraph break
+          continue;
+        }
+        rowStart[r] = Math.floor(rnd(1, Math.max(2, cols * 0.3)));
+        rowLen[r] = Math.floor(rnd(cols * 0.25, cols * 0.65));
+        rowSpeed[r] = rnd(0.5, 1.6);
+        rowPhase[r] = rnd(0, 300);
+      }
+    };
 
     const rnd = (a: number, b: number) => a + Math.random() * (b - a);
     let fieldT = rnd(0, 100);
@@ -164,6 +189,25 @@ export function ContourField({ mode = 1 }: { mode?: number }) {
         colSeed[c] = rnd(0, 400);
       }
       seedLife();
+      if (mode === 11) {
+        life.fill(0);
+        ghost.fill(0);
+      }
+      ants = Array.from({ length: 4 }, () => ({
+        cx: Math.floor(rnd(cols * 0.2, cols * 0.8)),
+        cy: Math.floor(rnd(rows * 0.2, rows * 0.8)),
+        dir: Math.floor(rnd(0, 4)),
+      }));
+      stars = Array.from({ length: 26 }, () => ({
+        x: rnd(w * 0.06, w * 0.94),
+        y: rnd(h * 0.06, h * 0.94),
+        ph: rnd(0, Math.PI * 2),
+      }));
+      rowStart = new Float32Array(rows);
+      rowLen = new Float32Array(rows);
+      rowSpeed = new Float32Array(rows);
+      rowPhase = new Float32Array(rows);
+      regenLayout();
       const n = Math.min(150, Math.floor((cols * rows) / 34));
       agents = Array.from({ length: n }, () => ({
         x: rnd(0, w),
@@ -629,6 +673,192 @@ export function ContourField({ mode = 1 }: { mode?: number }) {
       }
     };
 
+    // ── 11 ANTS ─────────────────────────────────────────────────────────────
+    const DX = [1, 0, -1, 0];
+    const DY = [0, 1, 0, -1];
+    const drawAnts = (t: number) => {
+      // Rule: on empty turn right and mark; on marked turn left and clear.
+      for (const ant of ants) {
+        for (let s = 0; s < 42; s++) {
+          const i = ant.cy * cols + ant.cx;
+          if (life[i]) {
+            ant.dir = (ant.dir + 3) % 4;
+            life[i] = 0;
+          } else {
+            ant.dir = (ant.dir + 1) % 4;
+            life[i] = 1;
+          }
+          ant.cx = (ant.cx + DX[ant.dir] + cols) % cols;
+          ant.cy = (ant.cy + DY[ant.dir] + rows) % rows;
+        }
+      }
+      // Cursor scribbles marks the ants must negotiate.
+      if (mouse.x > 0 && mouse.x < w && mouse.y > 0 && mouse.y < h) {
+        const mcx = Math.floor(mouse.x / cell);
+        const mcy = Math.floor(mouse.y / cell);
+        if (mcx >= 0 && mcy >= 0 && mcx < cols && mcy < rows) {
+          life[mcy * cols + mcx] = 1;
+        }
+      }
+      for (let i = 0; i < ghost.length; i++) {
+        ghost[i] = Math.max(ghost[i] * 0.9, life[i] * 0.8);
+      }
+      for (let cy = 0; cy < rows; cy++) {
+        const y = cy * cell + cell / 2;
+        for (let cx = 0; cx < cols; cx++) {
+          const x = cx * cell + cell / 2;
+          let d = ghost[cy * cols + cx] + pulseAdd(x, y, t);
+          let material = 0;
+          for (const ant of ants) {
+            if (ant.cx === cx && ant.cy === cy) {
+              d = 1;
+              material = 1;
+            }
+          }
+          put(cx, cy, d, material);
+        }
+      }
+    };
+
+    // ── 12 DUNES ────────────────────────────────────────────────────────────
+    const drawDunes = (t: number) => {
+      carveAtCursor();
+      for (let cy = 0; cy < rows; cy++) {
+        const y = cy * cell + cell / 2;
+        for (let cx = 0; cx < cols; cx++) {
+          const x = cx * cell + cell / 2;
+          // Strata warped by a slow wind; crests are sharp ridges.
+          const yy =
+            y +
+            34 * Math.sin(x * 0.008 + fieldT * 0.13) +
+            14 * Math.sin(x * 0.021 - fieldT * 0.08);
+          const crest =
+            1 - Math.abs(Math.sin(yy * 0.05 - fieldT * 0.3 + Math.sin(x * 0.005) * 1.2));
+          let d = crest * crest * crest * 1.1;
+          // Saltating grains hopping in the troughs, reseeded slowly.
+          const seed = Math.floor(fieldT * 1.6);
+          const hash = Math.sin(cx * 91.7 + cy * 233.1 + seed * 51.3) * 43758.5;
+          if (hash - Math.floor(hash) < 0.03) d = Math.max(d, 0.3);
+          const mdx = x - mouse.x;
+          const mdy = y - mouse.y;
+          const m2 = mdx * mdx + mdy * mdy;
+          if (m2 < 22000) d -= Math.exp(-m2 / 5200) * 1.1;
+          d += residue[cy * cols + cx] + pulseAdd(x, y, t);
+          put(cx, cy, d, crest > 0.93 ? 1 : 0);
+        }
+      }
+    };
+
+    // ── 13 CONSTELLATION ────────────────────────────────────────────────────
+    const drawConstellation = (t: number) => {
+      const pts = stars.map((s, i) => ({
+        x: s.x + 14 * Math.sin(fieldT * 0.14 + s.ph),
+        y: s.y + 12 * Math.cos(fieldT * 0.11 + s.ph * 1.7),
+        b: 0.55 + 0.4 * Math.sin(fieldT * 0.5 + s.ph * 3 + i),
+      }));
+      const overBox =
+        mouse.x > 0 && mouse.x < w && mouse.y > 0 && mouse.y < h;
+      // Dotted hairlines between neighbours (and to the cursor).
+      const link = (ax: number, ay: number, bx: number, by: number, v: number) => {
+        const dx = bx - ax;
+        const dy = by - ay;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const steps = Math.floor(dist / cell);
+        for (let s = 1; s < steps; s += 2) {
+          const px = ax + (dx * s) / steps;
+          const py = ay + (dy * s) / steps;
+          put(Math.floor(px / cell), Math.floor(py / cell), v, 0);
+        }
+      };
+      for (let i = 0; i < pts.length; i++) {
+        for (let j = i + 1; j < pts.length; j++) {
+          const dx = pts[i].x - pts[j].x;
+          const dy = pts[i].y - pts[j].y;
+          if (dx * dx + dy * dy < 170 * 170) {
+            link(pts[i].x, pts[i].y, pts[j].x, pts[j].y, 0.24);
+          }
+        }
+        if (overBox) {
+          const dx = pts[i].x - mouse.x;
+          const dy = pts[i].y - mouse.y;
+          if (dx * dx + dy * dy < 210 * 210) {
+            link(pts[i].x, pts[i].y, mouse.x, mouse.y, 0.34);
+          }
+        }
+      }
+      for (const p of pts) {
+        const cx = Math.floor(p.x / cell);
+        const cy = Math.floor(p.y / cell);
+        put(cx, cy, p.b, 1);
+        put(cx + 1, cy, p.b * 0.3, 0);
+        put(cx - 1, cy, p.b * 0.3, 0);
+      }
+      // Pulses still travel the sky.
+      for (let cy = 0; cy < rows; cy += 2) {
+        for (let cx = 0; cx < cols; cx += 2) {
+          const add = pulseAdd(cx * cell, cy * cell, t);
+          if (add > 0.1) put(cx, cy, add, 0);
+        }
+      }
+    };
+
+    // ── 14 METABALLS ────────────────────────────────────────────────────────
+    const drawMetaballs = (t: number) => {
+      const blobs: [number, number, number][] = [];
+      for (let i = 0; i < 5; i++) {
+        blobs.push([
+          w * (0.5 + 0.34 * Math.sin(fieldT * (0.17 + i * 0.05) + i * 2.4)),
+          h * (0.5 + 0.32 * Math.cos(fieldT * (0.13 + i * 0.04) + i * 1.1)),
+          Math.min(w, h) * (0.1 + 0.05 * Math.sin(fieldT * 0.4 + i * 2)),
+        ]);
+      }
+      if (mouse.x > 0 && mouse.x < w && mouse.y > 0 && mouse.y < h) {
+        blobs.push([mouse.x, mouse.y, Math.min(w, h) * 0.09]);
+      }
+      for (let cy = 0; cy < rows; cy++) {
+        const y = cy * cell + cell / 2;
+        for (let cx = 0; cx < cols; cx++) {
+          const x = cx * cell + cell / 2;
+          let s = 0;
+          for (const [bx, by, br] of blobs) {
+            const dx = x - bx;
+            const dy = y - by;
+            s += (br * br) / (dx * dx + dy * dy + 1);
+          }
+          const rim = Math.exp(-Math.abs(s - 1) * 5);
+          let d = sstep(0.86, 1.3, s) + rim * 0.5;
+          d += pulseAdd(x, y, t);
+          put(cx, cy, d, rim > 0.55 ? 1 : 0);
+        }
+      }
+    };
+
+    // ── 15 TYPESETTER ───────────────────────────────────────────────────────
+    const drawTypesetter = (t: number) => {
+      carveAtCursor();
+      for (let cy = 0; cy < rows; cy++) {
+        if (!rowLen[cy]) continue;
+        const y = cy * cell + cell / 2;
+        const span = rowLen[cy] + 26;
+        const p = (fieldT * rowSpeed[cy] * 5 + rowPhase[cy]) % span;
+        const typed = Math.min(p, rowLen[cy]);
+        const headCx = rowStart[cy] + Math.floor(typed);
+        for (let k = 0; k < typed; k++) {
+          const cx = rowStart[cy] + k;
+          if (cx >= cols) break;
+          const x = cx * cell + cell / 2;
+          // Older text settles dimmer; the head burns bright.
+          let d = cx === headCx - 1 ? 1 : 0.5 + 0.2 * Math.sin(cx * 7 + cy * 13);
+          const mdx = x - mouse.x;
+          const mdy = y - mouse.y;
+          const m2 = mdx * mdx + mdy * mdy;
+          if (m2 < 22000) d -= Math.exp(-m2 / 5200) * 1.1;
+          d += residue[cy * cols + cx] + pulseAdd(x, y, t);
+          put(cx, cy, d, cx === headCx - 1 ? 1 : (cx + cy) % 13 === 0 ? 1 : 0);
+        }
+      }
+    };
+
     const draw = (tms: number) => {
       const t = tms * 0.001;
       const dt = Math.min(0.1, Math.max(0, (tms - lastMs) * 0.001));
@@ -677,6 +907,24 @@ export function ContourField({ mode = 1 }: { mode?: number }) {
         } else if (mode === 10) {
           scopeF1 = rnd(0.012, 0.034);
           scopeF2 = rnd(0.006, 0.02);
+        } else if (mode === 11) {
+          // Teleport one ant to fresh ground.
+          const ant = ants[Math.floor(rnd(0, ants.length))];
+          if (ant) {
+            ant.cx = Math.floor(rnd(0, cols));
+            ant.cy = Math.floor(rnd(0, rows));
+            ant.dir = Math.floor(rnd(0, 4));
+          }
+        } else if (mode === 13) {
+          // A few stars relocate.
+          for (const s of stars) {
+            if (Math.random() < 0.15) {
+              s.x = rnd(w * 0.06, w * 0.94);
+              s.y = rnd(h * 0.06, h * 0.94);
+            }
+          }
+        } else if (mode === 15) {
+          regenLayout();
         }
         if ((mode === 1 || mode === 2) && Math.random() < 0.75) {
           tears.push({
@@ -712,6 +960,11 @@ export function ContourField({ mode = 1 }: { mode?: number }) {
       else if (mode === 8) drawLissajous(t);
       else if (mode === 9) drawVortex(t);
       else if (mode === 10) drawScope(t);
+      else if (mode === 11) drawAnts(t);
+      else if (mode === 12) drawDunes(t);
+      else if (mode === 13) drawConstellation(t);
+      else if (mode === 14) drawMetaballs(t);
+      else if (mode === 15) drawTypesetter(t);
       else drawMass(t);
     };
 
@@ -767,6 +1020,10 @@ export function ContourField({ mode = 1 }: { mode?: number }) {
       if (mode === 4) {
         for (let k = 0; k < 6; k++) stepLife();
         for (let i = 0; i < ghost.length; i++) ghost[i] = life[i];
+      }
+      if (mode === 11) {
+        // Let the ants walk long enough to leave visible structure.
+        for (let k = 0; k < 40; k++) drawAnts(0);
       }
       draw(performance.now());
     } else {
