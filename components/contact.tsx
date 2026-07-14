@@ -21,19 +21,19 @@ export function Contact() {
           animate={inView ? { opacity: 1 } : {}}
           transition={{ duration: 0.8 }}
         >
-          End of catalog — correspondence
+          Contact
         </motion.p>
 
         <motion.a
           href="mailto:haden.cain@gmail.com"
           onMouseEnter={emitFieldPulse}
           onFocus={emitFieldPulse}
-          className="display misreg-trigger block w-fit text-paper leading-[0.85] tracking-[-0.015em] text-[clamp(3.8rem,13vw,11rem)] select-none hover:text-paper transition-colors"
+          className="display misreg-trigger block w-fit text-paper leading-[0.9] tracking-[0.01em] text-[clamp(3.2rem,10vw,8rem)] select-none hover:text-paper transition-colors"
           initial={{ opacity: 0, y: 18 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
         >
-          <span className="misreg" data-text="WRITE.">
+          <span className="misreg inline-block" data-text="WRITE.">
             WRITE.
           </span>
         </motion.a>
@@ -68,9 +68,6 @@ export function Contact() {
         <div className="mt-28 md:mt-36 pt-6 border-t border-paper/12 flex flex-wrap items-center justify-between gap-4">
           <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-paper-mute">
             Haden Cain
-          </span>
-          <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-paper-mute hidden md:inline">
-            Set in Bodoni Moda &amp; Geist Mono
           </span>
           {/* -mr compensates the trailing tracking space so the year sits flush right */}
           <span className="font-mono text-[9px] tracking-[0.3em] -mr-[0.3em] text-paper-mute">

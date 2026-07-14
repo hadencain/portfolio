@@ -26,12 +26,12 @@ export function About() {
         </motion.p>
 
         <motion.p
-          className="font-mono text-[11px] md:text-[12px] tracking-[0.3em] text-paper-dim"
+          className="font-mono text-[11px] tracking-[0.3em] text-paper-mute"
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
           transition={{ duration: 1, delay: 0.3 }}
         >
-          [ THIS PAGE INTENTIONALLY LEFT BLANK — SEE INSTRUMENTS ]
+          [ intentionally left blank ]
         </motion.p>
       </div>
     </section>

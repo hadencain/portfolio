@@ -71,7 +71,7 @@ export function StoreHub() {
       />
 
       <motion.h1
-        className="display text-6xl md:text-7xl tracking-[-0.01em] text-[#e3ddd0] leading-[0.9] mb-4 select-none"
+        className="display text-5xl md:text-6xl text-[#e3ddd0] leading-[0.9] mb-4 select-none"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, ease: EASE }}

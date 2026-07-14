@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Bodoni_Moda } from "next/font/google";
+import { Geist, Geist_Mono, Anton } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { MotionProvider } from "@/components/motion-config";
@@ -15,11 +15,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// The display plate — a didone set huge and tight, poster register.
-const bodoni = Bodoni_Moda({
-  variable: "--font-bodoni",
+// The display plate — condensed poster sans, set huge, quiet everywhere else.
+const anton = Anton({
+  variable: "--font-display-face",
   subsets: ["latin"],
-  axes: ["opsz"],
+  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -55,7 +55,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${bodoni.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable} ${anton.variable}`}
       data-scroll-behavior="smooth"
     >
       <body className="antialiased">

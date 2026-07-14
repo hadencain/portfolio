@@ -21,7 +21,7 @@
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-bodoni);
+  --font-display: var(--font-display-face);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -86,9 +86,10 @@ body {
 
 /* Display face — poster setting: tight, tall, condensed by the letterforms */
 .display {
-  font-family: var(--font-bodoni), "Bodoni Moda", Didot, serif;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-family: var(--font-display-face), "Anton", "Arial Narrow", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
 }
 
 /* Registration crosshair, drawn with borders so it stays crisp at any DPR */
@@ -125,7 +126,6 @@ body {
    Applied to text via a data-text shadow layer. */
 .misreg {
   position: relative;
-  display: inline-block;
 }
 .misreg::before {
   content: attr(data-text);

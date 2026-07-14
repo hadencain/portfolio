@@ -22,7 +22,7 @@ function EntryCard({ card, delay }: { card: ResearchCard; delay: number }) {
     <motion.div
       onMouseEnter={emitFieldPulse}
       onFocus={emitFieldPulse}
-      className="border border-[#262218] hover:border-[#322d24] transition-colors duration-500 bg-[#0a0a0a]"
+      className="border border-[#262218] hover:border-[#322d24] transition-colors duration-500 bg-[#12100c]"
       initial={{ opacity: 0, y: 14 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
@@ -62,7 +62,15 @@ export function ResearchSection() {
   }, []);
 
   return (
-    <section className="px-8 md:px-16 lg:px-24 pt-36 pb-28 max-w-5xl">
+    <section className="px-8 md:px-16 lg:px-24 pt-40 pb-28 max-w-5xl">
+      <motion.h1
+        className="display text-[#e3ddd0] text-5xl md:text-6xl leading-none mb-16 select-none"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.9, ease: EASE }}
+      >
+        Research
+      </motion.h1>
       {cards === null ? (
         <p className="text-[12px] font-mono text-[#5c564a]">loading…</p>
       ) : cards.length === 0 ? (

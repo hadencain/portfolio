@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { emitFieldPulse } from "./field-pulse";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -363,8 +364,8 @@ function ProjectLink({
   );
 }
 
-// Catalog specimen row. Hover flips the row to the ink plate — a print
-// inversion, immediate, not a soft fade.
+// Catalog row — compact, dense, readable over the field. Hover registers
+// quietly: hairline brightens, number takes the red plate.
 function SpecimenRow({
   project,
   no,
@@ -376,26 +377,28 @@ function SpecimenRow({
 }) {
   return (
     <motion.div
-      className="group relative border-b border-paper-rule py-5 px-3 -mx-3 flex flex-col gap-2.5 hover:bg-ink transition-colors duration-150"
-      initial={{ opacity: 0, y: 10 }}
+      onMouseEnter={emitFieldPulse}
+      onFocus={emitFieldPulse}
+      className="group relative border-b border-paper/10 hover:border-paper/30 py-3.5 flex flex-col gap-1.5 transition-colors duration-200"
+      initial={{ opacity: 0, y: 8 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="flex items-baseline gap-4">
-        <span className="font-mono text-[9px] tracking-[0.2em] text-ink-ghost group-hover:text-blood-bright transition-colors duration-150 shrink-0">
+      <div className="flex items-baseline gap-3.5">
+        <span className="font-mono text-[9px] tracking-[0.2em] text-paper-mute group-hover:text-blood-bright transition-colors duration-200 shrink-0">
           {String(no).padStart(3, "0")}
         </span>
-        <h3 className="font-mono text-[13px] tracking-[0.02em] text-ink group-hover:text-paper transition-colors duration-150">
+        <h3 className="font-mono text-[12px] tracking-[0.02em] text-paper-dim group-hover:text-paper transition-colors duration-200">
           {project.title}
         </h3>
-        <div className="ml-auto flex items-center gap-4 shrink-0">
+        <div className="ml-auto flex items-center gap-3.5 shrink-0">
           {project.demo && (
             <a
               href={project.demo}
               target="_blank"
               rel="noopener noreferrer"
-              className="relative font-mono text-[9px] tracking-[0.25em] text-blood border border-blood/60 px-1.5 py-0.5 hover:bg-blood hover:text-paper transition-colors duration-150 before:absolute before:-inset-2 before:content-['']"
+              className="relative font-mono text-[8.5px] tracking-[0.25em] text-blood-bright border border-blood-bright/50 px-1.5 py-0.5 hover:bg-blood hover:text-paper transition-colors duration-200 before:absolute before:-inset-2 before:content-['']"
               aria-label={`${project.title} demo`}
             >
               LIVE
@@ -403,21 +406,21 @@ function SpecimenRow({
           )}
           <ProjectLink
             project={project}
-            className="text-ink-ghost group-hover:text-paper hover:!text-blood transition-colors duration-150 p-2 -m-2"
+            className="text-paper-mute hover:text-paper transition-colors duration-200 p-2 -m-2"
           />
         </div>
       </div>
-      <p className="text-[12px] leading-relaxed text-ink-faded group-hover:text-paper-dim transition-colors duration-150 max-w-[74ch]">
+      <p className="text-[11.5px] leading-snug text-paper-mute max-w-[72ch]">
         {project.description}
       </p>
-      <p className="font-mono text-[9px] tracking-[0.22em] uppercase text-ink-ghost group-hover:text-paper-mute transition-colors duration-150">
+      <p className="font-mono text-[8.5px] tracking-[0.22em] uppercase text-paper-mute/70">
         {project.tags.join(" · ")}
       </p>
     </motion.div>
   );
 }
 
-// Plate header — number, label in the display face, entry count, rule.
+// Plate header — small display label, hairline, count. Nothing extra.
 function PlateHeader({
   plate,
   label,
@@ -428,25 +431,23 @@ function PlateHeader({
   count: number;
 }) {
   return (
-    <div className="mb-8">
-      <div className="flex items-baseline gap-5">
-        <span className="font-mono text-[10px] tracking-[0.3em] text-blood shrink-0">
-          PLATE {plate}
-        </span>
-        <motion.div
-          className="flex-1 h-px bg-ink/30 origin-left"
-          initial={{ scaleX: 0 }}
-          whileInView={{ scaleX: 1 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-        />
-        <span className="font-mono text-[10px] tracking-[0.25em] text-ink-ghost shrink-0">
-          {String(count).padStart(2, "0")} ENTRIES
-        </span>
-      </div>
-      <h2 className="display text-ink text-[clamp(2.6rem,7vw,5.5rem)] leading-[0.95] tracking-[-0.01em] mt-3 select-none">
+    <div className="mb-6 flex items-baseline gap-5">
+      <span className="font-mono text-[9px] tracking-[0.2em] text-paper-mute shrink-0">
+        {plate}
+      </span>
+      <h2 className="display text-paper text-[clamp(1.5rem,3.2vw,2.4rem)] leading-none select-none shrink-0">
         {label}
       </h2>
+      <motion.div
+        className="flex-1 h-px bg-paper/15 origin-left"
+        initial={{ scaleX: 0 }}
+        whileInView={{ scaleX: 1 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+      />
+      <span className="font-mono text-[9px] tracking-[0.25em] text-paper-mute shrink-0">
+        ×{String(count).padStart(2, "0")}
+      </span>
     </div>
   );
 }
@@ -455,52 +456,37 @@ function PlateHeader({
 
 export function Projects() {
   return (
-    <section id="work" className="relative bg-paper text-ink">
-      {/* Hard press edge into the paper stock */}
-      <div className="h-[3px] bg-blood" aria-hidden />
+    <section
+      id="work"
+      className="relative border-t border-paper/10 px-8 md:px-16 lg:px-24 py-20 md:py-24"
+    >
+      <p className="font-mono text-[10px] tracking-[0.35em] uppercase text-paper-mute mb-14">
+        Work
+      </p>
 
-      <div className="px-8 md:px-16 lg:px-24 py-24 md:py-32">
-        {/* Index masthead */}
-        <div className="mb-20 flex flex-wrap items-end justify-between gap-6">
-          <div>
-            <p className="font-mono text-[10px] tracking-[0.35em] uppercase text-ink-ghost mb-4">
-              INDEX OF INSTRUMENTS
-            </p>
-            <h2 className="display text-ink text-[clamp(3.4rem,10vw,8.5rem)] leading-[0.85] tracking-[-0.015em] select-none">
-              THE WORK
-            </h2>
+      {PLATES.map((plate, pi) => (
+        <div
+          key={plate.id}
+          id={plate.id}
+          className={`scroll-mt-24 ${pi < PLATES.length - 1 ? "mb-16" : ""}`}
+        >
+          <PlateHeader
+            plate={plate.plate}
+            label={plate.label}
+            count={plate.projects.length}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12">
+            {plate.projects.map((p, i) => (
+              <SpecimenRow
+                key={p.title}
+                project={p}
+                no={PLATE_OFFSETS[pi] + i + 1}
+                delay={stagger(i)}
+              />
+            ))}
           </div>
-          <p className="font-mono text-[10px] tracking-[0.25em] text-ink-ghost text-right leading-loose">
-            35 ENTRIES / 5 PLATES
-            <br />
-            ALL BUILT, ALL REAL
-          </p>
         </div>
-
-        {PLATES.map((plate, pi) => (
-          <div
-            key={plate.id}
-            id={plate.id}
-            className={`scroll-mt-24 ${pi < PLATES.length - 1 ? "mb-24" : ""}`}
-          >
-            <PlateHeader
-              plate={plate.plate}
-              label={plate.label}
-              count={plate.projects.length}
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
-              {plate.projects.map((p, i) => (
-                <SpecimenRow
-                  key={p.title}
-                  project={p}
-                  no={PLATE_OFFSETS[pi] + i + 1}
-                  delay={stagger(i)}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+      ))}
     </section>
   );
 }
