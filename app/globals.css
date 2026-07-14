@@ -84,12 +84,11 @@ body {
   background-size: 9px 9px;
 }
 
-/* Display face — poster setting: tight, tall, condensed by the letterforms */
+/* Display face — blackletter, set in title case, never tracked out */
 .display {
-  font-family: var(--font-display-face), "Anton", "Arial Narrow", sans-serif;
+  font-family: var(--font-display-face), "Pirata One", "UnifrakturMaguntia", serif;
   font-weight: 400;
-  letter-spacing: 0.005em;
-  text-transform: uppercase;
+  letter-spacing: 0.015em;
 }
 
 /* Registration crosshair, drawn with borders so it stays crisp at any DPR */

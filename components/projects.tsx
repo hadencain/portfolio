@@ -299,10 +299,10 @@ const THREED: Project[] = [
 // ─── Plates ───────────────────────────────────────────────────────────────────
 
 const PLATES = [
-  { id: "audio", plate: "01", label: "AUDIO", projects: AUDIO },
-  { id: "video", plate: "02", label: "VIDEO", projects: VIDEO },
-  { id: "security", plate: "03", label: "SECURITY", projects: SECURITY },
-  { id: "ar-mobile", plate: "04", label: "AR / MOBILE", projects: AR_MOBILE },
+  { id: "audio", plate: "01", label: "Audio", projects: AUDIO },
+  { id: "video", plate: "02", label: "Video", projects: VIDEO },
+  { id: "security", plate: "03", label: "Security", projects: SECURITY },
+  { id: "ar-mobile", plate: "04", label: "AR / Mobile", projects: AR_MOBILE },
   { id: "threed", plate: "05", label: "3D", projects: THREED },
 ];
 

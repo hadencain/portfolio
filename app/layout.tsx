@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Anton } from "next/font/google";
+import { Geist, Geist_Mono, Pirata_One } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { MotionProvider } from "@/components/motion-config";
@@ -15,8 +15,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// The display plate — condensed poster sans, set huge, quiet everywhere else.
-const anton = Anton({
+// The display plate — blackletter, sigil register. Title case only; caps-runs
+// in blackletter are unreadable.
+const pirata = Pirata_One({
   variable: "--font-display-face",
   subsets: ["latin"],
   weight: "400",
@@ -55,7 +56,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${anton.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable} ${pirata.variable}`}
       data-scroll-behavior="smooth"
     >
       <body className="antialiased">

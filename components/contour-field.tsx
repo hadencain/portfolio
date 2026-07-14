@@ -3,89 +3,44 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Full-viewport contour-line field — the site's persistent background.
- * Five displacement modes blended continuously by scroll position:
- *   0 audio ridge (hero + sound/video)   1 network topology (security)
- *   2 scan dome (ar/mobile)              3 printed layers (3d)
- *   4 idle drift (about/contact)
- * Interaction: cursor disturbance + "field-pulse" CustomEvents from cards.
- * Pulse detail {x, y} is in viewport coordinates (the canvas's fixed coord space).
+ * Full-viewport ASCII density field — the site's persistent background.
+ * (File keeps its historical name; the contour-line renderer it replaced
+ * lives in git history.)
+ *
+ * A grid of type glyphs whose density is driven by slow layered waves —
+ * organic masses emerge from character density like dithered print. The
+ * pattern morphs by scroll position between section anchors. Slow vertical
+ * smear bands drag columns downward like a mis-fed scan.
+ *
+ * Interaction: the cursor carves a trailing erosion well through the field;
+ * "field-pulse" CustomEvents from cards send a brightening ring outward.
+ * Pulse detail {x, y} is in viewport coordinates.
+ *
+ * Deliberately calm: ~30fps, no flashes, glyphs fade between states.
  * Decorative only — every failure path is a silent no-op.
  */
 
-// First anchor is #audio: the ridge holds through hero + audio + video, then
-// interpolates toward network as the viewport center approaches #security.
 const ANCHOR_IDS = ["audio", "security", "ar-mobile", "threed", "about"];
 
-// Plate tones — the field draws in bone ink on the black plate. Mode color
-// stays in one family (print doesn't do neon); differentiation is amplitude.
-const ACCENTS: [number, number, number][] = [
-  [227, 221, 208], // ridge — bone
-  [206, 197, 178], // network — pressed bone
-  [216, 205, 188], // scan — warm bone
-  [199, 192, 176], // layers — faded bone
-  [172, 165, 149], // idle — ghost
+// Density ramp, sparse → solid. Index 0 draws nothing.
+const RAMP = [" ", ".", "·", ":", ";", "=", "+", "*", "#", "%", "@"];
+const TIER_ALPHA = [0.2, 0.36, 0.55];
+
+// Per-section pattern parameters, interpolated continuously by scroll:
+// [xScale, yScale, drift speed, threshold]. Threshold controls sparseness.
+const MODE_PARAMS: [number, number, number, number][] = [
+  [0.012, 0.02, 0.6, 0.52], // hero/audio — broad slow masses
+  [0.02, 0.008, 0.45, 0.56], // security — horizontal striation
+  [0.009, 0.009, 0.35, 0.5], // ar/mobile — large soft dome-like blobs
+  [0.016, 0.028, 0.5, 0.58], // 3d — tighter layered grain
+  [0.011, 0.016, 0.25, 0.6], // about/contact — sparse idle drift
 ];
 
-const tri = (v: number) => Math.abs(((v % 1) + 1) % 1 - 0.5) * 4 - 1;
 const sstep = (a: number, b: number, v: number) => {
   const t = Math.max(0, Math.min(1, (v - a) / (b - a)));
   return t * t * (3 - 2 * t);
 };
-
-const NETWORK_NODES = [
-  [0.22, 0.3],
-  [0.55, 0.62],
-  [0.8, 0.25],
-  [0.4, 0.85],
-] as const;
-
-// Displacement in px: x = normalized horizontal, l = normalized line index,
-// t = seconds. Negative = up.
-type ModeFn = (x: number, l: number, t: number) => number;
-
-const MODES: ModeFn[] = [
-  // 0 — audio ridge: gaussian-enveloped layered sines
-  (x, l, t) => {
-    const env = Math.exp(-Math.pow((x - 0.5) * 2.6, 2)) + 0.1;
-    return (
-      (Math.sin(x * 14 + l * 3.2 + t * 2.0) * 6 +
-        Math.sin(x * 5 - t * 1.4 + l) * 11) *
-      env
-    );
-  },
-  // 1 — network topology: angular traces + pulsing node wells
-  (x, l, t) => {
-    let e = tri(x * 5 + l * 1.6 + t * 0.25) * 5;
-    for (const [nx, nl] of NETWORK_NODES) {
-      e -=
-        30 *
-        Math.exp(-((x - nx) ** 2) * 150 - ((l - nl) ** 2) * 30) *
-        (0.75 + 0.25 * Math.sin(t * 3 + nx * 20));
-    }
-    return e;
-  },
-  // 2 — scan dome: hemispheric bulge, rotation wobble, scanline shimmer
-  (x, l, t) => {
-    const dx = (x - 0.5) * 2.4;
-    const dl = (l - 0.5) * 2.1;
-    const r2 = dx * dx + dl * dl;
-    const dome = r2 < 1 ? Math.sqrt(1 - r2) : 0;
-    return (
-      -38 * dome * (1 + 0.06 * Math.sin(t * 1.6 + x * 9)) +
-      Math.sin(x * 30 + t * 4) * 0.8 * dome
-    );
-  },
-  // 3 — printed layers: vase silhouette raised out of flat layers
-  (x, l, t) => {
-    const prof =
-      0.16 + 0.13 * Math.sin(l * Math.PI) + 0.05 * Math.sin(l * Math.PI * 3 + 0.6);
-    const inside = sstep(prof + 0.04, prof - 0.02, Math.abs(x - 0.5));
-    return -17 * inside * (0.7 + 0.3 * Math.sin(t * 1.2 + l * 10));
-  },
-  // 4 — idle drift: low-amplitude breathing
-  (x, l, t) => Math.sin(x * 3 + l * 2 + t * 0.6) * 4 + Math.sin(x * 7 - t * 0.4) * 2,
-];
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
 interface Pulse {
   x: number;
@@ -106,15 +61,47 @@ export function ContourField({ calm = false }: { calm?: boolean }) {
     const coarse = window.matchMedia("(pointer: coarse)").matches;
     let dpr = Math.min(window.devicePixelRatio || 1, 1.5);
 
+    const cell = coarse ? 18 : 15; // css px per glyph cell
     let w = 0;
     let h = 0;
+    let cols = 0;
+    let rows = 0;
     let anchors: { top: number; mode: number }[] = [];
-    // tx/ty is the raw cursor; x/y trails it each frame so the dent moves
-    // like a disturbance in a medium with viscosity, not a glued decal.
     const mouse = { x: -1e4, y: -1e4, tx: -1e4, ty: -1e4 };
     const pulses: Pulse[] = [];
     let raf = 0;
     let running = false;
+    let frame = 0;
+
+    // Pre-rendered glyph sprites: [tier][rampIndex] — fillText once, then
+    // drawImage thousands of times per frame.
+    let sprites: HTMLCanvasElement[][] = [];
+    const buildSprites = () => {
+      sprites = TIER_ALPHA.map((alpha) =>
+        RAMP.map((ch) => {
+          const s = document.createElement("canvas");
+          s.width = Math.ceil(cell * dpr);
+          s.height = Math.ceil(cell * dpr);
+          const sc = s.getContext("2d");
+          if (sc && ch !== " ") {
+            sc.scale(dpr, dpr);
+            sc.font = `${Math.round(cell * 0.9)}px ui-monospace, monospace`;
+            sc.textAlign = "center";
+            sc.textBaseline = "middle";
+            sc.fillStyle = `rgba(227, 221, 208, ${alpha})`;
+            sc.fillText(ch, cell / 2, cell / 2);
+          }
+          return s;
+        })
+      );
+    };
+
+    // Two slow vertical smear bands — columns whose sample point drags
+    // downward and back over ~20s, like a scanner losing registration.
+    const bands = [
+      { c0: 0.12, c1: 0.2, amp: 70, period: 21 },
+      { c0: 0.62, c1: 0.74, amp: 110, period: 27 },
+    ];
 
     const measure = () => {
       anchors = ANCHOR_IDS.flatMap((id, i) => {
@@ -129,13 +116,15 @@ export function ContourField({ calm = false }: { calm?: boolean }) {
       dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       w = window.innerWidth;
       h = window.innerHeight;
+      cols = Math.ceil(w / cell);
+      rows = Math.ceil(h / cell);
       cv.width = Math.round(w * dpr);
       cv.height = Math.round(h * dpr);
+      buildSprites();
       measure();
       if (reduced) draw(performance.now());
     };
 
-    // Continuous mode progress from viewport-center position between anchors.
     const progress = () => {
       if (anchors.length === 0) return 0;
       const yc = window.scrollY + h * 0.5;
@@ -154,85 +143,107 @@ export function ContourField({ calm = false }: { calm?: boolean }) {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
 
-      const p = progress();
-      const weights = MODES.map((_, i) => Math.max(0, 1 - Math.abs(p - i)));
-      const wsum = weights.reduce((a, b) => a + b, 0) || 1;
-      const active: { fn: ModeFn; w: number }[] = [];
-      for (let i = 0; i < MODES.length; i++) {
-        if (weights[i] > 0.01) active.push({ fn: MODES[i], w: weights[i] / wsum });
-      }
+      // Interpolate pattern params by section progress.
+      const p = Math.max(0, Math.min(MODE_PARAMS.length - 1, progress()));
+      const i0 = Math.floor(p);
+      const i1 = Math.min(i0 + 1, MODE_PARAMS.length - 1);
+      const ft = p - i0;
+      const sx = lerp(MODE_PARAMS[i0][0], MODE_PARAMS[i1][0], ft);
+      const sy = lerp(MODE_PARAMS[i0][1], MODE_PARAMS[i1][1], ft);
+      const fs = lerp(MODE_PARAMS[i0][2], MODE_PARAMS[i1][2], ft);
+      const th = lerp(MODE_PARAMS[i0][3], MODE_PARAMS[i1][3], ft);
 
-      let cr = 0;
-      let cg = 0;
-      let cb = 0;
-      weights.forEach((wt, i) => {
-        cr += (ACCENTS[i][0] * wt) / wsum;
-        cg += (ACCENTS[i][1] * wt) / wsum;
-        cb += (ACCENTS[i][2] * wt) / wsum;
-      });
-
-      // Full amplitude in the hero, dimmed ~45% once content arrives.
-      // calm pages (reading-first, text from the top) cap the field at the
-      // dimmed level from scroll 0 — they have no hero to earn full brightness.
-      const scrollDim = 1 - 0.4 * sstep(0.3, 1, window.scrollY / (h * 0.9));
-      const dim = calm ? Math.min(scrollDim, 0.32) : scrollDim;
-      const spacing = coarse ? 22 : 14;
-      const nLines = Math.max(10, Math.floor(h / spacing));
-      const step = Math.max(4, Math.floor(w / 160));
+      // Full presence in the hero, gently dimmed once content arrives;
+      // calm pages hold the dimmed level from the top.
+      const scrollDim = 1 - 0.35 * sstep(0.3, 1, window.scrollY / (h * 0.9));
+      const dim = calm ? Math.min(scrollDim, 0.55) : scrollDim;
 
       for (let i = pulses.length - 1; i >= 0; i--) {
-        if (t - pulses[i].t0 > 1.4) pulses.splice(i, 1);
+        if (t - pulses[i].t0 > 1.6) pulses.splice(i, 1);
       }
 
-      // Cursor smoothing: snap across the offscreen sentinel, trail otherwise.
       if (mouse.tx < -9e3 || mouse.x < -9e3) {
         mouse.x = mouse.tx;
         mouse.y = mouse.ty;
       } else {
-        mouse.x += (mouse.tx - mouse.x) * 0.16;
-        mouse.y += (mouse.ty - mouse.y) * 0.16;
+        mouse.x += (mouse.tx - mouse.x) * 0.14;
+        mouse.y += (mouse.ty - mouse.y) * 0.14;
       }
 
-      for (let li = 0; li < nLines; li++) {
-        const l = li / (nLines - 1);
-        const baseY = h * 0.04 + l * h * 0.92;
-        const edge = 0.25 + 0.75 * Math.sin(l * Math.PI);
-        ctx.strokeStyle = `rgba(${cr | 0},${cg | 0},${cb | 0},${
-          (0.1 + edge * 0.34) * dim
-        })`;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        for (let px = 0; px <= w + step; px += step) {
-          const cx = Math.min(px, w);
-          const x = cx / w;
-          let e = 0;
-          for (let k = 0; k < active.length; k++) {
-            e += active[k].fn(x, l, t) * active[k].w;
+      const rampMax = RAMP.length - 1;
+      const spriteSize = cell;
+
+      for (let cy = 0; cy < rows; cy++) {
+        const y = cy * cell + cell / 2;
+        for (let cx = 0; cx < cols; cx++) {
+          const x = cx * cell + cell / 2;
+          const nx = x / w;
+
+          // Vertical smear: inside a band, sample as if the column were
+          // dragged downward — content appears to stretch and drip.
+          let ys = y;
+          for (const b of bands) {
+            if (nx >= b.c0 && nx <= b.c1) {
+              const edge =
+                sstep(b.c0, b.c0 + 0.02, nx) * sstep(b.c1, b.c1 - 0.02, nx);
+              const ph = 0.5 + 0.5 * Math.sin((t / b.period) * Math.PI * 2);
+              ys -= b.amp * ph * edge;
+            }
           }
-          const mdx = cx - mouse.x;
-          const mdy = baseY - mouse.y;
-          e -= Math.exp(-(mdx * mdx + mdy * mdy) / 3800) * 30;
-          // Pulses propagate: a wavefront leaves the card at 260px/s and
-          // decays — a ping through the medium, not a dent that fades in place.
+
+          // Layered waves — cheap organic density, no allocation.
+          let d =
+            0.5 +
+            0.3 *
+              Math.sin(
+                x * sx + t * fs + Math.sin(ys * sy * 1.7 - t * fs * 0.6) * 1.6
+              ) +
+            0.24 * Math.sin(ys * sy - t * fs * 0.8 + x * sx * 0.5) +
+            0.14 * Math.sin((x + ys) * sx * 1.9 + t * fs * 0.4);
+
+          // Threshold shaping: below th empties out, above builds mass.
+          d = sstep(th, th + 0.45, d);
+
+          // Gripper margin — the field releases the top edge so the nav
+          // always sits on clean ink.
+          d *= sstep(56, 130, y);
+
+          // Cursor erosion well — carves through the field, viscous trail.
+          const mdx = x - mouse.x;
+          const mdy = y - mouse.y;
+          const m2 = mdx * mdx + mdy * mdy;
+          if (m2 < 40000) d -= Math.exp(-m2 / 9000) * 1.2;
+
+          // Pulses: a ring passes through and lifts density briefly.
           for (const pu of pulses) {
             const age = t - pu.t0;
-            const dx2 = cx - pu.x;
-            const dy2 = baseY - pu.y;
-            const ring = Math.sqrt(dx2 * dx2 + dy2 * dy2) - age * 260;
-            if (ring > 120 || ring < -120) continue;
-            e -= 20 * Math.exp((-ring * ring) / 2600) * Math.exp(-age * 2.6);
+            const dx2 = x - pu.x;
+            const dy2 = y - pu.y;
+            const ring = Math.sqrt(dx2 * dx2 + dy2 * dy2) - age * 240;
+            if (ring < 90 && ring > -90) {
+              d += 0.5 * Math.exp((-ring * ring) / 1800) * Math.exp(-age * 2.2);
+            }
           }
-          const y = baseY + e;
-          if (cx === 0) ctx.moveTo(cx, y);
-          else ctx.lineTo(cx, y);
-          if (cx === w) break;
+
+          const v = d * dim;
+          if (v <= 0.04) continue;
+          const idx = Math.min(rampMax, Math.max(1, Math.round(v * rampMax)));
+          const tier = v > 0.66 ? 2 : v > 0.38 ? 1 : 0;
+          ctx.drawImage(
+            sprites[tier][idx],
+            x - cell / 2,
+            y - cell / 2,
+            spriteSize,
+            spriteSize
+          );
         }
-        ctx.stroke();
       }
     };
 
+    // ~30fps — the field is a slow medium; half rate halves the load.
     const loop = (tms: number) => {
-      draw(tms);
+      frame++;
+      if (frame % 2 === 0) draw(tms);
       raf = requestAnimationFrame(loop);
     };
     const start = () => {
@@ -273,7 +284,6 @@ export function ContourField({ calm = false }: { calm?: boolean }) {
     }
     if (reduced) window.addEventListener("scroll", onScrollStatic, { passive: true });
 
-    // Layout shifts after mount (fonts, iframes) move the anchors — re-measure.
     const ro = new ResizeObserver(() => {
       measure();
       if (reduced) draw(performance.now());

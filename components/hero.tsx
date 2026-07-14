@@ -42,16 +42,16 @@ export function Hero() {
 
       <div className="relative z-10 flex-1 flex flex-col justify-center px-8 md:px-16 lg:px-24 pt-28 pb-16">
         <motion.h1
-          className="display select-none text-paper leading-[0.92] tracking-[0.01em] text-[clamp(4rem,13vw,11rem)] misreg-trigger"
+          className="display select-none text-paper leading-[0.88] tracking-[0.015em] text-[clamp(4.4rem,14vw,12rem)] misreg-trigger"
           initial={{ clipPath: "inset(0 0 100% 0)", y: 24 }}
-          animate={{ clipPath: "inset(0 0 -8% 0)", y: 0 }}
+          animate={{ clipPath: "inset(0 0 -10% 0)", y: 0 }}
           transition={{ duration: 1.1, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
         >
-          <span className="misreg block" data-text="HADEN">
-            HADEN
+          <span className="misreg block" data-text="Haden">
+            Haden
           </span>
-          <span className="misreg block" data-text="CAIN">
-            CAIN
+          <span className="misreg block" data-text="Cain">
+            Cain
           </span>
         </motion.h1>
 

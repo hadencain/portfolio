@@ -12,8 +12,7 @@ const ITEMS = [
   { label: "Store", href: "/store" },
 ];
 
-// Document header bar — always the ink plate, so it holds over both the ink
-// hero and the paper catalog without flipping colors.
+// Header bar — links only, no wordmark. The ink plate holds over everything.
 export function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
@@ -28,20 +27,12 @@ export function Nav() {
   return (
     <nav
       aria-label="Primary"
-      className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-8 md:px-16 lg:px-24 py-5 border-b transition-colors duration-500 ${
+      className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-end px-4 sm:px-8 md:px-16 lg:px-24 py-5 border-b transition-colors duration-500 ${
         scrolled
           ? "border-paper/15 bg-ink/95 backdrop-blur-sm"
           : "border-transparent"
       }`}
     >
-      <Link
-        href="/#hero"
-        className="display text-paper text-[17px] leading-none tracking-tight hover:text-blood transition-colors duration-200"
-        aria-label="Haden Cain — top"
-      >
-        HC.
-      </Link>
-
       {/* -mr trues the last label's glyph edge against the page margin —
           trailing letter-spacing (0.25em @ 11px = 2.75px) otherwise leaves it short */}
       <div className="flex gap-3 sm:gap-6 md:gap-8 -mr-[2.75px]">
