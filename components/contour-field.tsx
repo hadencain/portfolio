@@ -22,14 +22,22 @@ import { useEffect, useRef } from "react";
 
 const ANCHOR_IDS = ["audio", "security", "ar-mobile", "threed", "about"];
 
-// Three materials, like different scans collaged into one sheet:
-// ascii mass, hex printout, block dither. Index 0 of each draws nothing.
+// Two materials, like different scans collaged into one sheet:
+// ascii mass and hex printout. Index 0 of each draws nothing.
 const RAMPS = [
   [" ", ".", "·", ":", ";", "=", "+", "*", "#", "%", "@"],
   [" ", "0", "7", "1", "4", "9", "3", "b", "8", "e", "f"],
-  [" ", "·", "░", "░", "▒", "▒", "▒", "▓", "▓", "█", "█"],
 ];
 const TIER_ALPHA = [0.2, 0.36, 0.55];
+
+// Ordered-dither threshold (Bayer 4×4) — breaks density bands into true
+// dithered grain instead of smooth contours.
+const BAYER = [
+  [0, 8, 2, 10],
+  [12, 4, 14, 6],
+  [3, 11, 1, 9],
+  [15, 7, 13, 5],
+];
 
 // Per-section pattern parameters, interpolated continuously by scroll:
 // [xScale, yScale, drift speed, threshold]. Threshold controls sparseness.
@@ -108,6 +116,21 @@ export function ContourField({ calm = false }: { calm?: boolean }) {
     // whole grid decays toward zero.
     let residue = new Float32Array(0);
 
+    // Sporadic clock — the field's time does not flow evenly. It idles,
+    // then lurches: short bursts of fast flow with a positional jump, like
+    // a feedback network getting kicked. Brightness never spikes, only
+    // motion, so nothing reads as a flash.
+    const rnd = (a: number, b: number) => a + Math.random() * (b - a);
+    let fieldT = rnd(0, 100);
+    let lastMs = 0;
+    let burstUntil = 0;
+    let burstSpeed = 1;
+    let nextBurstAt = 1500;
+    let offX = 0;
+    let offY = 0;
+    // Event tears: a row rips sideways for under a second, then heals.
+    let tears: { row: number; shift: number; until: number }[] = [];
+
     // Two slow vertical smear bands — columns whose sample point drags
     // downward and back over ~20s, like a scanner losing registration.
     const bands = [
@@ -161,6 +184,29 @@ export function ContourField({ calm = false }: { calm?: boolean }) {
 
     const draw = (tms: number) => {
       const t = tms * 0.001;
+
+      // Advance the sporadic clock.
+      const dt = Math.min(0.1, Math.max(0, (tms - lastMs) * 0.001));
+      lastMs = tms;
+      const inBurst = tms < burstUntil;
+      fieldT += dt * (inBurst ? burstSpeed : 0.45);
+      if (tms >= nextBurstAt) {
+        burstSpeed = rnd(3.2, 7.5);
+        burstUntil = tms + rnd(160, 480);
+        nextBurstAt = tms + rnd(2000, 6500);
+        // The pattern jumps a few cells — a stepped displacement kick.
+        offX += rnd(-46, 46);
+        offY += rnd(-30, 30);
+        // Often a row rips at the same moment.
+        if (Math.random() < 0.75) {
+          tears.push({
+            row: Math.floor(rnd(0, rows)),
+            shift: Math.round(rnd(2, 5)) * (Math.random() < 0.5 ? -1 : 1),
+            until: tms + rnd(400, 1100),
+          });
+        }
+      }
+      tears = tears.filter((te) => te.until > tms);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
 
@@ -211,11 +257,6 @@ export function ContourField({ calm = false }: { calm?: boolean }) {
         }
       }
 
-      // Scan tears: two row bands crawl down the sheet, shifting their
-      // sample columns sideways — a slipped scanline, healed a moment later.
-      const tearRow1 = ((t * 0.55) % (rows + 8)) - 4;
-      const tearRow2 = ((t * 0.23 + rows * 0.6) % (rows + 8)) - 4;
-
       const rampMax = RAMPS[0].length - 1;
       const spriteSize = cell;
 
@@ -230,10 +271,11 @@ export function ContourField({ calm = false }: { calm?: boolean }) {
 
       for (let cy = 0; cy < rows; cy++) {
         const y = cy * cell + cell / 2;
-        // Tear offset applies to a 2-row band around each crawling tear.
+        // Tear offset applies to a short row band around each live tear.
         let tearShift = 0;
-        if (Math.abs(cy - tearRow1) < 1.5) tearShift = 3 * cell;
-        else if (Math.abs(cy - tearRow2) < 1.5) tearShift = -2 * cell;
+        for (const te of tears) {
+          if (Math.abs(cy - te.row) < 2) tearShift = te.shift * cell;
+        }
         for (let cx = 0; cx < cols; cx++) {
           const x = cx * cell + cell / 2 + tearShift;
           const nx = x / w;
@@ -250,15 +292,18 @@ export function ContourField({ calm = false }: { calm?: boolean }) {
             }
           }
 
-          // Layered waves — cheap organic density, no allocation.
+          // Layered waves on the sporadic clock — the pattern idles, then
+          // lurches when the clock bursts and the offsets kick.
+          const wx = x + offX;
+          const wy = ys + offY;
           let d =
             0.5 +
             0.3 *
               Math.sin(
-                x * sx + t * fs + Math.sin(ys * sy * 1.7 - t * fs * 0.6) * 1.6
+                wx * sx + fieldT * fs + Math.sin(wy * sy * 1.7 - fieldT * fs * 0.6) * 1.6
               ) +
-            0.24 * Math.sin(ys * sy - t * fs * 0.8 + x * sx * 0.5) +
-            0.14 * Math.sin((x + ys) * sx * 1.9 + t * fs * 0.4);
+            0.24 * Math.sin(wy * sy - fieldT * fs * 0.8 + wx * sx * 0.5) +
+            0.14 * Math.sin((wx + wy) * sx * 1.9 + fieldT * fs * 0.4);
 
           // Threshold shaping: below th empties out, above builds mass.
           d = sstep(th, th + 0.45, d);
@@ -272,16 +317,18 @@ export function ContourField({ calm = false }: { calm?: boolean }) {
           const zone =
             0.5 +
             0.5 *
-              Math.sin(x * 0.004 + t * 0.05 + Math.sin(y * 0.005 - t * 0.04) * 2.1);
-          let material = zone > 0.72 ? 1 : zone > 0.4 ? 0 : 2;
+              Math.sin(
+                wx * 0.004 + fieldT * 0.11 + Math.sin(wy * 0.005 - fieldT * 0.09) * 2.1
+              );
+          let material = zone > 0.66 ? 1 : 0;
 
           // Collage patches override the material and lift density a touch.
           for (const g of patchGeo) {
             const rx = (x - g.px) * g.cos + (y - g.py) * g.sin;
             const ry = -(x - g.px) * g.sin + (y - g.py) * g.cos;
             if (rx > 0 && rx < g.pc.w && ry > 0 && ry < g.pc.h) {
-              material = 2;
-              d += 0.18;
+              material = 1;
+              d += 0.2;
               break;
             }
           }
@@ -308,7 +355,10 @@ export function ContourField({ calm = false }: { calm?: boolean }) {
 
           const v = d * dim;
           if (v <= 0.04) continue;
-          const idx = Math.min(rampMax, Math.max(1, Math.round(v * rampMax)));
+          // Ordered dither: the Bayer threshold breaks contour banding into
+          // grain, so gradients speckle instead of stepping.
+          const bay = (BAYER[cy & 3][cx & 3] / 16 - 0.5) * 2.4;
+          const idx = Math.min(rampMax, Math.max(1, Math.round(v * rampMax + bay)));
           const tier = v > 0.66 ? 2 : v > 0.38 ? 1 : 0;
           ctx.drawImage(
             sprites[material][tier][idx],
