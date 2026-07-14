@@ -17,7 +17,7 @@ export function About() {
     >
       <div ref={ref} className="max-w-none">
         <motion.p
-          className="font-mono text-[10px] tracking-[0.35em] uppercase text-paper-mute mb-10"
+          className="smallcaps text-[13px] tracking-[0.3em] text-paper-mute mb-10"
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
           transition={{ duration: 0.8 }}

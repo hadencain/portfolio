@@ -84,11 +84,23 @@ body {
   background-size: 9px 9px;
 }
 
-/* Display face — blackletter, set in title case, never tracked out */
+/* Display face — pixel blackletter, set in title case, never tracked out */
 .display {
-  font-family: var(--font-display-face), "Pirata One", "UnifrakturMaguntia", serif;
+  font-family: var(--font-display-face), "Jacquard 12", serif;
   font-weight: 400;
-  letter-spacing: 0.015em;
+  letter-spacing: 0.02em;
+}
+
+/* Dot matrix — section headers, counters, the cycling label */
+.doto {
+  font-family: var(--font-doto), "Doto", ui-monospace, monospace;
+  font-weight: 700;
+}
+
+/* Small caps didone — nav and micro-labels */
+.smallcaps {
+  font-family: var(--font-smallcaps), "Bodoni Moda SC", serif;
+  font-weight: 500;
 }
 
 /* Registration crosshair, drawn with borders so it stays crisp at any DPR */

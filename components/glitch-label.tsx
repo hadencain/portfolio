@@ -72,7 +72,7 @@ export function GlitchLabel() {
 
   return (
     <span
-      className="relative inline-block font-mono text-[13px] md:text-[15px] tracking-[0.22em] uppercase text-paper-dim whitespace-nowrap"
+      className="relative inline-block doto text-[15px] md:text-[17px] tracking-[0.2em] uppercase text-paper-dim whitespace-nowrap"
       aria-label={label}
     >
       <AnimatePresence mode="wait" initial={false}>

@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Pirata_One } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Jacquard_12,
+  Doto,
+  Bodoni_Moda_SC,
+} from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { MotionProvider } from "@/components/motion-config";
@@ -15,12 +21,24 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// The display plate — blackletter, sigil register. Title case only; caps-runs
-// in blackletter are unreadable.
-const pirata = Pirata_One({
+// Display voices, user-selected:
+// Jacquard 12 — pixel blackletter, the name and big display moments.
+// Doto — dot matrix, section headers and the cycling label.
+// Bodoni Moda SC — small caps, nav and micro-labels.
+const jacquard = Jacquard_12({
   variable: "--font-display-face",
   subsets: ["latin"],
   weight: "400",
+});
+
+const doto = Doto({
+  variable: "--font-doto",
+  subsets: ["latin"],
+});
+
+const bodoniSC = Bodoni_Moda_SC({
+  variable: "--font-smallcaps",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -56,7 +74,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${pirata.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable} ${jacquard.variable} ${doto.variable} ${bodoniSC.variable}`}
       data-scroll-behavior="smooth"
     >
       <body className="antialiased">

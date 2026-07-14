@@ -435,7 +435,7 @@ function PlateHeader({
       <span className="font-mono text-[9px] tracking-[0.2em] text-paper-mute shrink-0">
         {plate}
       </span>
-      <h2 className="display text-paper text-[clamp(1.5rem,3.2vw,2.4rem)] leading-none select-none shrink-0">
+      <h2 className="doto text-paper text-[clamp(1.3rem,2.6vw,2rem)] leading-none select-none shrink-0">
         {label}
       </h2>
       <motion.div
@@ -460,7 +460,7 @@ export function Projects() {
       id="work"
       className="relative border-t border-paper/10 px-8 md:px-16 lg:px-24 py-20 md:py-24"
     >
-      <p className="font-mono text-[10px] tracking-[0.35em] uppercase text-paper-mute mb-14">
+      <p className="smallcaps text-[13px] tracking-[0.3em] text-paper-mute mb-14">
         Work
       </p>
 
