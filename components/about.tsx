@@ -3,9 +3,8 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 
-// The About section holds no biography by design. In print, an empty page
-// still gets set — so this one carries the printer's own convention for
-// deliberate emptiness, and nothing else.
+// The About section holds no biography by design — just the section label
+// over empty space.
 export function About() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
@@ -23,15 +22,6 @@ export function About() {
           transition={{ duration: 0.8 }}
         >
           About
-        </motion.p>
-
-        <motion.p
-          className="font-mono text-[11px] tracking-[0.3em] text-paper-mute"
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : {}}
-          transition={{ duration: 1, delay: 0.3 }}
-        >
-          [ intentionally left blank ]
         </motion.p>
       </div>
     </section>

@@ -24,20 +24,6 @@ export function Contact() {
           Contact
         </motion.p>
 
-        <motion.a
-          href="mailto:haden.cain@gmail.com"
-          onMouseEnter={emitFieldPulse}
-          onFocus={emitFieldPulse}
-          className="display misreg-trigger block w-fit text-paper leading-[0.9] tracking-[0.01em] text-[clamp(3.2rem,10vw,8rem)] select-none hover:text-paper transition-colors"
-          initial={{ opacity: 0, y: 18 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <span className="misreg inline-block" data-text="Write.">
-            Write.
-          </span>
-        </motion.a>
-
         <motion.div
           className="mt-10 flex flex-col sm:flex-row gap-3"
           initial={{ opacity: 0, y: 16 }}

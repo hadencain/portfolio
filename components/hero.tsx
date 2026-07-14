@@ -35,7 +35,7 @@ export function Hero() {
   const [field, setField] = useState(1);
   return (
     <section id="hero" className="relative min-h-screen flex flex-col">
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center px-8 md:px-16 lg:px-24 pt-28 pb-16">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center px-8 md:px-16 lg:px-24 pt-16 lg:pt-8 pb-10">
         {/* ── Left: the words ── */}
         <div className="lg:col-span-6">
           <motion.h1
@@ -53,7 +53,7 @@ export function Hero() {
           </motion.div>
 
           <motion.nav
-            className="mt-12 flex flex-col"
+            className="mt-9 flex flex-col"
             aria-label="Project sections"
             {...fadeUp(0.55, 12, 0.8)}
           >
@@ -78,7 +78,7 @@ export function Hero() {
             ))}
           </motion.nav>
 
-          <motion.div className="mt-10 flex gap-6" {...fadeUp(0.7)}>
+          <motion.div className="mt-8 flex gap-6" {...fadeUp(0.7)}>
             {SOCIALS.map((s) => (
               <a
                 key={s.label}
