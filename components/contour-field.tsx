@@ -22,8 +22,13 @@ import { useEffect, useRef } from "react";
 
 const ANCHOR_IDS = ["audio", "security", "ar-mobile", "threed", "about"];
 
-// Density ramp, sparse → solid. Index 0 draws nothing.
-const RAMP = [" ", ".", "·", ":", ";", "=", "+", "*", "#", "%", "@"];
+// Three materials, like different scans collaged into one sheet:
+// ascii mass, hex printout, block dither. Index 0 of each draws nothing.
+const RAMPS = [
+  [" ", ".", "·", ":", ";", "=", "+", "*", "#", "%", "@"],
+  [" ", "0", "7", "1", "4", "9", "3", "b", "8", "e", "f"],
+  [" ", "·", "░", "░", "▒", "▒", "▒", "▓", "▓", "█", "█"],
+];
 const TIER_ALPHA = [0.2, 0.36, 0.55];
 
 // Per-section pattern parameters, interpolated continuously by scroll:
@@ -73,34 +78,49 @@ export function ContourField({ calm = false }: { calm?: boolean }) {
     let running = false;
     let frame = 0;
 
-    // Pre-rendered glyph sprites: [tier][rampIndex] — fillText once, then
-    // drawImage thousands of times per frame.
-    let sprites: HTMLCanvasElement[][] = [];
+    // Pre-rendered glyph sprites: [material][tier][rampIndex] — fillText
+    // once, then drawImage thousands of times per frame.
+    let sprites: HTMLCanvasElement[][][] = [];
     const buildSprites = () => {
-      sprites = TIER_ALPHA.map((alpha) =>
-        RAMP.map((ch) => {
-          const s = document.createElement("canvas");
-          s.width = Math.ceil(cell * dpr);
-          s.height = Math.ceil(cell * dpr);
-          const sc = s.getContext("2d");
-          if (sc && ch !== " ") {
-            sc.scale(dpr, dpr);
-            sc.font = `${Math.round(cell * 0.9)}px ui-monospace, monospace`;
-            sc.textAlign = "center";
-            sc.textBaseline = "middle";
-            sc.fillStyle = `rgba(227, 221, 208, ${alpha})`;
-            sc.fillText(ch, cell / 2, cell / 2);
-          }
-          return s;
-        })
+      sprites = RAMPS.map((ramp) =>
+        TIER_ALPHA.map((alpha) =>
+          ramp.map((ch) => {
+            const s = document.createElement("canvas");
+            s.width = Math.ceil(cell * dpr);
+            s.height = Math.ceil(cell * dpr);
+            const sc = s.getContext("2d");
+            if (sc && ch !== " ") {
+              sc.scale(dpr, dpr);
+              sc.font = `${Math.round(cell * 0.9)}px ui-monospace, monospace`;
+              sc.textAlign = "center";
+              sc.textBaseline = "middle";
+              sc.fillStyle = `rgba(227, 221, 208, ${alpha})`;
+              sc.fillText(ch, cell / 2, cell / 2);
+            }
+            return s;
+          })
+        )
       );
     };
+
+    // Cursor residue — the cursor carves a channel that persists and slowly
+    // heals. A splat is deposited every frame at the smoothed cursor; the
+    // whole grid decays toward zero.
+    let residue = new Float32Array(0);
 
     // Two slow vertical smear bands — columns whose sample point drags
     // downward and back over ~20s, like a scanner losing registration.
     const bands = [
       { c0: 0.12, c1: 0.2, amp: 70, period: 21 },
       { c0: 0.62, c1: 0.74, amp: 110, period: 27 },
+    ];
+
+    // Hard-edged collage patches — rotated blocks of a different material
+    // drifting across the sheet at a few px/s, like pasted-in scraps.
+    const patches = [
+      { x: 0.2, y: 0.3, w: 260, h: 120, a: -0.12, vx: 2.4, vy: 0.9 },
+      { x: 0.7, y: 0.65, w: 180, h: 200, a: 0.18, vx: -1.6, vy: 1.3 },
+      { x: 0.45, y: 0.85, w: 320, h: 90, a: 0.05, vx: 1.1, vy: -0.7 },
     ];
 
     const measure = () => {
@@ -120,6 +140,7 @@ export function ContourField({ calm = false }: { calm?: boolean }) {
       rows = Math.ceil(h / cell);
       cv.width = Math.round(w * dpr);
       cv.height = Math.round(h * dpr);
+      residue = new Float32Array(cols * rows);
       buildSprites();
       measure();
       if (reduced) draw(performance.now());
@@ -170,13 +191,51 @@ export function ContourField({ calm = false }: { calm?: boolean }) {
         mouse.y += (mouse.ty - mouse.y) * 0.14;
       }
 
-      const rampMax = RAMP.length - 1;
+      // Deposit the cursor's carving into the residue grid, then let the
+      // whole sheet heal a little each frame.
+      if (residue.length === cols * rows) {
+        for (let i = 0; i < residue.length; i++) residue[i] *= 0.962;
+        if (mouse.x > -9e3) {
+          const mcx = Math.round(mouse.x / cell);
+          const mcy = Math.round(mouse.y / cell);
+          for (let oy = -2; oy <= 2; oy++) {
+            for (let ox = -2; ox <= 2; ox++) {
+              const gx = mcx + ox;
+              const gy = mcy + oy;
+              if (gx < 0 || gy < 0 || gx >= cols || gy >= rows) continue;
+              const fall = Math.exp(-(ox * ox + oy * oy) / 2.6);
+              const gi = gy * cols + gx;
+              residue[gi] = Math.max(-1.6, residue[gi] - 0.55 * fall);
+            }
+          }
+        }
+      }
+
+      // Scan tears: two row bands crawl down the sheet, shifting their
+      // sample columns sideways — a slipped scanline, healed a moment later.
+      const tearRow1 = ((t * 0.55) % (rows + 8)) - 4;
+      const tearRow2 = ((t * 0.23 + rows * 0.6) % (rows + 8)) - 4;
+
+      const rampMax = RAMPS[0].length - 1;
       const spriteSize = cell;
+
+      // Patch corners move; precompute rotation terms once per frame.
+      const patchGeo = patches.map((pc) => {
+        const mw = w + pc.w * 2;
+        const mh = h + pc.h * 2;
+        const px = ((((pc.x * w + pc.vx * t) % mw) + mw) % mw) - pc.w;
+        const py = ((((pc.y * h + pc.vy * t) % mh) + mh) % mh) - pc.h;
+        return { px, py, cos: Math.cos(pc.a), sin: Math.sin(pc.a), pc };
+      });
 
       for (let cy = 0; cy < rows; cy++) {
         const y = cy * cell + cell / 2;
+        // Tear offset applies to a 2-row band around each crawling tear.
+        let tearShift = 0;
+        if (Math.abs(cy - tearRow1) < 1.5) tearShift = 3 * cell;
+        else if (Math.abs(cy - tearRow2) < 1.5) tearShift = -2 * cell;
         for (let cx = 0; cx < cols; cx++) {
-          const x = cx * cell + cell / 2;
+          const x = cx * cell + cell / 2 + tearShift;
           const nx = x / w;
 
           // Vertical smear: inside a band, sample as if the column were
@@ -208,11 +267,33 @@ export function ContourField({ calm = false }: { calm?: boolean }) {
           // always sits on clean ink.
           d *= sstep(56, 130, y);
 
-          // Cursor erosion well — carves through the field, viscous trail.
+          // Material: slow zone noise picks the scan this cell belongs to;
+          // hard quantized boundaries read as collage seams.
+          const zone =
+            0.5 +
+            0.5 *
+              Math.sin(x * 0.004 + t * 0.05 + Math.sin(y * 0.005 - t * 0.04) * 2.1);
+          let material = zone > 0.72 ? 1 : zone > 0.4 ? 0 : 2;
+
+          // Collage patches override the material and lift density a touch.
+          for (const g of patchGeo) {
+            const rx = (x - g.px) * g.cos + (y - g.py) * g.sin;
+            const ry = -(x - g.px) * g.sin + (y - g.py) * g.cos;
+            if (rx > 0 && rx < g.pc.w && ry > 0 && ry < g.pc.h) {
+              material = 2;
+              d += 0.18;
+              break;
+            }
+          }
+
+          // Cursor: immediate well + the persistent carved channel.
           const mdx = x - mouse.x;
           const mdy = y - mouse.y;
           const m2 = mdx * mdx + mdy * mdy;
-          if (m2 < 40000) d -= Math.exp(-m2 / 9000) * 1.2;
+          if (m2 < 22000) d -= Math.exp(-m2 / 5200) * 1.1;
+          if (residue.length === cols * rows) {
+            d += residue[cy * cols + cx];
+          }
 
           // Pulses: a ring passes through and lifts density briefly.
           for (const pu of pulses) {
@@ -230,7 +311,7 @@ export function ContourField({ calm = false }: { calm?: boolean }) {
           const idx = Math.min(rampMax, Math.max(1, Math.round(v * rampMax)));
           const tier = v > 0.66 ? 2 : v > 0.38 ? 1 : 0;
           ctx.drawImage(
-            sprites[tier][idx],
+            sprites[material][tier][idx],
             x - cell / 2,
             y - cell / 2,
             spriteSize,
