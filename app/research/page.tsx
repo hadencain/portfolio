@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Nav } from "@/components/nav";
-import { ContourField } from "@/components/contour-field";
 import { ResearchSection } from "@/components/research/research-section";
 
 export const metadata: Metadata = {
@@ -18,7 +17,6 @@ export const metadata: Metadata = {
 export default function Research() {
   return (
     <>
-      <ContourField />
       <Nav />
       <main>
         <ResearchSection />

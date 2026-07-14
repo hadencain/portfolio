@@ -184,6 +184,21 @@ const VIDEO: Project[] = [
     github: "https://github.com/hadencain/markov",
     demo: "/tools/markov/",
   },
+  {
+    title: "vessel",
+    description:
+      "Android AR instrument. Import a video, locate the artifact in your physical environment, and perform with it through space.",
+    tags: ["Kotlin", "ARCore", "MediaPipe", "AAudio"],
+    github: "https://github.com/hadencain/vessel",
+  },
+  {
+    title: "senses",
+    description:
+      "Modular AR audio-visual instruments for Android. Camera, motion, and generative audio as playable pieces.",
+    tags: ["React Native", "Skia", "Web Audio"],
+    github: "https://github.com/hadencain/senses",
+    href: "/store/senses",
+  },
 ];
 
 const SECURITY: Project[] = [
@@ -261,24 +276,6 @@ const SECURITY: Project[] = [
   },
 ];
 
-const AR_MOBILE: Project[] = [
-  {
-    title: "vessel",
-    description:
-      "Android AR instrument. Import a video, locate the artifact in your physical environment, and perform with it through space.",
-    tags: ["Kotlin", "ARCore", "MediaPipe", "AAudio"],
-    github: "https://github.com/hadencain/vessel",
-  },
-  {
-    title: "senses",
-    description:
-      "Modular AR audio-visual instruments for Android. Camera, motion, and generative audio as playable pieces.",
-    tags: ["React Native", "Skia", "Web Audio"],
-    github: "https://github.com/hadencain/senses",
-    href: "/store/senses",
-  },
-];
-
 const THREED: Project[] = [
   {
     title: "3d-print-asset-manager",
@@ -302,8 +299,7 @@ const PLATES = [
   { id: "audio", plate: "01", label: "Audio", projects: AUDIO },
   { id: "video", plate: "02", label: "Video", projects: VIDEO },
   { id: "security", plate: "03", label: "Security", projects: SECURITY },
-  { id: "ar-mobile", plate: "04", label: "AR / Mobile", projects: AR_MOBILE },
-  { id: "threed", plate: "05", label: "3D", projects: THREED },
+  { id: "threed", plate: "04", label: "3D", projects: THREED },
 ];
 
 // Continuous catalog numbering — entry 001 through 035 across all plates.

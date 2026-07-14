@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Nav } from "@/components/nav";
-import { ContourField } from "@/components/contour-field";
 import { StoreHub } from "@/components/store/store-hub";
 
 export const metadata: Metadata = {
@@ -18,7 +17,6 @@ export const metadata: Metadata = {
 export default function Store() {
   return (
     <>
-      <ContourField calm />
       <Nav />
       <main>
         <StoreHub />

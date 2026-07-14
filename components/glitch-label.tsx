@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
-// Cycling discipline label. Letters deconstruct — each glyph drifts off on its
-// own vector like loose type pulled from a forme — then the next label's
-// letters converge and lock in. Labels are drawn in random order, never
-// repeating the one on screen. Calm by design: no flicker, no strobe.
+// Cycling discipline label. Each word is formed from dots: scattered points
+// converge into position, hold as dots for a beat, then resolve into the
+// letters. On the way out the letters collapse back toward dots and scatter.
+// Labels are drawn in random order, never repeating the one on screen.
 
 const LABELS = [
   "VST PLUGINS",
@@ -21,26 +21,66 @@ const LABELS = [
   "JUCE",
 ];
 
-const HOLD_MS = 3400;
+const HOLD_MS = 3600;
 
 const rnd = (a: number, b: number) => Math.random() * (b - a) + a;
 
-interface Scatter {
+interface Seed {
   x: number;
   y: number;
-  rotate: number;
   delay: number;
 }
 
-// One drift vector per glyph, made fresh for every word so no two
-// transitions read the same.
-function makeScatter(len: number): Scatter[] {
+function makeSeeds(len: number): Seed[] {
   return Array.from({ length: len }, (_, i) => ({
-    x: rnd(-46, 46),
-    y: rnd(-26, 26),
-    rotate: rnd(-28, 28),
-    delay: i * 0.022 + rnd(0, 0.05),
+    x: rnd(-36, 36),
+    y: rnd(-22, 22),
+    delay: i * 0.02 + rnd(0, 0.06),
   }));
+}
+
+// A single glyph: arrives as a dot, resolves into its letter once settled.
+function DotChar({
+  ch,
+  seed,
+  out,
+  reduced,
+}: {
+  ch: string;
+  seed: Seed;
+  out: Seed;
+  reduced: boolean;
+}) {
+  const [resolved, setResolved] = useState(reduced);
+
+  useEffect(() => {
+    if (reduced) return;
+    const id = setTimeout(() => setResolved(true), (seed.delay + 0.55) * 1000);
+    return () => clearTimeout(id);
+  }, [seed.delay, reduced]);
+
+  return (
+    <motion.span
+      className="inline-block"
+      style={{ whiteSpace: "pre" }}
+      initial={
+        reduced ? { opacity: 0 } : { opacity: 0, x: seed.x, y: seed.y, scale: 0.4 }
+      }
+      animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+      exit={
+        reduced
+          ? { opacity: 0 }
+          : { opacity: 0, x: out.x, y: out.y, scale: 0.3 }
+      }
+      transition={{
+        duration: reduced ? 0.2 : 0.55,
+        delay: seed.delay,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+    >
+      {resolved ? (ch === " " ? " " : ch) : ch === " " ? " " : "•"}
+    </motion.span>
+  );
 }
 
 export function GlitchLabel() {
@@ -65,10 +105,8 @@ export function GlitchLabel() {
 
   const label = LABELS[idx];
   const chars = useMemo(() => label.split(""), [label]);
-  // Enter and exit each get their own scatter so the word never retraces
-  // its own arrival path on the way out.
-  const enter = useMemo(() => makeScatter(chars.length), [chars]);
-  const exit = useMemo(() => makeScatter(chars.length), [chars]);
+  const seeds = useMemo(() => makeSeeds(chars.length), [chars]);
+  const outs = useMemo(() => makeSeeds(chars.length), [chars]);
 
   return (
     <span
@@ -78,39 +116,13 @@ export function GlitchLabel() {
       <AnimatePresence mode="wait" initial={false}>
         <motion.span key={label} aria-hidden className="inline-block">
           {chars.map((c, i) => (
-            <motion.span
+            <DotChar
               key={`${label}-${i}`}
-              className="inline-block"
-              style={{ whiteSpace: "pre" }}
-              initial={
-                reduced.current
-                  ? { opacity: 0 }
-                  : {
-                      opacity: 0,
-                      x: enter[i].x,
-                      y: enter[i].y,
-                      rotate: enter[i].rotate,
-                    }
-              }
-              animate={{ opacity: 1, x: 0, y: 0, rotate: 0 }}
-              exit={
-                reduced.current
-                  ? { opacity: 0 }
-                  : {
-                      opacity: 0,
-                      x: exit[i].x,
-                      y: exit[i].y,
-                      rotate: exit[i].rotate,
-                    }
-              }
-              transition={{
-                duration: reduced.current ? 0.2 : 0.5,
-                delay: enter[i].delay,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-            >
-              {c}
-            </motion.span>
+              ch={c}
+              seed={seeds[i]}
+              out={outs[i]}
+              reduced={reduced.current}
+            />
           ))}
         </motion.span>
       </AnimatePresence>
