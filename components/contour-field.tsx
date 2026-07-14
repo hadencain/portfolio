@@ -13,6 +13,11 @@ import { useEffect, useRef } from "react";
  *   3 SWARM        — orbiting agents dragging comet trails
  *   4 AUTOMATON    — cellular colony (B3/S23) growing and dying
  *   5 INTERFERENCE — two wave gratings beating into moiré fringes
+ *   6 RIPPLE       — point sources ringing a tank; the cursor is a stone
+ *   7 SPECTRUM     — analyzer bars with falling peak caps
+ *   8 LISSAJOUS    — a parametric figure tracing itself in light
+ *   9 VORTEX       — spiral arms winding around a wandering eye
+ *  10 SCOPE        — an oscilloscope trace over slow static
  *
  * Deliberately calm: ~30fps, motion is erratic but brightness never spikes.
  * Decorative only — every failure path is a silent no-op.
@@ -98,7 +103,19 @@ export function ContourField({ mode = 1 }: { mode?: number }) {
     let ghost = new Float32Array(0); // automaton after-image
     let colSpeed = new Float32Array(0); // cascade column speeds
     let colSeed = new Float32Array(0);
+    let scratchCols = new Float32Array(0); // per-column scratch (spectrum, scope)
+    let barCur = new Float32Array(0); // spectrum bar heights
+    let barPeak = new Float32Array(0); // spectrum peak caps
     let agents: { x: number; y: number; vx: number; vy: number }[] = [];
+    // Lissajous frequency ratio + phase; vortex eye and arm count.
+    let lissA = 3;
+    let lissB = 4;
+    let lissD = 0;
+    let vortX = 0.5;
+    let vortY = 0.5;
+    let arms = 3;
+    let scopeF1 = 0.02;
+    let scopeF2 = 0.011;
 
     const rnd = (a: number, b: number) => a + Math.random() * (b - a);
     let fieldT = rnd(0, 100);
@@ -139,6 +156,9 @@ export function ContourField({ mode = 1 }: { mode?: number }) {
       ghost = new Float32Array(cols * rows);
       colSpeed = new Float32Array(cols);
       colSeed = new Float32Array(cols);
+      scratchCols = new Float32Array(cols);
+      barCur = new Float32Array(cols);
+      barPeak = new Float32Array(cols);
       for (let c = 0; c < cols; c++) {
         colSpeed[c] = rnd(0.35, 1.4);
         colSeed[c] = rnd(0, 400);
@@ -436,6 +456,179 @@ export function ContourField({ mode = 1 }: { mode?: number }) {
       }
     };
 
+    // ── 6 RIPPLE ────────────────────────────────────────────────────────────
+    const drawRipple = (t: number) => {
+      const srcs: [number, number][] = [];
+      for (let i = 0; i < 3; i++) {
+        srcs.push([
+          w * (0.5 + 0.36 * Math.sin(fieldT * (0.08 + i * 0.03) + i * 2.1)),
+          h * (0.5 + 0.34 * Math.cos(fieldT * (0.06 + i * 0.04) + i * 1.4)),
+        ]);
+      }
+      const overBox =
+        mouse.x > 0 && mouse.x < w && mouse.y > 0 && mouse.y < h;
+      if (overBox) srcs.push([mouse.x, mouse.y]);
+      const reach = Math.min(w, h) * 0.75;
+      for (let cy = 0; cy < rows; cy++) {
+        const y = cy * cell + cell / 2;
+        for (let cx = 0; cx < cols; cx++) {
+          const x = cx * cell + cell / 2;
+          let d = 0;
+          let material = 0;
+          for (let s = 0; s < srcs.length; s++) {
+            const dx = x - srcs[s][0];
+            const dy = y - srcs[s][1];
+            const r = Math.sqrt(dx * dx + dy * dy);
+            const band = 0.5 + 0.5 * Math.sin(r * 0.075 - fieldT * 2.1 - s * 1.7);
+            d += band * band * band * Math.exp(-r / reach) * 0.9;
+            if (r < 52) material = 1;
+          }
+          d += pulseAdd(x, y, t);
+          put(cx, cy, d, material);
+        }
+      }
+    };
+
+    // ── 7 SPECTRUM ──────────────────────────────────────────────────────────
+    const drawSpectrum = (t: number) => {
+      for (let c = 0; c < cols; c++) {
+        const xn = c / cols;
+        let n =
+          0.5 +
+          0.28 * Math.sin(xn * 9 + fieldT * 1.7 + colSeed[c] * 0.02) +
+          0.2 * Math.sin(xn * 23 - fieldT * 2.6) +
+          0.14 * Math.sin(xn * 47 + fieldT * 1.1 + colSeed[c] * 0.05);
+        const mdx = c * cell - mouse.x;
+        if (mouse.x > -40) n += Math.exp(-(mdx * mdx) / 8000) * 0.45;
+        const target = h * (0.06 + 0.72 * Math.max(0, Math.min(1, n)));
+        barCur[c] += (target - barCur[c]) * 0.18;
+        barPeak[c] = Math.max(barPeak[c] - 1.4, barCur[c]);
+      }
+      for (let cy = 0; cy < rows; cy++) {
+        const y = cy * cell + cell / 2;
+        for (let cx = 0; cx < cols; cx++) {
+          const x = cx * cell + cell / 2;
+          const fromBottom = h - y;
+          let d = 0;
+          let material = 0;
+          if (fromBottom < barCur[cx]) {
+            d = 0.35 + 0.65 * (1 - fromBottom / (barCur[cx] || 1));
+          }
+          const peakY = h - barPeak[cx];
+          if (Math.abs(y - peakY) < cell * 0.7) {
+            d = Math.max(d, 0.95);
+            material = 1;
+          }
+          d += pulseAdd(x, y, t);
+          put(cx, cy, d, material);
+        }
+      }
+    };
+
+    // ── 8 LISSAJOUS ─────────────────────────────────────────────────────────
+    const drawLissajous = (t: number) => {
+      for (let i = 0; i < residue.length; i++) residue[i] *= 0.945;
+      const overBox =
+        mouse.x > 0 && mouse.x < w && mouse.y > 0 && mouse.y < h;
+      const ccx = overBox ? w * 0.5 + (mouse.x - w * 0.5) * 0.3 : w * 0.5;
+      const ccy = overBox ? h * 0.5 + (mouse.y - h * 0.5) * 0.3 : h * 0.5;
+      const P = 110;
+      for (let i = 0; i < P; i++) {
+        const ph = (i / P) * Math.PI * 2;
+        const px = ccx + w * 0.4 * Math.sin(lissA * ph + fieldT * 0.8);
+        const py = ccy + h * 0.38 * Math.sin(lissB * ph + fieldT * 0.63 + lissD);
+        const gx = Math.floor(px / cell);
+        const gy = Math.floor(py / cell);
+        if (gx >= 0 && gy >= 0 && gx < cols && gy < rows) {
+          const gi = gy * cols + gx;
+          residue[gi] = Math.min(1.3, residue[gi] + 0.42);
+        }
+      }
+      for (let cy = 0; cy < rows; cy++) {
+        const y = cy * cell + cell / 2;
+        for (let cx = 0; cx < cols; cx++) {
+          const x = cx * cell + cell / 2;
+          const d = residue[cy * cols + cx] + pulseAdd(x, y, t);
+          put(cx, cy, d, (cx * 31 + cy * 17) % 11 === 0 ? 1 : 0);
+        }
+      }
+    };
+
+    // ── 9 VORTEX ────────────────────────────────────────────────────────────
+    const drawVortex = (t: number) => {
+      const overBox =
+        mouse.x > 0 && mouse.x < w && mouse.y > 0 && mouse.y < h;
+      if (overBox) {
+        vortX += (mouse.x / w - vortX) * 0.03;
+        vortY += (mouse.y / h - vortY) * 0.03;
+      } else {
+        vortX += (0.5 + 0.2 * Math.sin(fieldT * 0.11) - vortX) * 0.01;
+        vortY += (0.5 + 0.18 * Math.cos(fieldT * 0.08) - vortY) * 0.01;
+      }
+      const vx = vortX * w;
+      const vy = vortY * h;
+      const reach = Math.min(w, h) * 0.72;
+      for (let cy = 0; cy < rows; cy++) {
+        const y = cy * cell + cell / 2;
+        for (let cx = 0; cx < cols; cx++) {
+          const x = cx * cell + cell / 2;
+          const dx = x - vx;
+          const dy = y - vy;
+          const r = Math.sqrt(dx * dx + dy * dy);
+          const ang = Math.atan2(dy, dx);
+          const band =
+            0.5 + 0.5 * Math.sin(ang * arms + Math.log(r + 9) * 5.2 - fieldT * 1.5);
+          let d =
+            sstep(0.55, 0.95, band) * Math.exp(-r / reach) * (r < 22 ? 0 : 1.05);
+          const zone = 0.5 + 0.5 * Math.sin(ang * 2 + fieldT * 0.3);
+          d += pulseAdd(x, y, t);
+          put(cx, cy, d, zone > 0.78 ? 1 : 0);
+        }
+      }
+    };
+
+    // ── 10 SCOPE ────────────────────────────────────────────────────────────
+    const drawScope = (t: number) => {
+      // Trace position per column; amplitude swells near the cursor.
+      for (let c = 0; c < cols; c++) {
+        const x = c * cell;
+        let amp = h * 0.26;
+        if (mouse.x > -40) {
+          const mdx = x - mouse.x;
+          amp += Math.exp(-(mdx * mdx) / 14000) * h * 0.16;
+        }
+        scratchCols[c] =
+          h * 0.5 +
+          amp *
+            (0.62 * Math.sin(x * scopeF1 + fieldT * 2.6) +
+              0.38 * Math.sin(x * scopeF2 * 2.7 - fieldT * 3.9));
+      }
+      const staticSeed = Math.floor(fieldT * 2.3);
+      for (let cy = 0; cy < rows; cy++) {
+        const y = cy * cell + cell / 2;
+        for (let cx = 0; cx < cols; cx++) {
+          const x = cx * cell + cell / 2;
+          let d = 0;
+          let material = 0;
+          // Slow sparse static — reseeds every half beat, never flickers fast.
+          const hash = Math.sin(cx * 127.1 + cy * 311.7 + staticSeed * 74.7) * 43758.5;
+          if (hash - Math.floor(hash) < 0.055) d = 0.22;
+          // Graticule centerline, every third column.
+          if (Math.abs(y - h / 2) < cell * 0.5 && cx % 3 === 0) d = Math.max(d, 0.14);
+          // The trace itself, two cells thick with a hot core.
+          const dyTrace = Math.abs(y - scratchCols[cx]);
+          if (dyTrace < cell * 0.7) {
+            d = 1;
+            material = cx % 9 === 0 ? 1 : 0;
+          } else if (dyTrace < cell * 1.6) {
+            d = Math.max(d, 0.45);
+          }
+          d += pulseAdd(x, y, t);
+          put(cx, cy, d, material);
+        }
+      }
+    };
+
     const draw = (tms: number) => {
       const t = tms * 0.001;
       const dt = Math.min(0.1, Math.max(0, (tms - lastMs) * 0.001));
@@ -472,6 +665,18 @@ export function ContourField({ mode = 1 }: { mode?: number }) {
               }
             }
           }
+        } else if (mode === 7) {
+          for (let c = 0; c < cols; c++) colSeed[c] = rnd(0, 400);
+        } else if (mode === 8) {
+          lissA = Math.floor(rnd(1, 8));
+          lissB = Math.floor(rnd(1, 8));
+          if (lissA === lissB) lissB = (lissB % 7) + 1;
+          lissD = rnd(0, Math.PI);
+        } else if (mode === 9) {
+          arms = Math.floor(rnd(2, 6));
+        } else if (mode === 10) {
+          scopeF1 = rnd(0.012, 0.034);
+          scopeF2 = rnd(0.006, 0.02);
         }
         if ((mode === 1 || mode === 2) && Math.random() < 0.75) {
           tears.push({
@@ -502,6 +707,11 @@ export function ContourField({ mode = 1 }: { mode?: number }) {
       else if (mode === 3) drawSwarm(t);
       else if (mode === 4) drawAutomaton(t);
       else if (mode === 5) drawInterference(t);
+      else if (mode === 6) drawRipple(t);
+      else if (mode === 7) drawSpectrum(t);
+      else if (mode === 8) drawLissajous(t);
+      else if (mode === 9) drawVortex(t);
+      else if (mode === 10) drawScope(t);
       else drawMass(t);
     };
 

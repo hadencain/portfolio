@@ -29,7 +29,7 @@ const SOCIALS = [
   { label: "YOUTUBE", href: "https://www.youtube.com/@hadencain" },
 ];
 
-const FIELDS = [1, 2, 3, 4, 5];
+const FIELDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 export function Hero() {
   const [field, setField] = useState(1);
@@ -103,25 +103,25 @@ export function Hero() {
           <div className="relative border border-paper/20 overflow-hidden h-[340px] sm:h-[420px] lg:h-[min(70vh,620px)]">
             <ContourField key={field} mode={field} />
           </div>
-          <div className="mt-2 flex items-center justify-between font-mono text-[9px] tracking-[0.25em] text-paper-mute select-none">
-            <div className="flex gap-4">
+          <div className="mt-2 flex items-center font-mono text-[10px] tracking-[0.2em] text-paper-mute select-none">
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
               {FIELDS.map((f) => (
                 <button
                   key={f}
                   type="button"
                   onClick={() => setField(f)}
                   aria-pressed={field === f}
-                  className={`py-2 -my-2 tracking-[0.25em] transition-colors duration-200 ${
+                  aria-label={`Field ${f}`}
+                  className={`py-2 -my-2 tracking-[0.2em] transition-colors duration-200 ${
                     field === f
                       ? "text-paper"
                       : "text-paper-mute hover:text-paper-dim"
                   }`}
                 >
-                  FIELD·0{f}
+                  {String(f).padStart(2, "0")}
                 </button>
               ))}
             </div>
-            <span className="text-blood-bright">LIVE</span>
           </div>
         </motion.div>
       </div>
