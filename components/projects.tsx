@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
-import { SpecimenField, SPEC_NAMES } from "./specimen-field";
 import { emitFieldPulse } from "./field-pulse";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -284,22 +283,13 @@ const SECURITY: Project[] = [
     github: "https://github.com/hadencain/mlb-ev-analysis",
     href: "https://github.com/hadencain",
   },
-];
-
-const THREED: Project[] = [
   {
-    title: "3d-print-asset-manager",
+    title: "indoorMaps",
     description:
-      "Desktop catalog for 3D-print files. Indexes a folder of STL/OBJ/3MF and G-code in place — never moving them — extracting dimensions, volume, and version/assembly relationships, rendering a real isometric 3D thumbnail of each mesh into a searchable, filterable grid. G-code shows measured print time and filament weight from the slicer header; STLs show an estimate, badged distinctly. Geometry-hash duplicate detection, recoverable delete to the recycle bin, and persistent failure-history tags. Layered parser → store → UI so the file logic runs headless.",
-    tags: ["Python", "PyQt6", "trimesh", "SQLite"],
-    github: "https://github.com/hadencain/3d-print-asset-manager",
-  },
-  {
-    title: "openlock-terrain-gen",
-    description:
-      "Browser-based OpenLOCK dungeon tile generator. Configurable piece types (straight, corner, T, cross, doorway, window, curved, column, staircase), six surface themes with parametric detail, and batch STL export — powered by manifold-3d WASM CSG for watertight boolean geometry.",
-    tags: ["TypeScript", "React", "WebGL", "WASM"],
-    github: "https://github.com/hadencain/openlock-terrain-gen",
+      "Indoor mapping authoring and operator console. Draw venues on an IMDF data model, route with A* across floors and elevators, place cameras with occlusion-aware coverage and PTZ, and run incidents, patrols, and fixtures from the same map. Seven demo venues included.",
+    tags: ["TypeScript", "React"],
+    github: "https://github.com/hadencain/indoorMaps",
+    href: "/store/indoor-maps",
   },
 ];
 
@@ -309,7 +299,6 @@ const PLATES = [
   { id: "audio", plate: "01", label: "Audio", projects: AUDIO },
   { id: "video", plate: "02", label: "Video", projects: VIDEO },
   { id: "security", plate: "03", label: "Security", projects: SECURITY },
-  { id: "threed", plate: "04", label: "3D", projects: THREED },
 ];
 
 // Continuous catalog numbering — entry 001 through 035 across all plates.
@@ -323,6 +312,17 @@ const PLATE_OFFSETS = PLATES.reduce<number[]>((acc, p, i) => {
 // Entrance stagger reads for the first visible batch; past that a row should
 // answer the scroll promptly, not serve out a queue position it inherited.
 const stagger = (i: number) => Math.min(i * 0.05, 0.2);
+
+// Touch devices have no cursor to sweep the list with, so the hover reveal
+// would hide every description behind an unsignposted tap. There, the catalog
+// renders open and static instead.
+function useNoHover() {
+  const [noHover, setNoHover] = useState(false);
+  useEffect(() => {
+    setNoHover(window.matchMedia("(hover: none)").matches);
+  }, []);
+  return noHover;
+}
 
 const Arrow = () => (
   <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
@@ -370,119 +370,32 @@ function ProjectLink({
   );
 }
 
-// Typed printout — the row's entry writes itself when the row opens.
-// Height comes from an invisible copy of the full text so the reveal opens
-// once, smoothly, instead of reflowing per character. Character count is
-// derived from elapsed time, so the print always finishes in TYPE_MS of
-// wall time even if frames are dropped or throttled.
-const TYPE_MS = 600;
-
-function TypedEntry({
-  project,
-  active,
-  reduced,
-}: {
-  project: Project;
-  active: boolean;
-  reduced: boolean;
-}) {
-  const [chars, setChars] = useState(0);
-  const raf = useRef(0);
-  const full = project.description;
-  const done = chars >= full.length;
-
-  useEffect(() => {
-    cancelAnimationFrame(raf.current);
-    if (!active) {
-      setChars(0);
-      return;
-    }
-    if (reduced) {
-      setChars(full.length);
-      return;
-    }
-    const t0 = performance.now();
-    const tick = (now: number) => {
-      const n = Math.min(
-        full.length,
-        Math.ceil(((now - t0) / TYPE_MS) * full.length)
-      );
-      setChars(n);
-      if (n < full.length) raf.current = requestAnimationFrame(tick);
-    };
-    raf.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf.current);
-  }, [active, reduced, full.length]);
-
-  return (
-    <div
-      className="grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
-      style={{ gridTemplateRows: active ? "1fr" : "0fr" }}
-      aria-hidden={!active}
-    >
-      <div className="overflow-hidden min-h-0">
-        <div className="relative pt-1.5 pb-0.5">
-          {/* invisible full text reserves the open height */}
-          <p className="invisible text-[11.5px] leading-snug max-w-[72ch]">
-            {full}
-          </p>
-          <p className="absolute inset-x-0 top-1.5 text-[11.5px] leading-snug text-paper-mute max-w-[72ch]">
-            {full.slice(0, chars)}
-            {active && !done && (
-              <span className="text-blood-bright" aria-hidden>
-                ▌
-              </span>
-            )}
-          </p>
-        </div>
-        <p
-          className={`font-mono text-[8.5px] tracking-[0.22em] uppercase text-paper-mute/70 pb-1 transition-opacity duration-300 ${
-            done ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          {project.tags.join(" · ")}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// Catalog row — collapsed to its index line: number, title, arrow. Hover or
-// focus opens the row and the entry prints itself underneath.
+// Catalog row — a bare index line: number, title, arrow. Hover or focus
+// prints the entry into the plate's readout bar; the row itself never grows.
+// On touch devices the description renders statically below the title.
 function SpecimenRow({
   project,
   no,
   delay,
+  noHover,
   onSelect,
 }: {
   project: Project;
   no: number;
   delay: number;
+  noHover: boolean;
   onSelect: () => void;
 }) {
-  // Hover and focus are tracked separately so a mouse passing across the
-  // page can't close a row the keyboard is holding open.
-  const [hovered, setHovered] = useState(false);
-  const [focused, setFocused] = useState(false);
-  const active = hovered || focused;
-  const reduced = useReducedMotion() ?? false;
-
   return (
     <motion.div
       tabIndex={0}
       onMouseEnter={(e) => {
-        setHovered(true);
         onSelect();
         emitFieldPulse(e);
       }}
-      onMouseLeave={() => setHovered(false)}
       onFocus={(e) => {
-        setFocused(true);
         onSelect();
         emitFieldPulse(e);
-      }}
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget)) setFocused(false);
       }}
       className="group relative border-b border-paper/10 hover:border-paper/30 focus-within:border-paper/30 py-2.5 flex flex-col transition-colors duration-200"
       initial={{ opacity: 0, y: 8 }}
@@ -497,6 +410,9 @@ function SpecimenRow({
         <h3 className="font-mono text-[12px] tracking-[0.02em] text-paper-dim group-hover:text-paper group-focus-within:text-paper transition-colors duration-200">
           {project.title}
         </h3>
+        {/* Screen readers get the entry on the row itself; sighted desktop
+            users read it in the readout bar. */}
+        {!noHover && <span className="sr-only">{project.description}</span>}
         <div className="ml-auto flex items-center gap-3.5 shrink-0">
           {project.demo && (
             <a
@@ -515,8 +431,92 @@ function SpecimenRow({
           />
         </div>
       </div>
-      <TypedEntry project={project} active={active} reduced={reduced} />
+      {noHover && (
+        <>
+          <p className="pt-1.5 text-[11.5px] leading-snug text-paper-mute max-w-[72ch]">
+            {project.description}
+          </p>
+          <p className="pt-1 font-mono text-[8.5px] tracking-[0.22em] uppercase text-paper-mute/70">
+            {project.tags.join(" · ")}
+          </p>
+        </>
+      )}
     </motion.div>
+  );
+}
+
+// Readout bar — one fixed-height caption line per plate. Hovering any row in
+// the plate types its entry out here; the reserved height means the print
+// draws the eye without moving the grid below. Character count derives from
+// elapsed time so it always finishes in TYPE_MS, even on dropped frames.
+const TYPE_MS = 600;
+
+function Readout({ sel }: { sel: { project: Project; no: number } | null }) {
+  const reduced = useReducedMotion() ?? false;
+  const [chars, setChars] = useState(0);
+  const raf = useRef(0);
+  const full = sel?.project.description ?? "";
+  const title = sel?.project.title;
+  const done = chars >= full.length;
+
+  useEffect(() => {
+    cancelAnimationFrame(raf.current);
+    if (!title) {
+      setChars(0);
+      return;
+    }
+    if (reduced) {
+      setChars(full.length);
+      return;
+    }
+    setChars(0);
+    const t0 = performance.now();
+    const tick = (now: number) => {
+      const n = Math.min(
+        full.length,
+        Math.ceil(((now - t0) / TYPE_MS) * full.length)
+      );
+      setChars(n);
+      if (n < full.length) raf.current = requestAnimationFrame(tick);
+    };
+    raf.current = requestAnimationFrame(tick);
+    // Backstop: if animation frames are suspended (occluded window, aggressive
+    // battery throttling), land on the full text anyway.
+    const settle = setTimeout(() => setChars(full.length), TYPE_MS + 200);
+    return () => {
+      cancelAnimationFrame(raf.current);
+      clearTimeout(settle);
+    };
+    // Keyed on the tool, not the object — re-hovering the same row doesn't retype.
+  }, [title, reduced, full.length]);
+
+  return (
+    <div className="mb-5 min-h-[88px] xl:min-h-[64px]" aria-hidden>
+      {sel ? (
+        <p className="text-[11.5px] leading-snug text-paper-mute">
+          <span className="font-mono text-[9px] tracking-[0.2em] text-blood-bright mr-3">
+            {String(sel.no).padStart(3, "0")}
+          </span>
+          {full.slice(0, chars)}
+          {!done && (
+            <span className="text-blood-bright" aria-hidden>
+              ▌
+            </span>
+          )}
+          <span
+            className={`font-mono text-[8.5px] tracking-[0.22em] uppercase text-paper-mute/60 ml-3 whitespace-nowrap transition-opacity duration-300 ${
+              done ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            {sel.project.tags.join(" · ")}
+          </span>
+        </p>
+      ) : (
+        <p className="text-[11.5px] leading-snug text-paper-mute/35 select-none">
+          —
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -555,11 +555,12 @@ function PlateHeader({
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function Projects() {
-  // The last row the cursor or keyboard touched. The frame holds it after
-  // the pointer leaves, so the field never flickers back to empty.
-  const [sel, setSel] = useState<{ project: Project; no: number } | null>(
-    null
-  );
+  const noHover = useNoHover();
+  // Last-touched row per plate — each readout keeps holding its entry after
+  // the pointer moves on, so the bars never flicker back to empty.
+  const [selByPlate, setSelByPlate] = useState<
+    Record<string, { project: Project; no: number }>
+  >({});
 
   return (
     <section
@@ -570,66 +571,40 @@ export function Projects() {
         Work
       </p>
 
-      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(320px,42%)] lg:gap-16 lg:items-start">
-        <div>
-          {PLATES.map((plate, pi) => (
-            <div
-              key={plate.id}
-              id={plate.id}
-              className={`scroll-mt-24 ${pi < PLATES.length - 1 ? "mb-16" : ""}`}
-            >
-              <PlateHeader
-                plate={plate.plate}
-                label={plate.label}
-                count={plate.projects.length}
-              />
-              {plate.projects.map((p, i) => (
-                <SpecimenRow
-                  key={p.title}
-                  project={p}
-                  no={PLATE_OFFSETS[pi] + i + 1}
-                  delay={stagger(i)}
-                  onSelect={() =>
-                    setSel({ project: p, no: PLATE_OFFSETS[pi] + i + 1 })
-                  }
-                />
-              ))}
-            </div>
-          ))}
-        </div>
-
-        {/* Specimen frame — the hero's artifact box, answering the list.
-            Decorative; every tool's real link lives in its row. */}
-        <aside
-          className="hidden lg:block sticky top-24 self-start"
-          aria-hidden
+      {PLATES.map((plate, pi) => (
+        <div
+          key={plate.id}
+          id={plate.id}
+          className={`scroll-mt-24 ${pi < PLATES.length - 1 ? "mb-16" : ""}`}
         >
-          <div className="relative border border-paper/20 overflow-hidden h-[min(70vh,560px)]">
-            {sel ? (
-              <SpecimenField key={sel.project.title} mode={sel.no} />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-paper-mute/60 select-none">
-                  hover a specimen
-                </span>
-              </div>
-            )}
+          <PlateHeader
+            plate={plate.plate}
+            label={plate.label}
+            count={plate.projects.length}
+          />
+          {!noHover && <Readout sel={selByPlate[plate.id] ?? null} />}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-12">
+            {plate.projects.map((p, i) => (
+              <SpecimenRow
+                key={p.title}
+                project={p}
+                no={PLATE_OFFSETS[pi] + i + 1}
+                delay={stagger(i)}
+                noHover={noHover}
+                onSelect={() =>
+                  setSelByPlate((s) => ({
+                    ...s,
+                    [plate.id]: {
+                      project: p,
+                      no: PLATE_OFFSETS[pi] + i + 1,
+                    },
+                  }))
+                }
+              />
+            ))}
           </div>
-          <div className="mt-2 flex items-baseline gap-4 font-mono text-[10px] tracking-[0.2em] text-paper-mute select-none min-h-[1.2em]">
-            {sel && (
-              <>
-                <span className="text-blood-bright">
-                  {String(sel.no).padStart(3, "0")}
-                </span>
-                <span className="text-paper-dim">{sel.project.title}</span>
-                <span className="ml-auto">
-                  {SPEC_NAMES[sel.no - 1] ?? ""}
-                </span>
-              </>
-            )}
-          </div>
-        </aside>
-      </div>
+        </div>
+      ))}
     </section>
   );
 }

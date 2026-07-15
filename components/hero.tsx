@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { GlitchLabel } from "./glitch-label";
 import { ContourField } from "./contour-field";
+import { SpecimenField } from "./specimen-field";
 import { emitFieldPulse } from "./field-pulse";
 
 // Clean type on the left; the artifact — the living ASCII field — framed on
@@ -17,10 +18,9 @@ function fadeUp(delay: number, y = 10, duration = 0.7) {
 }
 
 const SECTIONS = [
-  { n: "01", label: "AUDIO", count: "14", href: "#audio" },
+  { n: "01", label: "AUDIO", count: "15", href: "#audio" },
   { n: "02", label: "VIDEO", count: "09", href: "#video" },
-  { n: "03", label: "SECURITY", count: "10", href: "#security" },
-  { n: "04", label: "3D", count: "02", href: "#threed" },
+  { n: "03", label: "SECURITY", count: "11", href: "#security" },
 ];
 
 const SOCIALS = [
@@ -29,7 +29,9 @@ const SOCIALS = [
   { label: "YOUTUBE", href: "https://www.youtube.com/@hadencain" },
 ];
 
-const FIELDS = Array.from({ length: 15 }, (_, i) => i + 1);
+// 01–15 are the original hero fields (ContourField); 16–51 are the specimen
+// sketches (SpecimenField modes 1–36), promoted up from the work section.
+const FIELDS = Array.from({ length: 51 }, (_, i) => i + 1);
 
 export function Hero() {
   const [field, setField] = useState(1);
@@ -101,10 +103,14 @@ export function Hero() {
           transition={{ duration: 1.4, delay: 0.5 }}
         >
           <div className="relative border border-paper/20 overflow-hidden h-[340px] sm:h-[420px] lg:h-[min(70vh,620px)]">
-            <ContourField key={field} mode={field} />
+            {field <= 15 ? (
+              <ContourField key={field} mode={field} />
+            ) : (
+              <SpecimenField key={field} mode={field - 15} />
+            )}
           </div>
-          <div className="mt-2 flex items-center font-mono text-[10px] tracking-[0.2em] text-paper-mute select-none">
-            <div className="flex flex-wrap gap-x-4 gap-y-1">
+          <div className="mt-2 flex items-center font-mono text-[9.5px] text-paper-mute select-none">
+            <div className="flex flex-wrap gap-x-3 gap-y-0.5">
               {FIELDS.map((f) => (
                 <button
                   key={f}
@@ -112,7 +118,7 @@ export function Hero() {
                   onClick={() => setField(f)}
                   aria-pressed={field === f}
                   aria-label={`Field ${f}`}
-                  className={`py-2 -my-2 tracking-[0.2em] transition-colors duration-200 ${
+                  className={`py-1.5 -my-1.5 tracking-[0.15em] transition-colors duration-200 ${
                     field === f
                       ? "text-paper"
                       : "text-paper-mute hover:text-paper-dim"
