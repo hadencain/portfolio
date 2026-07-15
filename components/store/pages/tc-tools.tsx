@@ -12,7 +12,8 @@ const tool = toolBySlug("tc-tools")!;
 const BEATS = [
   { name: "TCGS · available now", text: "A terminal-controlled granular synthesizer — grain engine, 4-LFO modulation matrix, polyphonic voices, live Textual TUI with waveform + grain-field display." },
   { name: "TCDM · available now", text: "A terminal-controlled drum machine — sample-accurate step transport, Elektron-style per-step param locks, an 8-slot pattern bank, and a full master FX chain." },
-  { name: "More on the way", text: "FM, subtractive, and wavetable instruments in the same family are in progress — the collection grows." },
+  { name: "TCWS · available now", text: "A terminal-controlled wavetable synthesizer — a morphing wavetable engine where scanning position is the headline modulation target, with spectral morph mode, a 64-slot mod matrix, unison, and a live morphing-waveform TUI." },
+  { name: "More on the way", text: "FM and subtractive instruments in the same family are in progress — the collection grows." },
   { name: "One language", text: "Every instrument is driven entirely from the command line, each with a live terminal interface. No mouse required." },
 ];
 

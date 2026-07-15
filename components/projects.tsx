@@ -62,6 +62,14 @@ const AUDIO: Project[] = [
     href: "/store/tc-tools",
   },
   {
+    title: "TCWS",
+    description:
+      "Terminal-controlled wavetable synthesizer. Morphing mipped wavetable engine with click-free position scanning, spectral morph mode, phase-warp stage, 64-slot mod matrix, unison stacking, and a live Textual TUI whose centerpiece is the frame waveform morphing under a position-scan cursor.",
+    tags: ["Python", "numpy", "scipy", "Textual"],
+    github: "https://github.com/hadencain/TCWS",
+    href: "/store/tc-tools",
+  },
+  {
     title: "audioSort",
     description:
       "Audio sample organizer evolved from keyword matching into a weighted multi-signal classifier — path context, metadata, librosa spectral analysis, and an AST ML model.",
