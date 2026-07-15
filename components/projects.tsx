@@ -19,6 +19,9 @@ interface Project {
   // the GitHub profile) so nothing on the page links to a repo a visitor
   // can't open.
   href?: string;
+  // Live sub-demos (suite entries like video-lab). Rendered as a LIVE-link
+  // strip in the plate's readout bar when this entry is selected.
+  demos?: { name: string; href: string }[];
 }
 
 const AUDIO: Project[] = [
@@ -161,6 +164,13 @@ const VIDEO: Project[] = [
     tags: ["HTML5", "Canvas", "Web Audio"],
     github: "https://github.com/hadencain",
     href: "/store/video-lab",
+    demos: [
+      { name: "glitch", href: "/tools/glitch/" },
+      { name: "osmosis", href: "/tools/osmosis/" },
+      { name: "spectral", href: "/tools/spectral/" },
+      { name: "palimpsest", href: "/tools/palimpsest/" },
+      { name: "markov", href: "/tools/markov/" },
+    ],
   },
 ];
 
@@ -393,6 +403,26 @@ function SpecimenRow({
           <p className="pt-1 font-mono text-[8.5px] tracking-[0.22em] uppercase text-paper-mute/70">
             {project.tags.join(" · ")}
           </p>
+          {project.demos && (
+            <div className="pt-2 flex flex-wrap gap-x-6 gap-y-1.5">
+              {project.demos.map((d) => (
+                <a
+                  key={d.name}
+                  href={d.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group/demo flex items-baseline gap-2.5 py-1 -my-1"
+                >
+                  <span className="font-mono text-[8px] tracking-[0.25em] text-blood-bright border border-blood-bright/50 px-1 py-px">
+                    LIVE
+                  </span>
+                  <span className="font-mono text-[11px] tracking-[0.02em] text-paper-mute">
+                    {d.name}
+                  </span>
+                </a>
+              ))}
+            </div>
+          )}
         </>
       )}
     </motion.div>
@@ -405,7 +435,15 @@ function SpecimenRow({
 // elapsed time so it always finishes in TYPE_MS, even on dropped frames.
 const TYPE_MS = 600;
 
-function Readout({ sel }: { sel: { project: Project; no: number } | null }) {
+function Readout({
+  sel,
+  tall,
+}: {
+  sel: { project: Project; no: number } | null;
+  // Plates holding a demo suite reserve extra height for the LIVE-link strip,
+  // so switching onto that entry never moves the grid.
+  tall?: boolean;
+}) {
   const reduced = useReducedMotion() ?? false;
   const [chars, setChars] = useState(0);
   const raf = useRef(0);
@@ -445,26 +483,55 @@ function Readout({ sel }: { sel: { project: Project; no: number } | null }) {
   }, [title, reduced, full.length]);
 
   return (
-    <div className="mb-5 min-h-[88px] xl:min-h-[64px]" aria-hidden>
+    <div className={`mb-5 min-h-[88px] ${tall ? "xl:min-h-[88px]" : "xl:min-h-[64px]"}`}>
       {sel ? (
-        <p className="text-[11.5px] leading-snug text-paper-mute">
-          <span className="font-mono text-[9px] tracking-[0.2em] text-blood-bright mr-3">
-            {String(sel.no).padStart(3, "0")}
-          </span>
-          {full.slice(0, chars)}
-          {!done && (
-            <span className="text-blood-bright" aria-hidden>
-              ▌
+        <>
+          <p className="text-[11.5px] leading-snug text-paper-mute">
+            <span className="font-mono text-[9px] tracking-[0.2em] text-blood-bright mr-3">
+              {String(sel.no).padStart(3, "0")}
             </span>
+            {full.slice(0, chars)}
+            {!done && (
+              <span className="text-blood-bright" aria-hidden>
+                ▌
+              </span>
+            )}
+            <span
+              className={`font-mono text-[8.5px] tracking-[0.22em] uppercase text-paper-mute/60 ml-3 whitespace-nowrap transition-opacity duration-300 ${
+                done ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              {sel.project.tags.join(" · ")}
+            </span>
+          </p>
+          {/* Suite entries surface their live demos here — the bar holds its
+              selection after the pointer leaves, so these stay clickable. */}
+          {sel.project.demos && (
+            <div
+              className={`mt-2 flex flex-wrap gap-x-6 gap-y-1.5 transition-opacity duration-300 ${
+                done ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              {sel.project.demos.map((d) => (
+                <a
+                  key={d.name}
+                  href={d.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  tabIndex={done ? 0 : -1}
+                  className="group/demo flex items-baseline gap-2.5 py-1 -my-1"
+                >
+                  <span className="font-mono text-[8px] tracking-[0.25em] text-blood-bright border border-blood-bright/50 px-1 py-px group-hover/demo:bg-blood group-hover/demo:text-paper transition-colors duration-200">
+                    LIVE
+                  </span>
+                  <span className="font-mono text-[11px] tracking-[0.02em] text-paper-mute group-hover/demo:text-paper transition-colors duration-200">
+                    {d.name}
+                  </span>
+                </a>
+              ))}
+            </div>
           )}
-          <span
-            className={`font-mono text-[8.5px] tracking-[0.22em] uppercase text-paper-mute/60 ml-3 whitespace-nowrap transition-opacity duration-300 ${
-              done ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            {sel.project.tags.join(" · ")}
-          </span>
-        </p>
+        </>
       ) : (
         <p className="text-[11.5px] leading-snug text-paper-mute/35 select-none">
           —
@@ -536,7 +603,12 @@ export function Projects() {
             label={plate.label}
             count={plate.projects.length}
           />
-          {!noHover && <Readout sel={selByPlate[plate.id] ?? null} />}
+          {!noHover && (
+            <Readout
+              sel={selByPlate[plate.id] ?? null}
+              tall={plate.projects.some((p) => p.demos)}
+            />
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-12">
             {plate.projects.map((p, i) => (
               <SpecimenRow
