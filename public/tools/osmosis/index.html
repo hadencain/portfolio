@@ -3,12 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OSMOSIS.EXE</title>
+  <title>osmosis — Video Lab</title>
   <link rel="stylesheet" href="/tools/shared/shared.css">
   <style>
-    :root {
-      --error: #c0392b;
-    }
+    /* --error comes from shared.css (blood-bright) */
 
     /* Two-column drop zone grid */
     .drop-zones {
@@ -44,7 +42,7 @@
     #display {
       display: block;
       width: 100%;
-      background: #000;
+      background: var(--screen);
       flex: 1;
       min-height: 0;
     }
@@ -137,9 +135,9 @@
 
   <!-- Top nav -->
   <nav class="topnav">
-    <a href="/" class="topnav-back">← hadencain.com</a>
+    <span class="topnav-title">osmosis.</span>
     <span class="topnav-kind">Pixel Contamination Between Two Videos</span>
-    <span class="topnav-name">OSMOSIS.EXE</span>
+    <a href="/store/video-lab" class="topnav-back">← VIDEO LAB</a>
   </nav>
 
   <!-- Main layout -->

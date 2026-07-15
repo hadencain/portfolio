@@ -136,6 +136,14 @@ const AUDIO: Project[] = [
     tags: ["C++", "JUCE"],
     github: "https://github.com/hadencain/corrode",
   },
+  {
+    title: "senses",
+    description:
+      "Modular AR audio-visual instruments for Android. Camera, motion, and generative audio as playable pieces.",
+    tags: ["React Native", "Skia", "Web Audio"],
+    github: "https://github.com/hadencain/senses",
+    href: "/store/senses",
+  },
 ];
 
 const VIDEO: Project[] = [
@@ -147,66 +155,12 @@ const VIDEO: Project[] = [
     github: "https://github.com/hadencain/bleed",
   },
   {
-    title: "RGBA_blending",
+    title: "video-lab",
     description:
-      "Alpha-blend two files to generate cover art or video output. Max for Live patch for generative visual composition.",
-    tags: ["Max/MSP"],
-    github: "https://github.com/hadencain/RGBA_blending",
-  },
-  {
-    title: "glitch",
-    description:
-      "Browser-based video manipulation. Temporal corruption algorithms applied to uploaded video in real-time through Canvas.",
-    tags: ["HTML5", "Canvas", "JavaScript"],
-    github: "https://github.com/hadencain/glitch",
-    demo: "/tools/glitch/",
-  },
-  {
-    title: "osmosis",
-    description:
-      "Pixel contamination between two videos. Bleed, bleed rate, and blend controls applied frame by frame in the browser.",
-    tags: ["HTML5", "Canvas", "JavaScript"],
-    github: "https://github.com/hadencain/osmosis",
-    demo: "/tools/osmosis/",
-  },
-  {
-    title: "spectral",
-    description:
-      "Audio-reactive temporal displacement of video frames. Spectral energy drives frame buffering and displacement in real-time.",
+      "Five browser instruments for taking video apart — temporal corruption (glitch), pixel contamination between two clips (osmosis), audio-reactive displacement (spectral), layered spectral compositing (palimpsest), and Markov-chain resequencing (markov). All Canvas, all real-time, every one runs live in the browser.",
     tags: ["HTML5", "Canvas", "Web Audio"],
-    github: "https://github.com/hadencain/spectral",
-    demo: "/tools/spectral/",
-  },
-  {
-    title: "palimpsest",
-    description:
-      "Audio-reactive temporal compositor. Layers of video frames blended by spectral energy, with export to WEBM.",
-    tags: ["HTML5", "Canvas", "Web Audio"],
-    github: "https://github.com/hadencain/palimpsest",
-    demo: "/tools/palimpsest/",
-  },
-  {
-    title: "markov",
-    description:
-      "Markov chain video sequencer. Learns transition probabilities from playback history and remixes video segments statistically.",
-    tags: ["HTML5", "Canvas", "JavaScript"],
-    github: "https://github.com/hadencain/markov",
-    demo: "/tools/markov/",
-  },
-  {
-    title: "vessel",
-    description:
-      "Android AR instrument. Import a video, locate the artifact in your physical environment, and perform with it through space.",
-    tags: ["Kotlin", "ARCore", "MediaPipe", "AAudio"],
-    github: "https://github.com/hadencain/vessel",
-  },
-  {
-    title: "senses",
-    description:
-      "Modular AR audio-visual instruments for Android. Camera, motion, and generative audio as playable pieces.",
-    tags: ["React Native", "Skia", "Web Audio"],
-    github: "https://github.com/hadencain/senses",
-    href: "/store/senses",
+    github: "https://github.com/hadencain",
+    href: "/store/video-lab",
   },
 ];
 

@@ -3,12 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MARKOV.EXE</title>
+  <title>markov — Video Lab</title>
   <link rel="stylesheet" href="/tools/shared/shared.css">
   <style>
-    :root {
-      --error: #c0392b;
-    }
+    /* --error comes from shared.css (blood-bright) */
 
 
     /* Canvas-wrap columns flex */
@@ -142,7 +140,7 @@
     }
 
     #videoWrapper {
-      background: #000;
+      background: var(--screen);
       width: 100%;
       height: 100%;
       display: flex;
@@ -291,9 +289,9 @@
 
   <!-- Top nav -->
   <nav class="topnav">
-    <a href="/" class="topnav-back">← hadencain.com</a>
+    <span class="topnav-title">markov.</span>
     <span class="topnav-kind">Statistical Playback Engine</span>
-    <span class="topnav-name">MARKOV.EXE</span>
+    <a href="/store/video-lab" class="topnav-back">← VIDEO LAB</a>
   </nav>
 
   <!-- Main layout -->

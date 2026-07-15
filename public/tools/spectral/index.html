@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SPECTRAL.EXE</title>
+  <title>spectral — Video Lab</title>
   <link rel="stylesheet" href="/tools/shared/shared.css">
   <style>
-    :root { --error: #c0392b; }
+    /* --error comes from shared.css (blood-bright) */
 
     /* Canvas area: video + capture canvas stacked */
     .canvas-wrap {
@@ -36,7 +36,7 @@
     }
 
     .video-wrapper {
-      background: #000;
+      background: var(--screen);
       flex: 1;
       position: relative;
       overflow: hidden;
@@ -317,9 +317,9 @@
 <body>
   <!-- Top nav -->
   <nav class="topnav">
-    <a href="/" class="topnav-back">← hadencain.com</a>
+    <span class="topnav-title">spectral.</span>
     <span class="topnav-kind">Audio-Reactive Temporal Displacement</span>
-    <span class="topnav-name">SPECTRAL.EXE</span>
+    <a href="/store/video-lab" class="topnav-back">← VIDEO LAB</a>
   </nav>
 
   <!-- Main layout: canvas area + controls panel -->

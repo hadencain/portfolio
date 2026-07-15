@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PALIMPSEST.EXE</title>
+  <title>palimpsest — Video Lab</title>
   <link rel="stylesheet" href="/tools/shared/shared.css">
   <style>
+    /* --error comes from shared.css (blood-bright) */
     :root {
-      --error: #c0392b;
-      --now-floor-bg: rgba(168,168,168,0.35);
+      --now-floor-bg: rgba(227, 221, 208, 0.3);
     }
 
     .main-layout {
@@ -268,9 +268,9 @@
 
   <!-- Top nav -->
   <nav class="topnav">
-    <a href="/" class="topnav-back">← hadencain.com</a>
+    <span class="topnav-title">palimpsest.</span>
     <span class="topnav-kind">Audio-Reactive Temporal Compositor</span>
-    <span class="topnav-name">PALIMPSEST.EXE</span>
+    <a href="/store/video-lab" class="topnav-back">← VIDEO LAB</a>
   </nav>
 
   <!-- Main layout -->
@@ -828,7 +828,7 @@ document.getElementById('btn-load').addEventListener('click', () => fileInput.cl
 // --- Drag and drop ---
 canvasWrap.addEventListener('dragover', e => {
   e.preventDefault();
-  canvasWrap.style.outline = '1px solid #555';
+  canvasWrap.style.outline = '1px solid rgba(227,221,208,0.22)';
 });
 
 canvasWrap.addEventListener('dragleave', () => {

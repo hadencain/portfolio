@@ -1,15 +1,49 @@
-/* Palette tokens */
+/* ────────────────────────────────────────────────────────────────────────────
+   video-lab shared chrome — the PRESSWORK system, standalone.
+   Same tokens and type as hadencain.com: warm ink ground, paper text,
+   blood accents for status only, blackletter display, tracked mono labels,
+   sharp edges everywhere. Every browser video tool links this file and
+   speaks the same language as the landing pages.
+   Conventions doc: Ship/src/videoProjects/webui-conventions.md
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* Fonts are self-hosted next to this file — same families the site itself
+   ships via next/font, no runtime dependency on Google. */
+@font-face {
+  font-family: 'Jacquard 12';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/tools/shared/jacquard-12-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url('/tools/shared/geist-mono-latin.woff2') format('woff2');
+}
+
+/* Palette tokens — names kept from v1 so per-tool styles keep resolving;
+   values are the site's. */
 :root {
-  --bg: #080808;
-  --border: #1e1e1e;
-  --border2: #2c2c2c;
-  --text: #e8e8e8;
-  --secondary: #a8a8a8;
-  --body: #999999;
-  --label: #787878;
-  --quiet: #5e5e5e;
-  --ghost: #383838;
-  --nav-height: 48px;
+  --bg: #12100c;                          /* ink */
+  --screen: #000000;                      /* canvas backing behind video */
+  --border: rgba(227, 221, 208, 0.10);    /* paper/10 hairline */
+  --border2: rgba(227, 221, 208, 0.22);   /* paper/22 raised hairline */
+  --text: #e3ddd0;                        /* paper */
+  --secondary: #b9b2a2;                   /* paper-dim */
+  --body: #8a8274;                        /* paper-mute */
+  --label: #7a7366;                       /* annotation */
+  --quiet: #5c564a;                       /* colophon */
+  --ghost: #1a1712;                       /* raised ink surface */
+  --blood: #9e2b25;                       /* blood on paper surfaces */
+  --blood-bright: #d8453a;                /* blood on ink — status/live/record */
+  --error: var(--blood-bright);
+  --mono: 'Geist Mono', ui-monospace, 'Courier New', monospace;
+  --display: 'Jacquard 12', ui-monospace, monospace;
+  --nav-height: 62px;
   --panel-width: 280px;
 }
 
@@ -33,49 +67,59 @@ body {
   flex-direction: column;
 }
 
-/* 1. Top nav — 3-column grid: back | kind | name */
+.display {
+  font-family: var(--display);
+  font-weight: 400;
+}
+
+/* 1. Header band — the landing page's opening line, compressed.
+      3-column grid: blackletter title | kind label | back link. */
 .topnav {
   flex-shrink: 0;
   height: var(--nav-height);
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  padding: 0 20px;
+  padding: 0 24px;
   border-bottom: 1px solid var(--border);
-  font-family: ui-monospace, 'Courier New', monospace;
+  font-family: var(--mono);
   font-size: 11px;
 }
 
-.topnav-back {
-  color: var(--label);
-  text-decoration: none;
-  font-size: 11px;
-  font-family: ui-monospace, 'Courier New', monospace;
-  letter-spacing: 0.1em;
-}
-
-.topnav-back:hover {
-  color: var(--secondary);
+.topnav-title {
+  font-family: var(--display);
+  font-size: 30px;
+  line-height: 1;
+  color: var(--text);
+  user-select: none;
+  white-space: nowrap;
 }
 
 .topnav-kind {
   text-align: center;
-  font-family: ui-monospace, 'Courier New', monospace;
-  font-size: 10px;
-  color: var(--quiet);
-  letter-spacing: 0.12em;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--body);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
   padding: 0 16px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.topnav-name {
+.topnav-back {
   text-align: right;
-  color: var(--label);
-  font-size: 11px;
-  font-family: ui-monospace, 'Courier New', monospace;
-  letter-spacing: 0.2em;
+  color: var(--body);
+  text-decoration: none;
+  font-size: 10px;
+  font-family: var(--mono);
+  letter-spacing: 0.22em;
+  transition: color 0.2s;
+}
+
+.topnav-back:hover {
+  color: var(--text);
 }
 
 /* 2. Main layout — fills remaining viewport height */
@@ -87,7 +131,7 @@ body {
   gap: 0;
 }
 
-/* 3. Canvas area */
+/* 3. Canvas area — framed like the site's artifact box */
 .canvas-wrap {
   display: flex;
   flex-direction: column;
@@ -99,7 +143,7 @@ body {
 .canvas-wrap video {
   width: 100%;
   display: block;
-  background: var(--ghost);
+  background: var(--screen);
   flex: 1;
   min-height: 0;
   object-fit: contain;
@@ -109,17 +153,25 @@ body {
 .dropzone {
   width: 100%;
   flex: 1;
-  border: 2px dashed var(--border2);
+  border: 1px dashed var(--border2);
   background: var(--ghost);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-family: ui-monospace, 'Courier New', monospace;
-  color: var(--secondary);
-  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--body);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
   text-align: center;
   padding: 20px;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.dropzone:hover {
+  color: var(--text);
+  border-color: var(--secondary);
 }
 
 .dropzone.hidden {
@@ -144,8 +196,9 @@ body {
 }
 
 .time-display {
-  font-family: ui-monospace, 'Courier New', monospace;
-  font-size: 11px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
   color: var(--body);
   white-space: nowrap;
   margin-left: 8px;
@@ -172,15 +225,15 @@ body {
 }
 
 .panel-section-label {
-  font-family: ui-monospace, 'Courier New', monospace;
-  font-size: 10px;
+  font-family: var(--mono);
+  font-size: 9px;
   color: var(--label);
   letter-spacing: 0.3em;
   text-transform: uppercase;
   margin-bottom: 12px;
 }
 
-/* 7. Slider */
+/* 7. Slider — hairline track, square thumb. No rounding anywhere. */
 input[type="range"] {
   width: 100%;
   height: 2px;
@@ -195,23 +248,31 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+  width: 9px;
+  height: 9px;
+  border-radius: 0;
   background: var(--secondary);
   cursor: pointer;
   border: none;
   box-shadow: none;
 }
 
+input[type="range"]:hover::-webkit-slider-thumb {
+  background: var(--text);
+}
+
 input[type="range"]::-moz-range-thumb {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+  width: 9px;
+  height: 9px;
+  border-radius: 0;
   background: var(--secondary);
   cursor: pointer;
   border: none;
   box-shadow: none;
+}
+
+input[type="range"]:hover::-moz-range-thumb {
+  background: var(--text);
 }
 
 input[type="range"]::-moz-range-track {
@@ -223,7 +284,7 @@ input[type="range"]::-moz-range-progress {
   background: var(--border2);
 }
 
-/* 8. Toggle */
+/* 8. Toggle — square frame, square nib */
 .toggle-row {
   display: flex;
   flex-direction: row;
@@ -247,7 +308,7 @@ input[type="range"]::-moz-range-progress {
   position: absolute;
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: 0;
   background: var(--secondary);
   top: 3px;
   left: 2px;
@@ -255,6 +316,7 @@ input[type="range"]::-moz-range-progress {
 }
 
 .toggle.active {
+  border-color: var(--secondary);
   background: var(--secondary);
 }
 
@@ -263,23 +325,23 @@ input[type="range"]::-moz-range-progress {
   left: calc(100% - 10px);
 }
 
-/* 9. Button */
+/* 9. Button — the site's LIVE-tag grammar. Active/primary takes blood. */
 .btn {
-  font-family: ui-monospace, 'Courier New', monospace;
-  font-size: 10px;
-  letter-spacing: 0.2em;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--label);
-  border: 1px solid var(--border);
+  color: var(--body);
+  border: 1px solid var(--border2);
   background: none;
   padding: 6px 12px;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
 
 .btn:hover {
-  border-color: var(--border2);
-  color: var(--secondary);
+  border-color: var(--secondary);
+  color: var(--text);
 }
 
 .btn.primary {
@@ -289,6 +351,17 @@ input[type="range"]::-moz-range-progress {
 
 .btn.primary:hover {
   border-color: var(--text);
+}
+
+.btn.active {
+  border-color: rgba(216, 69, 58, 0.5);
+  color: var(--blood-bright);
+}
+
+.btn.active:hover {
+  background: var(--blood);
+  border-color: var(--blood);
+  color: var(--text);
 }
 
 /* 10. Slider row */
@@ -307,21 +380,22 @@ input[type="range"]::-moz-range-progress {
 }
 
 .slider-label-row label {
-  font-family: ui-monospace, 'Courier New', monospace;
-  font-size: 11px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
   color: var(--secondary);
 }
 
 .slider-value {
-  font-family: ui-monospace, 'Courier New', monospace;
-  font-size: 11px;
+  font-family: var(--mono);
+  font-size: 10px;
   color: var(--body);
 }
 
 /* 11. Debug log */
 .log-wrap {
-  font-family: ui-monospace, 'Courier New', monospace;
-  font-size: 10px;
+  font-family: var(--mono);
+  font-size: 9px;
   color: var(--quiet);
   padding: 8px 0;
   max-height: 80px;
@@ -347,6 +421,12 @@ input[type="range"]::-moz-range-progress {
   display: none !important;
 }
 
+/* Focus — the site's house focus style */
+:focus-visible {
+  outline: 2px solid rgba(216, 69, 58, 0.9);
+  outline-offset: 3px;
+}
+
 /* Responsive: stack below 700px */
 @media (max-width: 700px) {
   html, body { overflow: auto; height: auto; }
@@ -354,12 +434,13 @@ input[type="range"]::-moz-range-progress {
   .topnav {
     grid-template-columns: 1fr 1fr;
     height: auto;
-    padding: 10px 16px;
+    padding: 12px 16px;
     gap: 4px;
   }
 
+  .topnav-title { font-size: 24px; }
   .topnav-kind { display: none; }
-  .topnav-name { text-align: right; }
+  .topnav-back { text-align: right; }
 
   .main-layout {
     grid-template-columns: 1fr;

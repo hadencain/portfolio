@@ -1,6 +1,7 @@
 {
   "niches": [
     { "id": "audio", "label": "Audio & music production" },
+    { "id": "video", "label": "Video" },
     { "id": "local-ai", "label": "Local-first AI" },
     { "id": "data", "label": "Data" },
     { "id": "spatial", "label": "Spatial" },
@@ -185,6 +186,17 @@
       "pitch": "A growing family of terminal-controlled instruments — drive a granular synth and a drum machine entirely from the command line, each with a live Textual TUI.",
       "audience": "For musicians who live in the terminal and want instruments that speak the same language.",
       "tag": "tc-tools",
+      "status": "page",
+      "capturePrompt": "Get notified",
+      "captureCta": "NOTIFY ME"
+    },
+    {
+      "slug": "video-lab",
+      "title": "Video Lab",
+      "niche": "video",
+      "pitch": "Five browser instruments for taking video apart — corruption, contamination, displacement, layering, and statistical resequencing, all real-time on Canvas.",
+      "audience": "For video artists and VJs who want destruction they can drive live, without an export queue.",
+      "tag": "video-lab",
       "status": "page",
       "capturePrompt": "Get notified",
       "captureCta": "NOTIFY ME"

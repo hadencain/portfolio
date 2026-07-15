@@ -6,6 +6,7 @@ import data from "./registry-data.json";
 
 export type NicheId =
   | "audio"
+  | "video"
   | "local-ai"
   | "data"
   | "spatial"
