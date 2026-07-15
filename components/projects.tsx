@@ -504,21 +504,17 @@ function Readout({
               {sel.project.tags.join(" · ")}
             </span>
           </p>
-          {/* Suite entries surface their live demos here — the bar holds its
-              selection after the pointer leaves, so these stay clickable. */}
+          {/* Suite entries surface their live demos here, immediately — the
+              bar holds its selection after the pointer leaves, so these stay
+              clickable while the cursor travels up to them. */}
           {sel.project.demos && (
-            <div
-              className={`mt-2 flex flex-wrap gap-x-6 gap-y-1.5 transition-opacity duration-300 ${
-                done ? "opacity-100" : "opacity-0"
-              }`}
-            >
+            <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1.5">
               {sel.project.demos.map((d) => (
                 <a
                   key={d.name}
                   href={d.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  tabIndex={done ? 0 : -1}
                   className="group/demo flex items-baseline gap-2.5 py-1 -my-1"
                 >
                   <span className="font-mono text-[8px] tracking-[0.25em] text-blood-bright border border-blood-bright/50 px-1 py-px group-hover/demo:bg-blood group-hover/demo:text-paper transition-colors duration-200">
