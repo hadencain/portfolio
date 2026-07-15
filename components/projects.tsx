@@ -1,7 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
+import { SpecimenField, SPEC_NAMES } from "./specimen-field";
 import { emitFieldPulse } from "./field-pulse";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -360,32 +362,131 @@ function ProjectLink({
   );
 }
 
-// Catalog row — compact, dense, readable over the field. Hover registers
-// quietly: hairline brightens, number takes the red plate.
+// Typed printout — the row's entry writes itself when the row opens.
+// Height comes from an invisible copy of the full text so the reveal opens
+// once, smoothly, instead of reflowing per character. Character count is
+// derived from elapsed time, so the print always finishes in TYPE_MS of
+// wall time even if frames are dropped or throttled.
+const TYPE_MS = 600;
+
+function TypedEntry({
+  project,
+  active,
+  reduced,
+}: {
+  project: Project;
+  active: boolean;
+  reduced: boolean;
+}) {
+  const [chars, setChars] = useState(0);
+  const raf = useRef(0);
+  const full = project.description;
+  const done = chars >= full.length;
+
+  useEffect(() => {
+    cancelAnimationFrame(raf.current);
+    if (!active) {
+      setChars(0);
+      return;
+    }
+    if (reduced) {
+      setChars(full.length);
+      return;
+    }
+    const t0 = performance.now();
+    const tick = (now: number) => {
+      const n = Math.min(
+        full.length,
+        Math.ceil(((now - t0) / TYPE_MS) * full.length)
+      );
+      setChars(n);
+      if (n < full.length) raf.current = requestAnimationFrame(tick);
+    };
+    raf.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf.current);
+  }, [active, reduced, full.length]);
+
+  return (
+    <div
+      className="grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+      style={{ gridTemplateRows: active ? "1fr" : "0fr" }}
+      aria-hidden={!active}
+    >
+      <div className="overflow-hidden min-h-0">
+        <div className="relative pt-1.5 pb-0.5">
+          {/* invisible full text reserves the open height */}
+          <p className="invisible text-[11.5px] leading-snug max-w-[72ch]">
+            {full}
+          </p>
+          <p className="absolute inset-x-0 top-1.5 text-[11.5px] leading-snug text-paper-mute max-w-[72ch]">
+            {full.slice(0, chars)}
+            {active && !done && (
+              <span className="text-blood-bright" aria-hidden>
+                ▌
+              </span>
+            )}
+          </p>
+        </div>
+        <p
+          className={`font-mono text-[8.5px] tracking-[0.22em] uppercase text-paper-mute/70 pb-1 transition-opacity duration-300 ${
+            done ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          {project.tags.join(" · ")}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// Catalog row — collapsed to its index line: number, title, arrow. Hover or
+// focus opens the row and the entry prints itself underneath.
 function SpecimenRow({
   project,
   no,
   delay,
+  onSelect,
 }: {
   project: Project;
   no: number;
   delay: number;
+  onSelect: () => void;
 }) {
+  // Hover and focus are tracked separately so a mouse passing across the
+  // page can't close a row the keyboard is holding open.
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const active = hovered || focused;
+  const reduced = useReducedMotion() ?? false;
+
   return (
     <motion.div
-      onMouseEnter={emitFieldPulse}
-      onFocus={emitFieldPulse}
-      className="group relative border-b border-paper/10 hover:border-paper/30 py-3.5 flex flex-col gap-1.5 transition-colors duration-200"
+      tabIndex={0}
+      onMouseEnter={(e) => {
+        setHovered(true);
+        onSelect();
+        emitFieldPulse(e);
+      }}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={(e) => {
+        setFocused(true);
+        onSelect();
+        emitFieldPulse(e);
+      }}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) setFocused(false);
+      }}
+      className="group relative border-b border-paper/10 hover:border-paper/30 focus-within:border-paper/30 py-2.5 flex flex-col transition-colors duration-200"
       initial={{ opacity: 0, y: 8 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="flex items-baseline gap-3.5">
-        <span className="font-mono text-[9px] tracking-[0.2em] text-paper-mute group-hover:text-blood-bright transition-colors duration-200 shrink-0">
+        <span className="font-mono text-[9px] tracking-[0.2em] text-paper-mute group-hover:text-blood-bright group-focus-within:text-blood-bright transition-colors duration-200 shrink-0">
           {String(no).padStart(3, "0")}
         </span>
-        <h3 className="font-mono text-[12px] tracking-[0.02em] text-paper-dim group-hover:text-paper transition-colors duration-200">
+        <h3 className="font-mono text-[12px] tracking-[0.02em] text-paper-dim group-hover:text-paper group-focus-within:text-paper transition-colors duration-200">
           {project.title}
         </h3>
         <div className="ml-auto flex items-center gap-3.5 shrink-0">
@@ -406,12 +507,7 @@ function SpecimenRow({
           />
         </div>
       </div>
-      <p className="text-[11.5px] leading-snug text-paper-mute max-w-[72ch]">
-        {project.description}
-      </p>
-      <p className="font-mono text-[8.5px] tracking-[0.22em] uppercase text-paper-mute/70">
-        {project.tags.join(" · ")}
-      </p>
+      <TypedEntry project={project} active={active} reduced={reduced} />
     </motion.div>
   );
 }
@@ -451,6 +547,12 @@ function PlateHeader({
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function Projects() {
+  // The last row the cursor or keyboard touched. The frame holds it after
+  // the pointer leaves, so the field never flickers back to empty.
+  const [sel, setSel] = useState<{ project: Project; no: number } | null>(
+    null
+  );
+
   return (
     <section
       id="work"
@@ -460,29 +562,66 @@ export function Projects() {
         Work
       </p>
 
-      {PLATES.map((plate, pi) => (
-        <div
-          key={plate.id}
-          id={plate.id}
-          className={`scroll-mt-24 ${pi < PLATES.length - 1 ? "mb-16" : ""}`}
-        >
-          <PlateHeader
-            plate={plate.plate}
-            label={plate.label}
-            count={plate.projects.length}
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12">
-            {plate.projects.map((p, i) => (
-              <SpecimenRow
-                key={p.title}
-                project={p}
-                no={PLATE_OFFSETS[pi] + i + 1}
-                delay={stagger(i)}
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(320px,42%)] lg:gap-16 lg:items-start">
+        <div>
+          {PLATES.map((plate, pi) => (
+            <div
+              key={plate.id}
+              id={plate.id}
+              className={`scroll-mt-24 ${pi < PLATES.length - 1 ? "mb-16" : ""}`}
+            >
+              <PlateHeader
+                plate={plate.plate}
+                label={plate.label}
+                count={plate.projects.length}
               />
-            ))}
-          </div>
+              {plate.projects.map((p, i) => (
+                <SpecimenRow
+                  key={p.title}
+                  project={p}
+                  no={PLATE_OFFSETS[pi] + i + 1}
+                  delay={stagger(i)}
+                  onSelect={() =>
+                    setSel({ project: p, no: PLATE_OFFSETS[pi] + i + 1 })
+                  }
+                />
+              ))}
+            </div>
+          ))}
         </div>
-      ))}
+
+        {/* Specimen frame — the hero's artifact box, answering the list.
+            Decorative; every tool's real link lives in its row. */}
+        <aside
+          className="hidden lg:block sticky top-24 self-start"
+          aria-hidden
+        >
+          <div className="relative border border-paper/20 overflow-hidden h-[min(70vh,560px)]">
+            {sel ? (
+              <SpecimenField key={sel.project.title} mode={sel.no} />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-paper-mute/60 select-none">
+                  hover a specimen
+                </span>
+              </div>
+            )}
+          </div>
+          <div className="mt-2 flex items-baseline gap-4 font-mono text-[10px] tracking-[0.2em] text-paper-mute select-none min-h-[1.2em]">
+            {sel && (
+              <>
+                <span className="text-blood-bright">
+                  {String(sel.no).padStart(3, "0")}
+                </span>
+                <span className="text-paper-dim">{sel.project.title}</span>
+                <span className="ml-auto">
+                  {SPEC_NAMES[sel.no - 1] ?? ""}
+                </span>
+              </>
+            )}
+          </div>
+        </aside>
+      </div>
     </section>
   );
 }
