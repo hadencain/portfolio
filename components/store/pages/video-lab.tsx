@@ -15,6 +15,7 @@ const BEATS = [
   { name: "spectral", text: "Audio-reactive temporal displacement — spectral energy drives frame buffering and displacement live." },
   { name: "palimpsest", text: "Audio-reactive temporal compositor — layers of frames blended by spectral energy, exports to WEBM." },
   { name: "markov", text: "Markov-chain video sequencer — learns transition probabilities from playback history and remixes statistically." },
+  { name: "smear", text: "Audio-driven corruption — the track melts the picture: sustained energy drags frames along estimated motion, transients rupture them in blocks." },
 ];
 
 // Every instrument runs in the browser right now — these are the doors.
@@ -24,6 +25,7 @@ const DEMOS = [
   { name: "spectral", href: "/tools/spectral/" },
   { name: "palimpsest", href: "/tools/palimpsest/" },
   { name: "markov", href: "/tools/markov/" },
+  { name: "smear", href: "/tools/smear/" },
 ];
 
 const CAPTURE_HINT =
