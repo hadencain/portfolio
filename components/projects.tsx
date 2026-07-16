@@ -22,6 +22,9 @@ interface Project {
   // Live sub-demos (suite entries like video-lab). Rendered as a LIVE-link
   // strip in the plate's readout bar when this entry is selected.
   demos?: { name: string; href: string }[];
+  // Marked entries carry a blood tick in the row and become the plate's
+  // default readout — the copy a scanning visitor reads without hovering.
+  flagship?: boolean;
 }
 
 const AUDIO: Project[] = [
@@ -109,6 +112,7 @@ const AUDIO: Project[] = [
     tags: ["C++", "JUCE"],
     github: "https://github.com/hadencain/gravityWell",
     href: "/store/gravity-well",
+    flagship: true,
   },
   {
     title: "phaseMangler",
@@ -138,6 +142,7 @@ const AUDIO: Project[] = [
       "Seven-stage noise mangler VST3. Audio runs in series through granular, spectral, glitch, bitcrush, distortion, convolution, and pitch-smear stages — each with its own bypass, wet/dry, and feedback — all wrapped in a filtered global feedback loop so the chain feeds on its own artifacts. Three LFOs and a signal-following chaos engine (RMS + spectral centroid, with periodic bursts) route to almost any parameter through a runtime mod matrix. Amber-on-black monospace UI. Built to find the sound past the sound.",
     tags: ["C++", "JUCE"],
     github: "https://github.com/hadencain/corrode",
+    flagship: true,
   },
   {
     title: "senses",
@@ -156,20 +161,23 @@ const VIDEO: Project[] = [
       "Datamoshes broadcast video and reads the decoded melt back as sound — a channel-surfing noise-music generator. Two sonification lanes (scanline wavetable + spectral resynthesis) driven by the picture's own corruption, rendered to DAW stems through a CLI and a local queue-based web UI.",
     tags: ["Python", "FastAPI", "ffmpeg"],
     github: "https://github.com/hadencain/bleed",
+    flagship: true,
   },
   {
     title: "video-lab",
     description:
-      "Five browser instruments for taking video apart — temporal corruption (glitch), pixel contamination between two clips (osmosis), audio-reactive displacement (spectral), layered spectral compositing (palimpsest), and Markov-chain resequencing (markov). All Canvas, all real-time, every one runs live in the browser.",
+      "Six browser instruments for taking video apart — temporal corruption (glitch), pixel contamination between two clips (osmosis), audio-reactive displacement (spectral), layered spectral compositing (palimpsest), Markov-chain resequencing (markov), and audio-driven melt (smear). All Canvas, all real-time, every one runs live in the browser.",
     tags: ["HTML5", "Canvas", "Web Audio"],
     github: "https://github.com/hadencain",
     href: "/store/video-lab",
+    flagship: true,
     demos: [
       { name: "glitch", href: "/tools/glitch/" },
       { name: "osmosis", href: "/tools/osmosis/" },
       { name: "spectral", href: "/tools/spectral/" },
       { name: "palimpsest", href: "/tools/palimpsest/" },
       { name: "markov", href: "/tools/markov/" },
+      { name: "smear", href: "/tools/smear/" },
     ],
   },
 ];
@@ -216,6 +224,7 @@ const SECURITY: Project[] = [
       "OSINT infrastructure pivot tool. Given a domain or IP, correlates across WHOIS, DNS, certificate transparency, passive DNS, ASN ownership, reverse IP, and HTTP fingerprint to map infrastructure relationships. Flags new domains, bulletproof hosting, and CDN-diluted edges. Exports JSON and a self-contained D3 force graph.",
     tags: ["Python"],
     github: "https://github.com/hadencain/cairn",
+    flagship: true,
   },
   {
     title: "magpie",
@@ -254,6 +263,7 @@ const SECURITY: Project[] = [
     tags: ["TypeScript", "React"],
     github: "https://github.com/hadencain/indoorMaps",
     href: "/store/indoor-maps",
+    flagship: true,
   },
 ];
 
@@ -374,6 +384,15 @@ function SpecimenRow({
         <h3 className="font-mono text-[12px] tracking-[0.02em] text-paper-dim group-hover:text-paper group-focus-within:text-paper transition-colors duration-200">
           {project.title}
         </h3>
+        {project.flagship && (
+          <span
+            className="text-blood-bright text-[8px] leading-none select-none"
+            title="marked entry"
+            aria-label="marked entry"
+          >
+            ▪
+          </span>
+        )}
         {/* Screen readers get the entry on the row itself; sighted desktop
             users read it in the readout bar. */}
         {!noHover && <span className="sr-only">{project.description}</span>}
@@ -574,10 +593,23 @@ function PlateHeader({
 export function Projects() {
   const noHover = useNoHover();
   // Last-touched row per plate — each readout keeps holding its entry after
-  // the pointer moves on, so the bars never flicker back to empty.
+  // the pointer moves on, so the bars never flicker back to empty. Each bar
+  // opens on its plate's marked entry, so a visitor who never hovers still
+  // reads real copy instead of an em dash.
   const [selByPlate, setSelByPlate] = useState<
     Record<string, { project: Project; no: number }>
-  >({});
+  >(() => {
+    const init: Record<string, { project: Project; no: number }> = {};
+    PLATES.forEach((plate, pi) => {
+      const fi = plate.projects.findIndex((p) => p.flagship);
+      const i = fi >= 0 ? fi : 0;
+      init[plate.id] = {
+        project: plate.projects[i],
+        no: PLATE_OFFSETS[pi] + i + 1,
+      };
+    });
+    return init;
+  });
 
   return (
     <section

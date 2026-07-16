@@ -42,13 +42,11 @@ const bodoniSC = Bodoni_Moda_SC({
 });
 
 export const metadata: Metadata = {
-  // Canonical origin for resolving relative OG/Twitter images. Unset by
-  // default: on Vercel the production-URL fallback already yields working
-  // absolute URLs, and the canonical domain (hadencain.com) has no DNS yet.
-  // When it does, set NEXT_PUBLIC_SITE_URL and this takes over.
-  ...(process.env.NEXT_PUBLIC_SITE_URL
-    ? { metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL) }
-    : {}),
+  // Canonical origin for resolving relative OG/Twitter images.
+  // www.hadencain.com is live (apex 308s to it); env var can still override.
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.hadencain.com"
+  ),
   title: "Haden Cain",
   description:
     "Software Engineer & Audio Toolmaker. I build things that make noise and things that make sense.",
@@ -59,7 +57,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Haden Cain",
     description:
       "Software Engineer & Audio Toolmaker. I build things that make noise and things that make sense.",
