@@ -152,9 +152,6 @@ const AUDIO: Project[] = [
     github: "https://github.com/hadencain/senses",
     href: "/store/senses",
   },
-];
-
-const VIDEO: Project[] = [
   {
     title: "bleed",
     description:
@@ -270,9 +267,8 @@ const SECURITY: Project[] = [
 // ─── Plates ───────────────────────────────────────────────────────────────────
 
 const PLATES = [
-  { id: "audio", plate: "01", label: "Audio", projects: AUDIO },
-  { id: "video", plate: "02", label: "Video", projects: VIDEO },
-  { id: "security", plate: "03", label: "Security", projects: SECURITY },
+  { id: "audio", plate: "01", label: "Audio/Video", projects: AUDIO },
+  { id: "security", plate: "02", label: "Security", projects: SECURITY },
 ];
 
 // Continuous catalog numbering — entry 001 through 035 across all plates.
