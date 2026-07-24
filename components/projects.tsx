@@ -166,7 +166,6 @@ const AUDIO: Project[] = [
       "Six browser instruments for taking video apart — temporal corruption (glitch), pixel contamination between two clips (osmosis), audio-reactive displacement (spectral), layered spectral compositing (palimpsest), Markov-chain resequencing (markov), and audio-driven melt (smear). All Canvas, all real-time, every one runs live in the browser.",
     tags: ["HTML5", "Canvas", "Web Audio"],
     github: "https://github.com/hadencain",
-    href: "/store/video-lab",
     flagship: true,
     demos: [
       { name: "glitch", href: "/tools/glitch/" },
@@ -259,7 +258,6 @@ const SECURITY: Project[] = [
       "Indoor mapping authoring and operator console. Draw venues on an IMDF data model, route with A* across floors and elevators, place cameras with occlusion-aware coverage and PTZ, and run incidents, patrols, and fixtures from the same map. Seven demo venues included.",
     tags: ["TypeScript", "React"],
     github: "https://github.com/hadencain/indoorMaps",
-    href: "/store/indoor-maps",
     flagship: true,
   },
 ];

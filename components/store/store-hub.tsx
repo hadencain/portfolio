@@ -71,21 +71,13 @@ export function StoreHub() {
       />
 
       <motion.h1
-        className="display text-5xl md:text-6xl text-[#e3ddd0] leading-[0.9] mb-4 select-none"
+        className="display text-5xl md:text-6xl text-[#e3ddd0] leading-[0.9] mb-20 select-none"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, ease: EASE }}
       >
         Tools.
       </motion.h1>
-      <motion.p
-        className="text-[11px] tracking-[0.3em] uppercase text-[#665f51] mb-20"
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.9, delay: 0.15, ease: EASE }}
-      >
-        small software for specific people · pick your field
-      </motion.p>
 
       <div className="flex flex-col gap-16 max-w-3xl">
         {NICHES.map((niche) => {
@@ -111,23 +103,6 @@ export function StoreHub() {
             </div>
           );
         })}
-      </div>
-
-      <div className="mt-24 pt-8 border-t border-[#24201a] flex gap-8">
-        <Link
-          href="/#work"
-          className="text-[10px] font-mono tracking-[0.22em] text-[#5c564a] hover:text-[#8d867a] transition-colors duration-300 py-2 -my-2"
-        >
-          FREE BROWSER TOOLS
-        </Link>
-        <a
-          href="https://github.com/hadencain"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[10px] font-mono tracking-[0.22em] text-[#5c564a] hover:text-[#8d867a] transition-colors duration-300 py-2 -my-2"
-        >
-          GITHUB
-        </a>
       </div>
     </section>
   );

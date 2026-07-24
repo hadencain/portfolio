@@ -1,13 +1,21 @@
 {
   "niches": [
-    { "id": "audio", "label": "Audio & music production" },
-    { "id": "video", "label": "Video" },
-    { "id": "local-ai", "label": "Local-first AI" },
-    { "id": "data", "label": "Data" },
-    { "id": "spatial", "label": "Spatial" },
-    { "id": "training", "label": "Training" },
-    { "id": "mobile", "label": "Mobile" },
-    { "id": "desktop", "label": "Desktop & dev tools" }
+    {
+      "id": "audio",
+      "label": "Audio & music production"
+    },
+    {
+      "id": "local-ai",
+      "label": "Local-first AI"
+    },
+    {
+      "id": "spatial",
+      "label": "Spatial"
+    },
+    {
+      "id": "desktop",
+      "label": "Desktop & dev tools"
+    }
   ],
   "tools": [
     {
@@ -92,50 +100,6 @@
       "captureCta": "NOTIFY ME"
     },
     {
-      "slug": "assay",
-      "title": "Assay",
-      "niche": "data",
-      "pitch": "A dataset investigation workbench — from a raw download to verified findings.",
-      "audience": "For people who investigate datasets instead of just downloading them.",
-      "tag": "assay",
-      "status": "page",
-      "capturePrompt": "Get notified",
-      "captureCta": "NOTIFY ME"
-    },
-    {
-      "slug": "indoor-maps",
-      "title": "indoorMaps",
-      "niche": "spatial",
-      "pitch": "Indoor mapping and wayfinding authoring — floors, rooms, doors, cross-floor routing.",
-      "audience": "For anyone who needs wayfinding in a building Google doesn't map.",
-      "tag": "indoor-maps",
-      "status": "page",
-      "capturePrompt": "Get notified",
-      "captureCta": "NOTIFY ME"
-    },
-    {
-      "slug": "poker-coach",
-      "title": "pokerCoach",
-      "niche": "training",
-      "pitch": "A single-player poker table that tracks the stats conversation — VPIP, PFR, aggression — while you play.",
-      "audience": "For players who want the numbers conversation without staking real tables.",
-      "tag": "poker-coach",
-      "status": "page",
-      "capturePrompt": "Get notified",
-      "captureCta": "NOTIFY ME"
-    },
-    {
-      "slug": "daily-prayer",
-      "title": "dailyPrayer",
-      "niche": "mobile",
-      "pitch": "A pray-to-unlock app blocker — your phone opens after a guided prayer, not before.",
-      "audience": "For Christians who want prayer to come before the scroll.",
-      "tag": "daily-prayer",
-      "status": "page",
-      "capturePrompt": "Get notified",
-      "captureCta": "NOTIFY ME"
-    },
-    {
       "slug": "pomodoro",
       "title": "pomodoro-timer",
       "niche": "desktop",
@@ -186,17 +150,6 @@
       "pitch": "A growing family of terminal-controlled instruments — drive a granular synth and a drum machine entirely from the command line, each with a live Textual TUI.",
       "audience": "For musicians who live in the terminal and want instruments that speak the same language.",
       "tag": "tc-tools",
-      "status": "page",
-      "capturePrompt": "Get notified",
-      "captureCta": "NOTIFY ME"
-    },
-    {
-      "slug": "video-lab",
-      "title": "Video Lab",
-      "niche": "video",
-      "pitch": "Six browser instruments for taking video apart — corruption, contamination, displacement, layering, resequencing, and audio-driven melt, all real-time on Canvas.",
-      "audience": "For video artists and VJs who want destruction they can drive live, without an export queue.",
-      "tag": "video-lab",
       "status": "page",
       "capturePrompt": "Get notified",
       "captureCta": "NOTIFY ME"

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { toolBySlug } from "../registry";
 import { AudienceLine, FeatureBeats, MediaSlot } from "../landing-kit";
@@ -113,14 +112,6 @@ export function WhiteHoleLanding() {
         hint={CAPTURE_HINT}
       />
 
-      <div className="mt-24 pt-8 border-t border-[#24201a]">
-        <Link
-          href="/store"
-          className="text-[10px] font-mono tracking-[0.22em] text-[#5c564a] hover:text-[#8d867a] transition-colors duration-300 py-2 -my-2"
-        >
-          ← ALL TOOLS
-        </Link>
-      </div>
     </section>
   );
 }

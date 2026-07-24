@@ -49,17 +49,6 @@ export function Contact() {
             KEYBASE
           </a>
         </motion.div>
-
-        {/* Colophon */}
-        <div className="mt-28 md:mt-36 pt-6 border-t border-paper/12 flex flex-wrap items-center justify-between gap-4">
-          <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-paper-mute">
-            Haden Cain
-          </span>
-          {/* -mr compensates the trailing tracking space so the year sits flush right */}
-          <span className="font-mono text-[9px] tracking-[0.3em] -mr-[0.3em] text-paper-mute">
-            {new Date().getFullYear()}
-          </span>
-        </div>
       </div>
     </section>
   );
