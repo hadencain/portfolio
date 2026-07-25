@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { GlitchLabel } from "./glitch-label";
 import { ContourField } from "./contour-field";
@@ -90,7 +90,13 @@ const FIELD_ORDER = [
 const FIELDS = Array.from({ length: FIELD_ORDER.length }, (_, i) => i + 1);
 
 export function Hero() {
-  const [field, setField] = useState(1);
+  // Null until mount — the pick is random per visit, so it can't happen during
+  // SSR/hydration without a server-client mismatch. The frame's own fade-in
+  // (0.5s delay) covers the one-frame gap.
+  const [field, setField] = useState<number | null>(null);
+  useEffect(() => {
+    setField(1 + Math.floor(Math.random() * FIELD_ORDER.length));
+  }, []);
   return (
     <section id="hero" className="relative min-h-screen flex flex-col">
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center px-8 md:px-16 lg:px-24 pt-16 lg:pt-8 pb-10">
@@ -159,11 +165,12 @@ export function Hero() {
           transition={{ duration: 1.4, delay: 0.5 }}
         >
           <div className="relative border border-paper/20 overflow-hidden h-[340px] sm:h-[420px] lg:h-[min(70vh,620px)]">
-            {(FIELD_ORDER[field - 1] ?? 1) <= 15 ? (
-              <ContourField key={field} mode={FIELD_ORDER[field - 1] ?? 1} />
-            ) : (
-              <SpecimenField key={field} mode={(FIELD_ORDER[field - 1] ?? 16) - 15} />
-            )}
+            {field !== null &&
+              ((FIELD_ORDER[field - 1] ?? 1) <= 15 ? (
+                <ContourField key={field} mode={FIELD_ORDER[field - 1] ?? 1} />
+              ) : (
+                <SpecimenField key={field} mode={(FIELD_ORDER[field - 1] ?? 16) - 15} />
+              ))}
           </div>
           <div className="mt-2 flex items-center font-mono text-[9.5px] text-paper-mute select-none">
             <div className="flex flex-wrap gap-x-3 gap-y-0.5">
