@@ -1,10 +1,6 @@
 {
   "niches": [
     {
-      "id": "audio",
-      "label": "Audio & music production"
-    },
-    {
       "id": "local-ai",
       "label": "Local-first AI"
     },
@@ -18,65 +14,6 @@
     }
   ],
   "tools": [
-    {
-      "slug": "smear",
-      "title": "Smear",
-      "niche": "audio",
-      "pitch": "Spectral blur — sound smears through time, from intact pitch to infinite wash.",
-      "audience": "For sound designers and ambient producers who want motion frozen into texture.",
-      "tag": "smear",
-      "status": "page",
-      "capturePrompt": "Get the installer",
-      "captureCta": "NOTIFY ME"
-    },
-    {
-      "slug": "gravity-well",
-      "title": "Gravity Well",
-      "niche": "audio",
-      "pitch": "A spectral black hole — audio redshifts toward a floor frequency and time dilates as mass accumulates.",
-      "audience": "For sound designers chasing weight — scores, drones, sound that collapses inward.",
-      "tag": "gravity-well",
-      "status": "page",
-      "screenshot": "/store/gravity-well.png",
-      "ogImage": "/store/gravity-well.png",
-      "capturePrompt": "Get the installer",
-      "captureCta": "NOTIFY ME"
-    },
-    {
-      "slug": "white-hole",
-      "title": "White Hole",
-      "niche": "audio",
-      "pitch": "An anti-mass spectral leveler — buried detail lifts into audibility, peaks flatten toward the floor.",
-      "audience": "For producers who want buried detail surfaced without a compressor's pumping.",
-      "tag": "white-hole",
-      "status": "page",
-      "screenshot": "/store/white-hole.png",
-      "ogImage": "/store/white-hole.png",
-      "capturePrompt": "Get the installer",
-      "captureCta": "NOTIFY ME"
-    },
-    {
-      "slug": "fracture",
-      "title": "Fracture",
-      "niche": "audio",
-      "pitch": "Granular reverb — a reverb tail fragmented into crystalline, disintegrating decays.",
-      "audience": "For producers who want reverbs that fall apart beautifully instead of just fading.",
-      "tag": "fracture",
-      "status": "page",
-      "capturePrompt": "Get the installer",
-      "captureCta": "NOTIFY ME"
-    },
-    {
-      "slug": "sample-viewer",
-      "title": "sampleViewer",
-      "niche": "audio",
-      "pitch": "Your sample library as a navigable map — tempo, key, and sonic similarity, drag straight into your DAW.",
-      "audience": "For producers whose sample library outgrew their memory of it.",
-      "tag": "sample-viewer",
-      "status": "page",
-      "capturePrompt": "Join the beta",
-      "captureCta": "JOIN BETA"
-    },
     {
       "slug": "anchor",
       "title": "anchor",
@@ -117,39 +54,6 @@
       "pitch": "A dispatch hub for Claude Code sessions — queue work, launch sessions, watch tokens and cost.",
       "audience": "For Claude Code users running more sessions than they can hold in their head.",
       "tag": "claude-dispatch",
-      "status": "page",
-      "capturePrompt": "Get notified",
-      "captureCta": "NOTIFY ME"
-    },
-    {
-      "slug": "spectral-shuffler",
-      "title": "Spectral Shuffler",
-      "niche": "audio",
-      "pitch": "Captures FFT frames from a chosen frequency band and replays them at random — freeze, scatter, or stutter a range while the rest of the signal passes clean.",
-      "audience": "For sound designers who want to seize one frequency band and shuffle it without touching the rest.",
-      "tag": "spectral-shuffler",
-      "status": "page",
-      "capturePrompt": "Get the installer",
-      "captureCta": "NOTIFY ME"
-    },
-    {
-      "slug": "audio-sort",
-      "title": "audioSort",
-      "niche": "audio",
-      "pitch": "Auto-sorts a sample library by reading path context, file metadata, and librosa spectral analysis — every sample filed into the right folder, in place.",
-      "audience": "For producers whose sample folder became a landfill they never tagged.",
-      "tag": "audio-sort",
-      "status": "page",
-      "capturePrompt": "Get notified",
-      "captureCta": "NOTIFY ME"
-    },
-    {
-      "slug": "tc-tools",
-      "title": "TC Tools",
-      "niche": "audio",
-      "pitch": "A growing family of terminal-controlled instruments — drive a granular synth and a drum machine entirely from the command line, each with a live Textual TUI.",
-      "audience": "For musicians who live in the terminal and want instruments that speak the same language.",
-      "tag": "tc-tools",
       "status": "page",
       "capturePrompt": "Get notified",
       "captureCta": "NOTIFY ME"

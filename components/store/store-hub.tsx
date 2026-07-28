@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { NICHES, TOOLS, type Tool } from "./registry";
+import { ARSENIC_ORIGIN } from "@/lib/arsenic";
 import { emitFieldPulse } from "../field-pulse";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -71,13 +72,22 @@ export function StoreHub() {
       />
 
       <motion.h1
-        className="display text-5xl md:text-6xl text-[#e3ddd0] leading-[0.9] mb-20 select-none"
+        className="display text-5xl md:text-6xl text-[#e3ddd0] leading-[0.9] mb-6 select-none"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, ease: EASE }}
       >
         Tools.
       </motion.h1>
+      <motion.a
+        href={ARSENIC_ORIGIN}
+        className="inline-block text-[11px] font-mono tracking-[0.22em] text-[#5c564a] hover:text-[#8d867a] transition-colors duration-300 mb-16"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.9, delay: 0.15 }}
+      >
+        THE AUDIO LINE LIVES AT ARSENIC ↗
+      </motion.a>
 
       <div className="flex flex-col gap-16 max-w-3xl">
         {NICHES.map((niche) => {

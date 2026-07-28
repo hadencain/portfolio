@@ -25,138 +25,9 @@ interface Project {
   // Marked entries carry a blood tick in the row and become the plate's
   // default readout — the copy a scanning visitor reads without hovering.
   flagship?: boolean;
-  // Family entries render as a single collapsed row with a disclosure; the
-  // children expand beneath it as lettered sub-entries (003a, 003b, …).
-  children?: Project[];
 }
 
-const AUDIO: Project[] = [
-  {
-    title: "granular-synthesizer",
-    description:
-      "Granular synthesis engine built as a VST3 plugin. Full grain control, LFO modulation matrix, and real-time waveform display.",
-    tags: ["C++", "JUCE"],
-    github: "https://github.com/hadencain/granular-synthesizer",
-  },
-  {
-    title: "harmonic-filter-sequencer",
-    description:
-      "Bandpass filter applied to the harmonics of incoming audio. Max for Live patch for spectral rhythm processing.",
-    tags: ["Max/MSP"],
-    github: "https://github.com/hadencain/harmonic-filter-sequencer",
-  },
-  {
-    title: "terminal-controlled tools",
-    description:
-      "A family of instruments driven entirely from the command line, each with a live Textual TUI — granular synthesis, a drum machine, a morphing wavetable synth, and stochastic beat sequencing.",
-    tags: ["Python", "ChucK", "Textual"],
-    github: "https://github.com/hadencain",
-    href: "/store/tc-tools",
-    children: [
-      {
-        title: "TCGS",
-        description:
-          "Terminal-controlled granular synthesizer. Full grain engine with playhead, FX chain, 4-LFO modulation matrix, polyphonic voices, and a live Textual TUI with waveform display and grain-field visualizer.",
-        tags: ["Python", "numpy", "Textual"],
-        github: "https://github.com/hadencain/TCGS",
-        href: "/store/tc-tools",
-      },
-      {
-        title: "TCDM",
-        description:
-          "Terminal-controlled drum machine. Sample-accurate step transport, per-step Elektron-style param locks, an 8-slot pattern bank with chaining, a full master FX chain (waveshaper/EQ/chorus/delay/reverb/limiter), and a live Textual TUI with a sweeping step-grid.",
-        tags: ["Python", "numpy", "scipy", "Textual"],
-        github: "https://github.com/hadencain/TCDM",
-        href: "/store/tc-tools",
-      },
-      {
-        title: "TCWS",
-        description:
-          "Terminal-controlled wavetable synthesizer. Morphing mipped wavetable engine with click-free position scanning, spectral morph mode, phase-warp stage, 64-slot mod matrix, unison stacking, and a live Textual TUI whose centerpiece is the frame waveform morphing under a position-scan cursor.",
-        tags: ["Python", "numpy", "scipy", "Textual"],
-        github: "https://github.com/hadencain/TCWS",
-        href: "/store/tc-tools",
-      },
-      {
-        title: "TCBBP",
-        description:
-          "Terminal-controlled beat-based probability system. Stochastic sequencing driven entirely from the command line.",
-        tags: ["ChucK"],
-        github: "https://github.com/hadencain/TCBBP",
-        href: "/store/tc-tools",
-      },
-    ],
-  },
-  {
-    title: "audioSort",
-    description:
-      "Audio sample organizer evolved from keyword matching into a weighted multi-signal classifier — path context, metadata, librosa spectral analysis, and an AST ML model.",
-    tags: ["Python", "librosa", "HuggingFace"],
-    github: "https://github.com/hadencain/audioSort",
-    href: "/store/audio-sort",
-  },
-  {
-    title: "tunedown-theory",
-    description:
-      "Interactive scale and theory practice tool for guitar and keyboard. Fretboard and keyboard visualization with selectable scales, modes, and chord highlighting.",
-    tags: ["TypeScript", "React"],
-    github: "https://github.com/hadencain/tunedown-theory",
-  },
-  {
-    title: "fracturedReverb",
-    description:
-      "Granular reverb VST3. A feedback delay network tail feeds a live ring buffer; a grain engine re-scatters it across the stereo field for disintegrating, crystalline decays. Live visualization in three switchable modes — tail field, decay scope, glass shards — driven by a lock-free telemetry bus from the audio thread.",
-    tags: ["C++", "JUCE"],
-    github: "https://github.com/hadencain/fracturedReverb",
-    href: "/store/fracture",
-  },
-  {
-    title: "spectralShuffler",
-    description:
-      "Spectral shuffler VST3. Captures FFT frames from a user-defined frequency band and randomly replays them — freeze, scatter, or smear specific frequency ranges in real time while the rest of the signal passes through unmodified.",
-    tags: ["C++", "JUCE"],
-    github: "https://github.com/hadencain/spectralShuffler",
-    href: "/store/spectral-shuffler",
-  },
-  {
-    title: "gravityWell",
-    description:
-      "Spectral black-hole VST3. Audio falls into a gravitational well below a configurable floor frequency — bins redshift (pitch lowers), energy pools into the sub-bass, and time dilates as mass accumulates. Decoherence thermalizes structured partials into rumble at full mass. Phase vocoder core with lock-free audio-to-UI spectrum bridge.",
-    tags: ["C++", "JUCE"],
-    github: "https://github.com/hadencain/gravityWell",
-    href: "/store/gravity-well",
-    flagship: true,
-  },
-  {
-    title: "phaseMangler",
-    description:
-      "Spectral phase scrambler VST3. Three independent frequency bands each apply stochastic per-bin phase offsets via overlap-add FFT — magnitudes are preserved, waveforms are destroyed. From transparent bypass to full dissolution.",
-    tags: ["C++", "JUCE"],
-    github: "https://github.com/hadencain/phaseMangler",
-  },
-  {
-    title: "smear",
-    description:
-      "Spectral blur VST3. Per-bin magnitudes smear through a leaky integrator while a single phase-coherence axis sweeps from intact pitch to a Paulstretch-style wash — freeze latches the spectrum and holds it indefinitely. A two-layer radial display draws the live input as a ghost under the processed spectrum, so every control reads as visible cause and effect.",
-    tags: ["C++", "JUCE"],
-    github: "https://github.com/hadencain/smear",
-  },
-  {
-    title: "whiteHole",
-    description:
-      "Anti-mass spectral leveler VST3 — the black hole's phase-preserving opposite. A repulsion field hinged at a floor level lifts buried content into audibility and flattens peaks down toward it, per bin, each bin's gain smoothed by its own follower. At full repulsion and thin the spectrum flattens into the floor band; the radial display draws the dead zone as an annulus that spoke tips converge onto.",
-    tags: ["C++", "JUCE"],
-    github: "https://github.com/hadencain/whiteHole",
-    href: "/store/white-hole",
-  },
-  {
-    title: "corrode",
-    description:
-      "Seven-stage noise mangler VST3. Audio runs in series through granular, spectral, glitch, bitcrush, distortion, convolution, and pitch-smear stages — each with its own bypass, wet/dry, and feedback — all wrapped in a filtered global feedback loop so the chain feeds on its own artifacts. Three LFOs and a signal-following chaos engine (RMS + spectral centroid, with periodic bursts) route to almost any parameter through a runtime mod matrix. Amber-on-black monospace UI. Built to find the sound past the sound.",
-    tags: ["C++", "JUCE"],
-    github: "https://github.com/hadencain/corrode",
-    flagship: true,
-  },
+const VIDEO: Project[] = [
   {
     title: "senses",
     description:
@@ -270,7 +141,7 @@ const SECURITY: Project[] = [
 // ─── Plates ───────────────────────────────────────────────────────────────────
 
 const PLATES = [
-  { id: "audio", plate: "01", label: "Audio/Video", projects: AUDIO },
+  { id: "video", plate: "01", label: "Video", projects: VIDEO },
   { id: "security", plate: "02", label: "Security", projects: SECURITY },
 ];
 
@@ -442,106 +313,6 @@ function SpecimenRow({
             </div>
           )}
         </>
-      )}
-    </motion.div>
-  );
-}
-
-// Family row — a collapsed group of sibling tools behind one disclosure.
-// The row itself toggles; the arrow keeps its own destination. Children
-// render as lettered sub-entries indented under a hairline.
-function GroupRow({
-  project,
-  label,
-  delay,
-  noHover,
-  onSelectEntry,
-}: {
-  project: Project;
-  label: string;
-  delay: number;
-  noHover: boolean;
-  onSelectEntry: (p: Project, label: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const kids = project.children ?? [];
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
-    >
-      <div
-        tabIndex={0}
-        role="button"
-        aria-expanded={open}
-        aria-label={`${project.title} — ${kids.length} tools`}
-        onClick={() => setOpen((o) => !o)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            setOpen((o) => !o);
-          }
-        }}
-        onMouseEnter={(e) => {
-          onSelectEntry(project, label);
-          emitFieldPulse(e);
-        }}
-        onFocus={(e) => {
-          onSelectEntry(project, label);
-          emitFieldPulse(e);
-        }}
-        className="group relative border-b border-paper/10 hover:border-paper/30 focus-within:border-paper/30 py-2.5 flex flex-col transition-colors duration-200 cursor-pointer select-none"
-      >
-        <div className="flex items-baseline gap-3.5">
-          <span className="font-mono text-[9px] tracking-[0.2em] text-paper-mute group-hover:text-blood-bright group-focus-within:text-blood-bright transition-colors duration-200 shrink-0">
-            {label}
-          </span>
-          <h3 className="font-mono text-[12px] tracking-[0.02em] text-paper-dim group-hover:text-paper group-focus-within:text-paper transition-colors duration-200">
-            {project.title}
-          </h3>
-          <span className="font-mono text-[9px] tracking-[0.2em] text-paper-mute shrink-0">
-            ×{String(kids.length).padStart(2, "0")}
-          </span>
-          {!noHover && <span className="sr-only">{project.description}</span>}
-          <div className="ml-auto flex items-center gap-3.5 shrink-0">
-            <span
-              aria-hidden
-              className="font-mono text-[11px] text-paper-mute group-hover:text-paper transition-colors duration-200 w-3 text-center"
-            >
-              {open ? "−" : "+"}
-            </span>
-            <span onClick={(e) => e.stopPropagation()}>
-              <ProjectLink
-                project={project}
-                className="text-paper-mute hover:text-paper transition-colors duration-200 p-2 -m-2 inline-block"
-              />
-            </span>
-          </div>
-        </div>
-        {noHover && (
-          <p className="pt-1.5 text-[11.5px] leading-snug text-paper-mute max-w-[72ch]">
-            {project.description}
-          </p>
-        )}
-      </div>
-      {open && (
-        <div className="pl-4 border-l border-paper/10 ml-1">
-          {kids.map((k, i) => (
-            <SpecimenRow
-              key={k.title}
-              project={k}
-              label={`${label}${String.fromCharCode(97 + i)}`}
-              delay={i * 0.04}
-              noHover={noHover}
-              onSelect={() =>
-                onSelectEntry(k, `${label}${String.fromCharCode(97 + i)}`)
-              }
-            />
-          ))}
-        </div>
       )}
     </motion.div>
   );
@@ -739,28 +510,19 @@ export function Projects() {
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-12">
             {plate.projects.map((p, i) => {
               const label = String(PLATE_OFFSETS[pi] + i + 1).padStart(3, "0");
-              const select = (proj: Project, lab: string) =>
-                setSelByPlate((s) => ({
-                  ...s,
-                  [plate.id]: { project: proj, label: lab },
-                }));
-              return p.children ? (
-                <GroupRow
-                  key={p.title}
-                  project={p}
-                  label={label}
-                  delay={stagger(i)}
-                  noHover={noHover}
-                  onSelectEntry={select}
-                />
-              ) : (
+              return (
                 <SpecimenRow
                   key={p.title}
                   project={p}
                   label={label}
                   delay={stagger(i)}
                   noHover={noHover}
-                  onSelect={() => select(p, label)}
+                  onSelect={() =>
+                    setSelByPlate((s) => ({
+                      ...s,
+                      [plate.id]: { project: p, label },
+                    }))
+                  }
                 />
               );
             })}

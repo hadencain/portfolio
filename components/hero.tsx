@@ -6,6 +6,7 @@ import { GlitchLabel } from "./glitch-label";
 import { ContourField } from "./contour-field";
 import { SpecimenField } from "./specimen-field";
 import { emitFieldPulse } from "./field-pulse";
+import { ARSENIC_ORIGIN } from "@/lib/arsenic";
 
 // Clean type on the left; the artifact — the living ASCII field — framed on
 // the right. Nothing draws underneath the text.
@@ -18,7 +19,7 @@ function fadeUp(delay: number, y = 10, duration = 0.7) {
 }
 
 const SECTIONS = [
-  { n: "01", label: "AUDIO/VIDEO", count: "15", href: "#audio" },
+  { n: "01", label: "VIDEO", count: "03", href: "#video" },
   { n: "02", label: "SECURITY", count: "10", href: "#security" },
 ];
 
@@ -26,6 +27,7 @@ const SOCIALS = [
   { label: "GITHUB", href: "https://github.com/hadencain" },
   { label: "LINKEDIN", href: "https://www.linkedin.com/in/haden-cain-77031124a/" },
   { label: "YOUTUBE", href: "https://www.youtube.com/@hadencain" },
+  { label: "ARSENIC", href: ARSENIC_ORIGIN },
 ];
 
 // All 51 fields ranked by complexity, most intricate first — the selector

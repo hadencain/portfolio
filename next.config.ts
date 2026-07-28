@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { ARSENIC_ORIGIN, AUDIO_SLUGS } from "./lib/arsenic";
 
 const csp = [
   "default-src 'self'",
@@ -13,6 +14,14 @@ const csp = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  // The audio line moved to Arsenic; old store URLs follow it permanently.
+  async redirects() {
+    return AUDIO_SLUGS.map((slug) => ({
+      source: `/store/${slug}`,
+      destination: `${ARSENIC_ORIGIN}/${slug}`,
+      permanent: true,
+    }));
+  },
   async headers() {
     return [
       {
