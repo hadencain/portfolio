@@ -5,8 +5,8 @@
       "label": "Local-first AI"
     },
     {
-      "id": "spatial",
-      "label": "Spatial"
+      "id": "mobile",
+      "label": "Mobile"
     },
     {
       "id": "desktop",
@@ -43,7 +43,7 @@
     {
       "slug": "senses",
       "title": "Senses",
-      "niche": "spatial",
+      "niche": "mobile",
       "pitch": "Modular AR audio-visual instruments for Android — camera, motion, and generative audio composed into playable artifacts.",
       "audience": "For performers and visual artists who want the room itself to become the instrument.",
       "tag": "senses",
@@ -58,6 +58,39 @@
       "pitch": "A dataset investigation workbench — from a raw download to verified findings.",
       "audience": "For people who investigate datasets instead of just downloading them.",
       "tag": "assay",
+      "status": "page",
+      "capturePrompt": "Get notified",
+      "captureCta": "NOTIFY ME"
+    },
+    {
+      "slug": "studytool",
+      "title": "studytool",
+      "niche": "mobile",
+      "pitch": "Spaced-repetition flashcards for Android — drop in an Anki deck and study offline. No account, no sync, no server.",
+      "audience": "For students who want Anki's rigor on a phone without Anki's friction.",
+      "tag": "studytool",
+      "status": "page",
+      "capturePrompt": "Get notified",
+      "captureCta": "NOTIFY ME"
+    },
+    {
+      "slug": "vox-android",
+      "title": "Vox for Android",
+      "niche": "mobile",
+      "pitch": "On-device dictation — a floating mic bubble, local whisper transcription, LLM cleanup, and the text lands wherever your cursor is.",
+      "audience": "For phone typists who'd rather talk — without a cloud listening.",
+      "tag": "vox-android",
+      "status": "page",
+      "capturePrompt": "Get notified",
+      "captureCta": "NOTIFY ME"
+    },
+    {
+      "slug": "juniper",
+      "title": "juniper",
+      "niche": "mobile",
+      "pitch": "A personal voice assistant for Android — on-device wake word and speech, Claude for the thinking, every word captured to your Obsidian vault before it's answered.",
+      "audience": "For people who want an assistant that writes everything down and keeps it theirs.",
+      "tag": "juniper",
       "status": "page",
       "capturePrompt": "Get notified",
       "captureCta": "NOTIFY ME"
