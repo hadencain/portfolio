@@ -29,14 +29,6 @@ interface Project {
 
 const VIDEO: Project[] = [
   {
-    title: "senses",
-    description:
-      "Modular AR audio-visual instruments for Android. Camera, motion, and generative audio as playable pieces.",
-    tags: ["React Native", "Skia", "Web Audio"],
-    github: "https://github.com/hadencain/senses",
-    href: "/store/senses",
-  },
-  {
     title: "bleed",
     description:
       "Datamoshes broadcast video and reads the decoded melt back as sound — a channel-surfing noise-music generator. Two sonification lanes (scanline wavetable + spectral resynthesis) driven by the picture's own corruption, rendered to DAW stems through a CLI and a local queue-based web UI.",
@@ -171,11 +163,45 @@ const SECURITY: Project[] = [
   },
 ];
 
+const MOBILE: Project[] = [
+  {
+    title: "juniper",
+    description:
+      "Personal Android voice assistant — wake word and speech fully on-device (Vosk), Claude for the thinking, and every utterance written into an Obsidian vault before the model ever answers. Native Kotlin.",
+    tags: ["Kotlin", "Vosk", "Claude API"],
+    github: "https://github.com/hadencain",
+    flagship: true,
+  },
+  {
+    title: "vox-android",
+    description:
+      "On-device dictation for Android — a floating mic bubble feeds whisper.cpp over JNI, an on-device Gemma model cleans the transcript, and an AccessibilityService types it into whatever has focus. Fully offline after first-run model download.",
+    tags: ["Kotlin", "whisper.cpp", "MediaPipe"],
+    github: "https://github.com/hadencain",
+  },
+  {
+    title: "senses",
+    description:
+      "Modular AR audio-visual instruments for Android. Camera, motion, and generative audio as playable pieces.",
+    tags: ["React Native", "Skia", "Web Audio"],
+    github: "https://github.com/hadencain/senses",
+    href: "/store/senses",
+  },
+  {
+    title: "studytool",
+    description:
+      "Spaced-repetition study app — Expo Android port of the desktop tool with pure-JS Anki .apkg import, expo-sqlite persistence, and a service layer kept diff-identical to desktop.",
+    tags: ["Expo", "React Native", "SQLite"],
+    github: "https://github.com/hadencain",
+  },
+];
+
 // ─── Plates ───────────────────────────────────────────────────────────────────
 
 const PLATES = [
   { id: "security", plate: "01", label: "Security", projects: SECURITY },
   { id: "video", plate: "02", label: "Video", projects: VIDEO },
+  { id: "mobile", plate: "03", label: "Mobile", projects: MOBILE },
 ];
 
 // Continuous catalog numbering across all plates.
