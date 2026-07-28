@@ -4,15 +4,7 @@
 
 import data from "./registry-data.json";
 
-export type NicheId =
-  | "audio"
-  | "video"
-  | "local-ai"
-  | "data"
-  | "spatial"
-  | "training"
-  | "mobile"
-  | "desktop";
+export type NicheId = "local-ai" | "spatial" | "desktop";
 
 // "retired" is reserved (spec: declined for v1) — the type admits it so the
 // day it matters is a data change, not a type change.

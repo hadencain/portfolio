@@ -145,7 +145,7 @@ const PLATES = [
   { id: "security", plate: "02", label: "Security", projects: SECURITY },
 ];
 
-// Continuous catalog numbering — entry 001 through 035 across all plates.
+// Continuous catalog numbering across all plates.
 const PLATE_OFFSETS = PLATES.reduce<number[]>((acc, p, i) => {
   acc.push(i === 0 ? 0 : acc[i - 1] + PLATES[i - 1].projects.length);
   return acc;
