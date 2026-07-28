@@ -3,7 +3,7 @@
 // Usage: npm run build && npx next start -p 3199, then:
 //   node scripts/check-redirects.mjs
 const ORIGIN = "http://localhost:3199";
-const ARSENIC = "https://arsenic.vercel.app"; // keep in sync with lib/arsenic.ts
+const ARSENIC = "https://arsenic-pi.vercel.app"; // keep in sync with lib/arsenic.ts
 const SLUGS = [
   "smear",
   "gravity-well",
