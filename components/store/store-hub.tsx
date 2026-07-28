@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { NICHES, TOOLS, type Tool } from "./registry";
+import { TOOLS, type Tool } from "./registry";
 import { ArsenicFeature } from "../arsenic-feature";
 import { emitFieldPulse } from "../field-pulse";
 
@@ -84,30 +84,13 @@ export function StoreHub() {
         <ArsenicFeature />
       </div>
 
-      <div className="flex flex-col gap-16 max-w-3xl">
-        {NICHES.map((niche) => {
-          const group = visible.filter((t) => t.niche === niche.id);
-          if (group.length === 0) return null;
-          return (
-            <div key={niche.id}>
-              <div className="flex items-center gap-5 mb-2">
-                <span className="text-[10px] tracking-[0.35em] uppercase text-[#665f51] shrink-0">
-                  {niche.label}
-                </span>
-                <motion.div
-                  className="flex-1 h-px bg-[#24201a] origin-left"
-                  initial={{ scaleX: 0 }}
-                  whileInView={{ scaleX: 1 }}
-                  viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 1.2, ease: EASE }}
-                />
-              </div>
-              {group.map((t, i) => (
-                <ToolRow key={t.slug} tool={t} delay={i * 0.06} />
-              ))}
-            </div>
-          );
-        })}
+      {/* Flat list, not niche groups — seven tools across four categories
+          made three of those categories a heading over a single row. Regroup
+          once the catalog is dense enough to earn the headings back. */}
+      <div className="flex flex-col max-w-3xl">
+        {visible.map((tool, i) => (
+          <ToolRow key={tool.slug} tool={tool} delay={i * 0.06} />
+        ))}
       </div>
     </section>
   );

@@ -174,7 +174,11 @@ export function Hero() {
                 <SpecimenField key={field} mode={(FIELD_ORDER[field - 1] ?? 16) - 15} />
               ))}
           </div>
-          <div className="mt-2 flex items-center font-mono text-[9.5px] text-paper-mute select-none">
+          {/* Full 51-field selector needs room to breathe — on a phone it
+              wraps into five or six dense rows of digits. Desktop/tablet
+              only; the framed field itself (random per visit) still plays
+              on every screen size. */}
+          <div className="mt-2 hidden md:flex items-center font-mono text-[9.5px] text-paper-mute select-none">
             <div className="flex flex-wrap gap-x-3 gap-y-0.5">
               {FIELDS.map((f) => (
                 <button

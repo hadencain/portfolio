@@ -284,16 +284,20 @@ function SpecimenRow({
         <span className="font-mono text-[9px] tracking-[0.2em] text-paper-mute group-hover:text-blood-bright group-focus-within:text-blood-bright transition-colors duration-200 shrink-0">
           {label}
         </span>
-        <h3 className="font-mono text-[12px] tracking-[0.02em] text-paper-dim group-hover:text-paper group-focus-within:text-paper transition-colors duration-200">
+        <h3
+          className={`font-mono text-[12px] tracking-[0.02em] group-hover:text-paper group-focus-within:text-paper transition-colors duration-200 ${
+            project.flagship ? "text-paper" : "text-paper-dim"
+          }`}
+        >
           {project.title}
         </h3>
         {project.flagship && (
           <span
-            className="text-blood-bright text-[8px] leading-none select-none"
+            className="text-blood-bright text-[10px] leading-none select-none"
             title="marked entry"
             aria-label="marked entry"
           >
-            ▪
+            ■
           </span>
         )}
         {/* Screen readers get the entry on the row itself; sighted desktop
@@ -474,7 +478,7 @@ function PlateHeader({
       <span className="font-mono text-[9px] tracking-[0.2em] text-paper-mute shrink-0">
         {plate}
       </span>
-      <h2 className="display text-paper text-[clamp(1.3rem,2.6vw,2rem)] leading-none select-none shrink-0">
+      <h2 className="font-mono uppercase text-paper text-[18px] md:text-[22px] tracking-[0.15em] leading-none select-none shrink-0">
         {label}
       </h2>
       <motion.div
