@@ -39,6 +39,16 @@ export function Contact() {
             EMAIL
           </a>
           <a
+            href="https://www.linkedin.com/in/haden-cain-77031124a/"
+            target="_blank"
+            rel="noopener noreferrer"
+            onMouseEnter={emitFieldPulse}
+            onFocus={emitFieldPulse}
+            className="border border-ink-3 font-mono text-paper-dim text-[11px] tracking-[0.25em] px-5 py-3 hover:border-blood-bright hover:text-paper transition-all duration-200 inline-block"
+          >
+            LINKEDIN
+          </a>
+          <a
             href="https://keybase.io/hadencain"
             target="_blank"
             rel="noopener noreferrer"
@@ -49,6 +59,23 @@ export function Contact() {
             KEYBASE
           </a>
         </motion.div>
+
+        {/* Closing rule — thick over thin, the printer's end mark. The page
+            stops here on purpose rather than trailing off. */}
+        <div className="mt-24 md:mt-32 flex flex-col gap-[3px]">
+          <motion.div
+            className="h-[2px] bg-paper/25 origin-left"
+            initial={{ scaleX: 0 }}
+            animate={inView ? { scaleX: 1 } : {}}
+            transition={{ duration: 1.2, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          />
+          <motion.div
+            className="h-px bg-paper/12 origin-left"
+            initial={{ scaleX: 0 }}
+            animate={inView ? { scaleX: 1 } : {}}
+            transition={{ duration: 1.2, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          />
+        </div>
       </div>
     </section>
   );

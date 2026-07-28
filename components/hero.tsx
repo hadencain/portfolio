@@ -6,7 +6,6 @@ import { GlitchLabel } from "./glitch-label";
 import { ContourField } from "./contour-field";
 import { SpecimenField } from "./specimen-field";
 import { emitFieldPulse } from "./field-pulse";
-import { ARSENIC_ORIGIN } from "@/lib/arsenic";
 
 // Clean type on the left; the artifact — the living ASCII field — framed on
 // the right. Nothing draws underneath the text.
@@ -23,11 +22,12 @@ const SECTIONS = [
   { n: "02", label: "VIDEO", count: "08", href: "#video" },
 ];
 
+// Platform accounts only — Arsenic is a destination, not a profile, and gets
+// its own feature block below the work catalog.
 const SOCIALS = [
   { label: "GITHUB", href: "https://github.com/hadencain" },
   { label: "LINKEDIN", href: "https://www.linkedin.com/in/haden-cain-77031124a/" },
   { label: "YOUTUBE", href: "https://www.youtube.com/@hadencain" },
-  { label: "ARSENIC", href: ARSENIC_ORIGIN },
 ];
 
 // All 51 fields ranked by complexity, most intricate first — the selector
