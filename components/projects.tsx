@@ -25,6 +25,9 @@ interface Project {
   // Marked entries carry a blood tick in the row and become the plate's
   // default readout — the copy a scanning visitor reads without hovering.
   flagship?: boolean;
+  // Family entries render as a single collapsed row with a disclosure; the
+  // children expand beneath it as lettered sub-entries (003a, 003b, …).
+  children?: Project[];
 }
 
 const AUDIO: Project[] = [
@@ -43,36 +46,46 @@ const AUDIO: Project[] = [
     github: "https://github.com/hadencain/harmonic-filter-sequencer",
   },
   {
-    title: "TCBBP",
+    title: "terminal-controlled tools",
     description:
-      "Terminal-controlled beat-based probability system. Stochastic sequencing driven entirely from the command line.",
-    tags: ["ChucK"],
-    github: "https://github.com/hadencain/TCBBP",
+      "A family of instruments driven entirely from the command line, each with a live Textual TUI — granular synthesis, a drum machine, a morphing wavetable synth, and stochastic beat sequencing.",
+    tags: ["Python", "ChucK", "Textual"],
+    github: "https://github.com/hadencain",
     href: "/store/tc-tools",
-  },
-  {
-    title: "TCGS",
-    description:
-      "Terminal-controlled granular synthesizer. Full grain engine with playhead, FX chain, 4-LFO modulation matrix, polyphonic voices, and a live Textual TUI with waveform display and grain-field visualizer.",
-    tags: ["Python", "numpy", "Textual"],
-    github: "https://github.com/hadencain/TCGS",
-    href: "/store/tc-tools",
-  },
-  {
-    title: "TCDM",
-    description:
-      "Terminal-controlled drum machine. Sample-accurate step transport, per-step Elektron-style param locks, an 8-slot pattern bank with chaining, a full master FX chain (waveshaper/EQ/chorus/delay/reverb/limiter), and a live Textual TUI with a sweeping step-grid.",
-    tags: ["Python", "numpy", "scipy", "Textual"],
-    github: "https://github.com/hadencain/TCDM",
-    href: "/store/tc-tools",
-  },
-  {
-    title: "TCWS",
-    description:
-      "Terminal-controlled wavetable synthesizer. Morphing mipped wavetable engine with click-free position scanning, spectral morph mode, phase-warp stage, 64-slot mod matrix, unison stacking, and a live Textual TUI whose centerpiece is the frame waveform morphing under a position-scan cursor.",
-    tags: ["Python", "numpy", "scipy", "Textual"],
-    github: "https://github.com/hadencain/TCWS",
-    href: "/store/tc-tools",
+    children: [
+      {
+        title: "TCGS",
+        description:
+          "Terminal-controlled granular synthesizer. Full grain engine with playhead, FX chain, 4-LFO modulation matrix, polyphonic voices, and a live Textual TUI with waveform display and grain-field visualizer.",
+        tags: ["Python", "numpy", "Textual"],
+        github: "https://github.com/hadencain/TCGS",
+        href: "/store/tc-tools",
+      },
+      {
+        title: "TCDM",
+        description:
+          "Terminal-controlled drum machine. Sample-accurate step transport, per-step Elektron-style param locks, an 8-slot pattern bank with chaining, a full master FX chain (waveshaper/EQ/chorus/delay/reverb/limiter), and a live Textual TUI with a sweeping step-grid.",
+        tags: ["Python", "numpy", "scipy", "Textual"],
+        github: "https://github.com/hadencain/TCDM",
+        href: "/store/tc-tools",
+      },
+      {
+        title: "TCWS",
+        description:
+          "Terminal-controlled wavetable synthesizer. Morphing mipped wavetable engine with click-free position scanning, spectral morph mode, phase-warp stage, 64-slot mod matrix, unison stacking, and a live Textual TUI whose centerpiece is the frame waveform morphing under a position-scan cursor.",
+        tags: ["Python", "numpy", "scipy", "Textual"],
+        github: "https://github.com/hadencain/TCWS",
+        href: "/store/tc-tools",
+      },
+      {
+        title: "TCBBP",
+        description:
+          "Terminal-controlled beat-based probability system. Stochastic sequencing driven entirely from the command line.",
+        tags: ["ChucK"],
+        github: "https://github.com/hadencain/TCBBP",
+        href: "/store/tc-tools",
+      },
+    ],
   },
   {
     title: "audioSort",
@@ -245,14 +258,6 @@ const SECURITY: Project[] = [
     github: "https://github.com/hadencain/repoAuditor",
   },
   {
-    title: "mlb-ev-analysis",
-    description:
-      "Model-generated win probabilities compared against sportsbook lines. Baseball analytics with edge detection.",
-    tags: ["Python"],
-    github: "https://github.com/hadencain/mlb-ev-analysis",
-    href: "https://github.com/hadencain",
-  },
-  {
     title: "indoorMaps",
     description:
       "Indoor mapping authoring and operator console. Draw venues on an IMDF data model, route with A* across floors and elevators, place cameras with occlusion-aware coverage and PTZ, and run incidents, patrols, and fixtures from the same map. Seven demo venues included.",
@@ -343,13 +348,13 @@ function ProjectLink({
 // On touch devices the description renders statically below the title.
 function SpecimenRow({
   project,
-  no,
+  label,
   delay,
   noHover,
   onSelect,
 }: {
   project: Project;
-  no: number;
+  label: string;
   delay: number;
   noHover: boolean;
   onSelect: () => void;
@@ -373,7 +378,7 @@ function SpecimenRow({
     >
       <div className="flex items-baseline gap-3.5">
         <span className="font-mono text-[9px] tracking-[0.2em] text-paper-mute group-hover:text-blood-bright group-focus-within:text-blood-bright transition-colors duration-200 shrink-0">
-          {String(no).padStart(3, "0")}
+          {label}
         </span>
         <h3 className="font-mono text-[12px] tracking-[0.02em] text-paper-dim group-hover:text-paper group-focus-within:text-paper transition-colors duration-200">
           {project.title}
@@ -442,6 +447,106 @@ function SpecimenRow({
   );
 }
 
+// Family row — a collapsed group of sibling tools behind one disclosure.
+// The row itself toggles; the arrow keeps its own destination. Children
+// render as lettered sub-entries indented under a hairline.
+function GroupRow({
+  project,
+  label,
+  delay,
+  noHover,
+  onSelectEntry,
+}: {
+  project: Project;
+  label: string;
+  delay: number;
+  noHover: boolean;
+  onSelectEntry: (p: Project, label: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const kids = project.children ?? [];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <div
+        tabIndex={0}
+        role="button"
+        aria-expanded={open}
+        aria-label={`${project.title} — ${kids.length} tools`}
+        onClick={() => setOpen((o) => !o)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setOpen((o) => !o);
+          }
+        }}
+        onMouseEnter={(e) => {
+          onSelectEntry(project, label);
+          emitFieldPulse(e);
+        }}
+        onFocus={(e) => {
+          onSelectEntry(project, label);
+          emitFieldPulse(e);
+        }}
+        className="group relative border-b border-paper/10 hover:border-paper/30 focus-within:border-paper/30 py-2.5 flex flex-col transition-colors duration-200 cursor-pointer select-none"
+      >
+        <div className="flex items-baseline gap-3.5">
+          <span className="font-mono text-[9px] tracking-[0.2em] text-paper-mute group-hover:text-blood-bright group-focus-within:text-blood-bright transition-colors duration-200 shrink-0">
+            {label}
+          </span>
+          <h3 className="font-mono text-[12px] tracking-[0.02em] text-paper-dim group-hover:text-paper group-focus-within:text-paper transition-colors duration-200">
+            {project.title}
+          </h3>
+          <span className="font-mono text-[9px] tracking-[0.2em] text-paper-mute shrink-0">
+            ×{String(kids.length).padStart(2, "0")}
+          </span>
+          {!noHover && <span className="sr-only">{project.description}</span>}
+          <div className="ml-auto flex items-center gap-3.5 shrink-0">
+            <span
+              aria-hidden
+              className="font-mono text-[11px] text-paper-mute group-hover:text-paper transition-colors duration-200 w-3 text-center"
+            >
+              {open ? "−" : "+"}
+            </span>
+            <span onClick={(e) => e.stopPropagation()}>
+              <ProjectLink
+                project={project}
+                className="text-paper-mute hover:text-paper transition-colors duration-200 p-2 -m-2 inline-block"
+              />
+            </span>
+          </div>
+        </div>
+        {noHover && (
+          <p className="pt-1.5 text-[11.5px] leading-snug text-paper-mute max-w-[72ch]">
+            {project.description}
+          </p>
+        )}
+      </div>
+      {open && (
+        <div className="pl-4 border-l border-paper/10 ml-1">
+          {kids.map((k, i) => (
+            <SpecimenRow
+              key={k.title}
+              project={k}
+              label={`${label}${String.fromCharCode(97 + i)}`}
+              delay={i * 0.04}
+              noHover={noHover}
+              onSelect={() =>
+                onSelectEntry(k, `${label}${String.fromCharCode(97 + i)}`)
+              }
+            />
+          ))}
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
 // Readout bar — one fixed-height caption line per plate. Hovering any row in
 // the plate types its entry out here; the reserved height means the print
 // draws the eye without moving the grid below. Character count derives from
@@ -452,7 +557,7 @@ function Readout({
   sel,
   tall,
 }: {
-  sel: { project: Project; no: number } | null;
+  sel: { project: Project; label: string } | null;
   // Plates holding a demo suite reserve extra height for the LIVE-link strip,
   // so switching onto that entry never moves the grid.
   tall?: boolean;
@@ -501,7 +606,7 @@ function Readout({
         <>
           <p className="text-[11.5px] leading-snug text-paper-mute">
             <span className="font-mono text-[9px] tracking-[0.2em] text-blood-bright mr-3">
-              {String(sel.no).padStart(3, "0")}
+              {sel.label}
             </span>
             {full.slice(0, chars)}
             {!done && (
@@ -591,15 +696,15 @@ export function Projects() {
   // opens on its plate's marked entry, so a visitor who never hovers still
   // reads real copy instead of an em dash.
   const [selByPlate, setSelByPlate] = useState<
-    Record<string, { project: Project; no: number }>
+    Record<string, { project: Project; label: string }>
   >(() => {
-    const init: Record<string, { project: Project; no: number }> = {};
+    const init: Record<string, { project: Project; label: string }> = {};
     PLATES.forEach((plate, pi) => {
       const fi = plate.projects.findIndex((p) => p.flagship);
       const i = fi >= 0 ? fi : 0;
       init[plate.id] = {
         project: plate.projects[i],
-        no: PLATE_OFFSETS[pi] + i + 1,
+        label: String(PLATE_OFFSETS[pi] + i + 1).padStart(3, "0"),
       };
     });
     return init;
@@ -632,24 +737,33 @@ export function Projects() {
             />
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-12">
-            {plate.projects.map((p, i) => (
-              <SpecimenRow
-                key={p.title}
-                project={p}
-                no={PLATE_OFFSETS[pi] + i + 1}
-                delay={stagger(i)}
-                noHover={noHover}
-                onSelect={() =>
-                  setSelByPlate((s) => ({
-                    ...s,
-                    [plate.id]: {
-                      project: p,
-                      no: PLATE_OFFSETS[pi] + i + 1,
-                    },
-                  }))
-                }
-              />
-            ))}
+            {plate.projects.map((p, i) => {
+              const label = String(PLATE_OFFSETS[pi] + i + 1).padStart(3, "0");
+              const select = (proj: Project, lab: string) =>
+                setSelByPlate((s) => ({
+                  ...s,
+                  [plate.id]: { project: proj, label: lab },
+                }));
+              return p.children ? (
+                <GroupRow
+                  key={p.title}
+                  project={p}
+                  label={label}
+                  delay={stagger(i)}
+                  noHover={noHover}
+                  onSelectEntry={select}
+                />
+              ) : (
+                <SpecimenRow
+                  key={p.title}
+                  project={p}
+                  label={label}
+                  delay={stagger(i)}
+                  noHover={noHover}
+                  onSelect={() => select(p, label)}
+                />
+              );
+            })}
           </div>
         </div>
       ))}
