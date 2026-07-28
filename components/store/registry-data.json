@@ -11,6 +11,10 @@
     {
       "id": "desktop",
       "label": "Desktop & dev tools"
+    },
+    {
+      "id": "data",
+      "label": "Data"
     }
   ],
   "tools": [
@@ -37,23 +41,23 @@
       "captureCta": "NOTIFY ME"
     },
     {
-      "slug": "claude-dispatch",
-      "title": "claude-dispatch",
-      "niche": "desktop",
-      "pitch": "A dispatch hub for Claude Code sessions — queue work, launch sessions, watch tokens and cost.",
-      "audience": "For Claude Code users running more sessions than they can hold in their head.",
-      "tag": "claude-dispatch",
-      "status": "page",
-      "capturePrompt": "Get notified",
-      "captureCta": "NOTIFY ME"
-    },
-    {
       "slug": "senses",
       "title": "Senses",
       "niche": "spatial",
       "pitch": "Modular AR audio-visual instruments for Android — camera, motion, and generative audio composed into playable artifacts.",
       "audience": "For performers and visual artists who want the room itself to become the instrument.",
       "tag": "senses",
+      "status": "page",
+      "capturePrompt": "Get notified",
+      "captureCta": "NOTIFY ME"
+    },
+    {
+      "slug": "assay",
+      "title": "Assay",
+      "niche": "data",
+      "pitch": "A dataset investigation workbench — from a raw download to verified findings.",
+      "audience": "For people who investigate datasets instead of just downloading them.",
+      "tag": "assay",
       "status": "page",
       "capturePrompt": "Get notified",
       "captureCta": "NOTIFY ME"
