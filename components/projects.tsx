@@ -565,7 +565,7 @@ function PlateHeader({
       <span className="font-mono text-[9px] tracking-[0.2em] text-paper-mute shrink-0">
         {plate}
       </span>
-      <h2 className="doto text-paper text-[clamp(1.3rem,2.6vw,2rem)] leading-none select-none shrink-0">
+      <h2 className="display text-paper text-[clamp(1.3rem,2.6vw,2rem)] leading-none select-none shrink-0">
         {label}
       </h2>
       <motion.div

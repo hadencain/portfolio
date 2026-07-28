@@ -43,7 +43,7 @@ export function Nav() {
               key={item.label}
               href={item.href}
               aria-current={current ? "page" : undefined}
-              className={`relative smallcaps text-[12px] sm:text-[13px] tracking-[0.12em] sm:tracking-[0.18em] transition-colors duration-300 py-2 -my-2 ${
+              className={`relative display text-[13px] sm:text-[14px] tracking-[0.12em] sm:tracking-[0.18em] transition-colors duration-300 py-2 -my-2 ${
                 current
                   ? "text-paper"
                   : "text-paper-mute hover:text-paper-dim"
