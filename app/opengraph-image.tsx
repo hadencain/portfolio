@@ -5,7 +5,7 @@ import { ImageResponse } from "next/og";
 // woff2 faces, so type is the bundled sans, set sparse and tracked).
 // Satori rule: every div carries explicit display:flex.
 
-export const alt = "Haden Cain — software engineer & audio toolmaker";
+export const alt = "Haden Cain — software engineer & toolmaker";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -67,7 +67,7 @@ export default function OgImage() {
               color: "#8a8274",
             }}
           >
-            AUDIO · VIDEO · SECURITY TOOLING
+            SECURITY · VIDEO · CREATIVE CODING
           </div>
         </div>
 
@@ -80,7 +80,7 @@ export default function OgImage() {
               color: "#5c564a",
             }}
           >
-            SOFTWARE ENGINEER & AUDIO TOOLMAKER
+            SOFTWARE ENGINEER & TOOLMAKER
           </div>
           <div
             style={{

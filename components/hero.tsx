@@ -19,8 +19,8 @@ function fadeUp(delay: number, y = 10, duration = 0.7) {
 }
 
 const SECTIONS = [
-  { n: "01", label: "VIDEO", count: "03", href: "#video" },
-  { n: "02", label: "SECURITY", count: "10", href: "#security" },
+  { n: "01", label: "SECURITY", count: "10", href: "#security" },
+  { n: "02", label: "VIDEO", count: "08", href: "#video" },
 ];
 
 const SOCIALS = [

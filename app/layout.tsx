@@ -37,18 +37,18 @@ export const metadata: Metadata = {
   ),
   title: "Haden Cain",
   description:
-    "Software Engineer & Audio Toolmaker. I build things that make noise and things that make sense.",
+    "Software Engineer. Security tooling, OSINT, and real-time video instruments.",
   openGraph: {
     title: "Haden Cain",
     description:
-      "Software Engineer & Audio Toolmaker. I build things that make noise and things that make sense.",
+      "Software Engineer. Security tooling, OSINT, and real-time video instruments.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Haden Cain",
     description:
-      "Software Engineer & Audio Toolmaker. I build things that make noise and things that make sense.",
+      "Software Engineer. Security tooling, OSINT, and real-time video instruments.",
   },
 };
 

@@ -45,20 +45,53 @@ const VIDEO: Project[] = [
     flagship: true,
   },
   {
-    title: "video-lab",
+    title: "glitch",
     description:
-      "Six browser instruments for taking video apart — temporal corruption (glitch), pixel contamination between two clips (osmosis), audio-reactive displacement (spectral), layered spectral compositing (palimpsest), Markov-chain resequencing (markov), and audio-driven melt (smear). All Canvas, all real-time, every one runs live in the browser.",
-    tags: ["HTML5", "Canvas", "Web Audio"],
-    github: "https://github.com/hadencain",
+      "Temporal corruption in the browser — frames bleed and smear under performable glitch controls. Real-time Canvas, no export queue.",
+    tags: ["HTML5", "Canvas"],
+    github: "https://github.com/hadencain/Glitch",
+    demo: "/tools/glitch/",
     flagship: true,
-    demos: [
-      { name: "glitch", href: "/tools/glitch/" },
-      { name: "osmosis", href: "/tools/osmosis/" },
-      { name: "spectral", href: "/tools/spectral/" },
-      { name: "palimpsest", href: "/tools/palimpsest/" },
-      { name: "markov", href: "/tools/markov/" },
-      { name: "smear", href: "/tools/smear/" },
-    ],
+  },
+  {
+    title: "osmosis",
+    description:
+      "Pixel contamination between two clips — one video seeps into the other through luminance-gated membranes, live on Canvas.",
+    tags: ["HTML5", "Canvas"],
+    github: "https://github.com/hadencain/osmosis",
+    demo: "/tools/osmosis/",
+  },
+  {
+    title: "spectral",
+    description:
+      "Audio-reactive displacement — a track's spectrum shoves video pixels around in real time.",
+    tags: ["Canvas", "Web Audio"],
+    github: "https://github.com/hadencain/spectral",
+    demo: "/tools/spectral/",
+  },
+  {
+    title: "palimpsest",
+    description:
+      "Layered spectral compositing — clips stack like an overwritten manuscript, each layer ghosting through the next.",
+    tags: ["HTML5", "Canvas"],
+    github: "https://github.com/hadencain/palimpsest",
+    demo: "/tools/palimpsest/",
+  },
+  {
+    title: "markov",
+    description:
+      "Markov-chain resequencing — a clip's frames reordered by learned transition probabilities, structure emerging from stochastic playback.",
+    tags: ["HTML5", "Canvas"],
+    github: "https://github.com/hadencain/markov",
+    demo: "/tools/markov/",
+  },
+  {
+    title: "smear",
+    description:
+      "Audio-driven melt — motion-displaced WebGL feedback that never clears; transients rupture the picture in blocks while the track plays as master clock.",
+    tags: ["WebGL2", "Web Audio"],
+    github: "https://github.com/hadencain",
+    demo: "/tools/smear/",
   },
 ];
 
@@ -141,8 +174,8 @@ const SECURITY: Project[] = [
 // ─── Plates ───────────────────────────────────────────────────────────────────
 
 const PLATES = [
-  { id: "video", plate: "01", label: "Video", projects: VIDEO },
-  { id: "security", plate: "02", label: "Security", projects: SECURITY },
+  { id: "security", plate: "01", label: "Security", projects: SECURITY },
+  { id: "video", plate: "02", label: "Video", projects: VIDEO },
 ];
 
 // Continuous catalog numbering across all plates.

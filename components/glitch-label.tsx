@@ -9,16 +9,16 @@ import { useEffect, useRef } from "react";
 // word needs fewer, and are re-lit when a longer one needs more.
 
 const LABELS = [
-  "VST PLUGINS",
-  "AUGMENTED REALITY",
-  "VIDEO EFFECTS",
   "SECURITY TOOLS",
-  "TOUCHDESIGNER",
+  "OSINT",
+  "VIDEO EFFECTS",
+  "DATAMOSHING",
   "CREATIVE CODING",
-  "ABLETON LIVE",
+  "GENERATIVE ART",
+  "AUGMENTED REALITY",
+  "LOCAL-FIRST AI",
+  "TOUCHDESIGNER",
   "BLENDER",
-  "MAX FOR LIVE",
-  "JUCE",
 ];
 
 const HOLD_MS = 3000;
