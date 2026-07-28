@@ -84,11 +84,11 @@ body {
   background-size: 9px 9px;
 }
 
-/* Display face — pixel blackletter, set in title case, never tracked out */
+/* Display face — small-caps didone; high contrast wants no negative tracking */
 .display {
-  font-family: var(--font-display-face), "Jacquard 12", serif;
-  font-weight: 400;
-  letter-spacing: 0.02em;
+  font-family: var(--font-display-face), "Bodoni Moda SC", serif;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
 /* Dot matrix — section headers, counters, the cycling label */
@@ -97,10 +97,11 @@ body {
   font-weight: 700;
 }
 
-/* Small caps didone — nav and micro-labels */
+/* Nav and micro-labels — tracked mono caps, same voice as the catalog chrome */
 .smallcaps {
-  font-family: var(--font-smallcaps), "Bodoni Moda SC", serif;
-  font-weight: 500;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-weight: 400;
+  text-transform: uppercase;
 }
 
 /* Registration crosshair, drawn with borders so it stays crisp at any DPR */

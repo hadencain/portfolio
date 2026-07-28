@@ -103,7 +103,7 @@ export function Hero() {
         {/* ── Left: the words ── */}
         <div className="lg:col-span-6">
           <motion.h1
-            className="display select-none text-paper leading-[0.88] tracking-[0.015em] text-[clamp(4.2rem,11vw,10rem)]"
+            className="display select-none text-paper leading-[0.92] text-[clamp(3.8rem,9.5vw,9rem)]"
             initial={{ clipPath: "inset(0 0 100% 0)", y: 24 }}
             animate={{ clipPath: "inset(0 0 -10% 0)", y: 0 }}
             transition={{ duration: 1.1, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}

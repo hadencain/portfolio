@@ -1,11 +1,5 @@
 import type { Metadata } from "next";
-import {
-  Geist,
-  Geist_Mono,
-  Jacquard_12,
-  Doto,
-  Bodoni_Moda_SC,
-} from "next/font/google";
+import { Geist, Geist_Mono, Bodoni_Moda_SC, Doto } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { MotionProvider } from "@/components/motion-config";
@@ -22,22 +16,16 @@ const geistMono = Geist_Mono({
 });
 
 // Display voices, user-selected:
-// Jacquard 12 — pixel blackletter, the name and big display moments.
-// Doto — dot matrix, section headers and the cycling label.
-// Bodoni Moda SC — small caps, nav and micro-labels.
-const jacquard = Jacquard_12({
+// Bodoni Moda SC — small-caps didone (the old nav face, promoted), the name
+// and big display moments. Doto — dot matrix, section headers and the
+// cycling label. Nav and micro-labels ride Geist Mono (.smallcaps).
+const display = Bodoni_Moda_SC({
   variable: "--font-display-face",
   subsets: ["latin"],
-  weight: "400",
 });
 
 const doto = Doto({
   variable: "--font-doto",
-  subsets: ["latin"],
-});
-
-const bodoniSC = Bodoni_Moda_SC({
-  variable: "--font-smallcaps",
   subsets: ["latin"],
 });
 
@@ -72,7 +60,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${jacquard.variable} ${doto.variable} ${bodoniSC.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable} ${display.variable} ${doto.variable}`}
       data-scroll-behavior="smooth"
     >
       <body className="antialiased">
