@@ -30,63 +30,36 @@ const SOCIALS = [
   { label: "YOUTUBE", href: "https://www.youtube.com/@hadencain" },
 ];
 
-// All 51 fields ranked by complexity, most intricate first — the selector
-// numbers positions, this array supplies the field each position runs.
+// The 23 surviving fields ranked by complexity, most intricate first — the
+// selector numbers positions, this array supplies the field each position runs.
 // Encoding: 1–15 = ContourField modes, 16–51 = SpecimenField modes (+15).
 // Rank weighs interacting systems and state (agents, phases, feedback)
-// over single-formula fields.
+// over single-formula fields. Culled fields keep their draw code in the
+// field components; re-add by encoded number.
 const FIELD_ORDER = [
   1,  // mass — warp + veins + halo + patches + tears
-  39, // modules — nine instruments waking in turn
-  38, // reticle — parallax + lock-on + rings
   46, // hoard — three-state collectors, items, pile
   47, // detonation — phased drop / burst / verdict
-  30, // erosion — fronts eating a mass that re-pours
-  3,  // swarm — orbiting agents + trails
-  11, // ants — rule-following highways
-  4,  // automaton — B3/S23 colony
-  50, // shelf print — layer-by-layer print cycle
   45, // pivot web — BFS shells, re-pivot
   37, // chain walk — weighted graph walker
-  40, // redaction — scan head + latched redactions
-  29, // ejection — decelerating pool at the floor ring
   26, // accretion — infall + growing core
   22, // sorter — falling items binned
-  31, // melt — column slump + keyframe snap
-  34, // osmosis — blobs crossing a membrane
-  15, // typesetter — retyping document
   13, // constellation — drifting linked stars
-  16, // grains — enveloped particle cloud
-  24, // shatter — impulse shards
-  18, // gate roll — probability lanes
   23, // fretboard — scale lattice + run
   51, // tile snap — dungeon assembling
   41, // dep tree — branching growth
   48, // history scrub — timeline findings
-  44, // port map — sweep + pings
   43, // runaway fill — sediment + purge
-  20, // step grid — pattern under a sweep
-  19, // scrub — jumping playhead spray
   21, // wavetable — morphing frame stack
-  2,  // cascade — columnar rain
-  12, // dunes — creeping strata
-  9,  // vortex — spiral arms
   14, // metaballs — merging masses
-  5,  // interference — beating gratings
-  28, // smear trail — leaky integrator
   27, // decoherence — bands losing phase
-  6,  // ripple — ringing tank
-  36, // layers — breathing documents
-  42, // log tail — scrolling lookups
   32, // two plates — drifting overlap
   33, // slice tear — shearing bands
   25, // freeze bands — latching rows
   8,  // lissajous — traced figure
   10, // scope — trace over static
-  7,  // spectrum — analyzer bars
   35, // delay stack — echoing edge
   49, // divergence — two drifting lines
-  17, // harmonics — series under a window
 ];
 
 const FIELDS = Array.from({ length: FIELD_ORDER.length }, (_, i) => i + 1);
@@ -174,10 +147,10 @@ export function Hero() {
                 <SpecimenField key={field} mode={(FIELD_ORDER[field - 1] ?? 16) - 15} />
               ))}
           </div>
-          {/* Full 51-field selector needs room to breathe — on a phone it
-              wraps into five or six dense rows of digits. Desktop/tablet
-              only; the framed field itself (random per visit) still plays
-              on every screen size. */}
+          {/* The full field selector needs room to breathe — on a phone it
+              wraps into dense rows of digits. Desktop/tablet only; the
+              framed field itself (random per visit) still plays on every
+              screen size. */}
           <div className="mt-2 hidden md:flex items-center font-mono text-[9.5px] text-paper-mute select-none">
             <div className="flex flex-wrap gap-x-3 gap-y-0.5">
               {FIELDS.map((f) => (

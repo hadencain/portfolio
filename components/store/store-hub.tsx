@@ -81,7 +81,7 @@ export function StoreHub() {
       </motion.h1>
 
       <div className="max-w-3xl mb-20">
-        <ArsenicFeature />
+        <ArsenicFeature labelLine={false} />
       </div>
 
       {/* Flat list, not niche groups — seven tools across four categories

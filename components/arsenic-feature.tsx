@@ -6,7 +6,9 @@ import { emitFieldPulse } from "./field-pulse";
 
 // House ad for the sister label — a catalog runs one of these for its own
 // imprint. Renders bare (no page padding, no max-width) so each host places it.
-export function ArsenicFeature() {
+// labelLine: the "runs as its own label" sentence — off in the store, where
+// the label framing is already the page.
+export function ArsenicFeature({ labelLine = true }: { labelLine?: boolean }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -31,8 +33,8 @@ export function ArsenicFeature() {
               Arsenic
             </h2>
             <p className="text-[12.5px] leading-relaxed text-paper-mute max-w-[58ch]">
-              Spectral processors, terminal instruments, and sample tools. The
-              audio work runs as its own label.
+              Spectral processors, terminal instruments, and sample tools.
+              {labelLine && " The audio work runs as its own label."}
             </p>
           </div>
           <span className="font-mono text-[10px] tracking-[0.25em] text-paper-mute group-hover:text-blood-bright transition-colors duration-300 shrink-0">
