@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { TOOLS, type Tool } from "./registry";
 import { ArsenicFeature } from "../arsenic-feature";
+import { LabelFeature } from "../label-feature";
 import { emitFieldPulse } from "../field-pulse";
 import { MOBILE_ORIGIN } from "@/lib/mobile";
 
@@ -81,12 +82,18 @@ export function StoreHub() {
         Tools.
       </motion.h1>
 
+      {/* The two imprints, equal weight. -mt-px overlaps the adjoining
+          hairlines so the stack reads as one ruled block, not a double line. */}
       <div className="max-w-3xl mb-20">
         <ArsenicFeature labelLine={false} />
-        <p className="font-mono text-[10px] tracking-[0.25em] text-paper-mute mb-20 -mt-12">
-          THE MOBILE APPS LIVE AT{" "}
-          <a href={MOBILE_ORIGIN} target="_blank" rel="noopener noreferrer" className="text-paper-dim hover:text-paper underline underline-offset-4 decoration-paper/25 transition-colors duration-200">MOBILE ↗</a>
-        </p>
+        <LabelFeature
+          className="-mt-px"
+          eyebrow="The mobile line"
+          name="mobile"
+          blurb="AR instruments, flashcards, on-device dictation, and a voice assistant — local-first Android apps."
+          href={MOBILE_ORIGIN}
+          cta="VISIT MOBILE ↗"
+        />
       </div>
 
       {/* Flat list, not niche groups — seven tools across four categories
