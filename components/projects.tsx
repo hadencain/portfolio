@@ -231,7 +231,11 @@ function ProjectLink({
         target="_blank"
         rel="noopener noreferrer"
         className={className}
-        aria-label={`${project.title} on GitHub`}
+        aria-label={
+          href.includes("github.com")
+            ? `${project.title} on GitHub`
+            : `${project.title} — external site`
+        }
       >
         <Arrow />
       </a>
