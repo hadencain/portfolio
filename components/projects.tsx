@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { emitFieldPulse } from "./field-pulse";
+import { MOBILE_ORIGIN } from "@/lib/mobile";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -34,7 +35,7 @@ const VIDEO: Project[] = [
       "Modular AR audio-visual instruments for Android. Camera, motion, and generative audio as playable pieces.",
     tags: ["React Native", "Skia", "Web Audio"],
     github: "https://github.com/hadencain/senses",
-    href: "/store/senses",
+    href: `${MOBILE_ORIGIN}/senses`,
   },
   {
     title: "bleed",

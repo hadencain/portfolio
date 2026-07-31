@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { ARSENIC_ORIGIN, AUDIO_SLUGS } from "./lib/arsenic";
+import { MOBILE_ORIGIN, MOBILE_SLUGS } from "./lib/mobile";
 
 const csp = [
   "default-src 'self'",
@@ -14,13 +15,21 @@ const csp = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
-  // The audio line moved to Arsenic; old store URLs follow it permanently.
+  // The audio line moved to Arsenic and the mobile line moved to the mobile
+  // label; old store URLs follow them permanently.
   async redirects() {
-    return AUDIO_SLUGS.map((slug) => ({
-      source: `/store/${slug}`,
-      destination: `${ARSENIC_ORIGIN}/${slug}`,
-      permanent: true,
-    }));
+    return [
+      ...AUDIO_SLUGS.map((slug) => ({
+        source: `/store/${slug}`,
+        destination: `${ARSENIC_ORIGIN}/${slug}`,
+        permanent: true,
+      })),
+      ...MOBILE_SLUGS.map((slug) => ({
+        source: `/store/${slug}`,
+        destination: `${MOBILE_ORIGIN}/${slug}`,
+        permanent: true,
+      })),
+    ];
   },
   async headers() {
     return [

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { toolBySlug } from "../registry";
 import { AudienceLine, FeatureBeats, MediaSlot } from "../landing-kit";
 import { EmailCapture } from "../email-capture";
+import { MOBILE_ORIGIN } from "@/lib/mobile";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 const tool = toolBySlug("vox")!;
@@ -118,6 +119,18 @@ export function VoxLanding() {
         cta={tool.captureCta}
         hint={CAPTURE_HINT}
       />
+      <p className="mt-6 text-[12px] text-[#7d7566] font-light leading-relaxed max-w-md">
+        The Android build lives at{" "}
+        <a
+          href={`${MOBILE_ORIGIN}/vox-android`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[#a69f8f] hover:text-[#d8453a] underline underline-offset-4 decoration-[#3a352b] transition-colors duration-300"
+        >
+          Mobile
+        </a>
+        .
+      </p>
 
     </section>
   );

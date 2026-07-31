@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { TOOLS, type Tool } from "./registry";
 import { ArsenicFeature } from "../arsenic-feature";
 import { emitFieldPulse } from "../field-pulse";
+import { MOBILE_ORIGIN } from "@/lib/mobile";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -82,6 +83,10 @@ export function StoreHub() {
 
       <div className="max-w-3xl mb-20">
         <ArsenicFeature labelLine={false} />
+        <p className="font-mono text-[10px] tracking-[0.25em] text-paper-mute mb-20 -mt-12">
+          THE MOBILE APPS LIVE AT{" "}
+          <a href={MOBILE_ORIGIN} target="_blank" rel="noopener noreferrer" className="text-paper-dim hover:text-paper underline underline-offset-4 decoration-paper/25 transition-colors duration-200">MOBILE ↗</a>
+        </p>
       </div>
 
       {/* Flat list, not niche groups — seven tools across four categories
