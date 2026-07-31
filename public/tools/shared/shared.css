@@ -14,7 +14,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/tools/shared/jacquard-12-latin.woff2') format('woff2');
+  src: url('jacquard-12-latin.woff2') format('woff2');
 }
 
 @font-face {
@@ -22,7 +22,7 @@
   font-style: normal;
   font-weight: 400 500;
   font-display: swap;
-  src: url('/tools/shared/geist-mono-latin.woff2') format('woff2');
+  src: url('geist-mono-latin.woff2') format('woff2');
 }
 
 /* Palette tokens — names kept from v1 so per-tool styles keep resolving;
@@ -454,4 +454,108 @@ input[type="range"]::-moz-range-progress {
     border-left: none;
     border-top: 1px solid var(--border);
   }
+}
+/* ── lab additions 2026-07-30: ghosting, stage chip, collapsed log, band
+      meters. Mirror into portfolio/public/tools/shared/shared.css on next
+      integration. ────────────────────────────────────────────────────── */
+
+/* 14. Ghosted — visible before media loads, inert until then */
+.ghosted {
+  opacity: 0.45;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* 15. Stage chip — render facts, top-right of the stage */
+.canvas-wrap {
+  position: relative;
+}
+
+.stage-chip {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--quiet);
+  background: rgba(18, 16, 12, 0.82);
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+  pointer-events: none;
+}
+
+.stage-chip b {
+  color: var(--body);
+  font-weight: 400;
+}
+
+/* 16. Collapsed log — one status line, click to expand history */
+.log-line {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--quiet);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.log-line:hover {
+  color: var(--body);
+}
+
+.log-wrap.collapsed {
+  display: none;
+}
+
+/* 17. Band meters — live level ticks for audio-reactive tools */
+.meter-strip {
+  display: flex;
+  gap: 4px;
+  height: 26px;
+  align-items: stretch;
+  margin-bottom: 4px;
+}
+
+.meter-band {
+  flex: 1;
+  position: relative;
+  background: var(--ghost);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.meter-band-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0%;
+  background: var(--secondary);
+}
+
+.meter-band.hot .meter-band-fill {
+  background: var(--blood-bright);
+}
+
+.meter-labels {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.meter-labels span {
+  flex: 1;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  color: var(--quiet);
+  text-transform: uppercase;
 }

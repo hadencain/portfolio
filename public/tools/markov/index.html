@@ -28,14 +28,14 @@
     }
 
     .upload-text {
-      font-family: ui-monospace, 'Courier New', monospace;
+      font-family: var(--mono);
       font-size: 11px;
       color: var(--secondary);
       letter-spacing: 0.1em;
     }
 
     .upload-sub {
-      font-family: ui-monospace, 'Courier New', monospace;
+      font-family: var(--mono);
       font-size: 10px;
       color: var(--body);
     }
@@ -48,48 +48,39 @@
       background: var(--ghost);
     }
 
-    /* File list */
-    .file-list {
-      display: none;
+    /* Clip-pool strip — one chip per loaded clip, playing chip recolors */
+    .clip-strip {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 6px;
       flex-shrink: 0;
       border-top: 1px solid var(--border);
       padding: 6px 12px;
-      max-height: 72px;
-      overflow-y: auto;
       background: var(--bg);
+      overflow-x: auto;
+      overflow-y: hidden;
     }
 
-    .file-list-header {
-      font-family: ui-monospace, 'Courier New', monospace;
-      font-size: 10px;
-      color: var(--label);
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-
-    .file-entry {
-      font-family: ui-monospace, 'Courier New', monospace;
-      font-size: 10px;
-      color: var(--quiet);
-      padding: 1px 0;
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .file-entry.active { color: var(--secondary); }
-
-    .file-entry .fname {
+    .clip-chip {
+      flex: 0 0 auto;
+      max-width: 16ch;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      flex: 1;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--body);
+      background: var(--ghost);
+      border: 1px solid var(--border);
+      padding: 3px 8px;
     }
 
-    .file-entry .fdur {
-      flex-shrink: 0;
-      color: var(--label);
+    .clip-chip.playing {
+      color: var(--text);
+      border-color: var(--border2);
     }
 
     /* Scan panel */
@@ -102,7 +93,7 @@
     }
 
     .scan-label {
-      font-family: ui-monospace, 'Courier New', monospace;
+      font-family: var(--mono);
       font-size: 10px;
       color: var(--label);
       letter-spacing: 0.1em;
@@ -126,7 +117,7 @@
     .scan-meta {
       display: flex;
       justify-content: space-between;
-      font-family: ui-monospace, 'Courier New', monospace;
+      font-family: var(--mono);
       font-size: 10px;
       color: var(--label);
     }
@@ -149,28 +140,20 @@
       overflow: hidden;
     }
 
-    video {
+    /* #videoWrapper scope outranks shared.css's `.canvas-wrap video`
+       display:block — without it every loaded clip renders at once */
+    #videoWrapper video {
       width: 100%;
       height: 100%;
       object-fit: contain;
       display: none;
     }
 
-    video.active-video { display: block; }
+    #videoWrapper video.active-video { display: block; }
 
     canvas.record-canvas { display: none; }
 
-    /* Status line */
-    .status-line {
-      font-family: ui-monospace, 'Courier New', monospace;
-      font-size: 10px;
-      color: var(--body);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      flex-shrink: 0;
-    }
-
+    /* Status prefix inside the log line */
     .status-prefix { color: var(--label); }
 
     /* btn-lock / btn-rec states wired to JS .held / .recording */
@@ -191,9 +174,12 @@
       width: 6px;
       height: 6px;
       background: var(--error);
-      border-radius: 50%;
       margin-right: 6px;
       animation: pulse 1s infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rec-dot { animation: none; }
     }
 
     @keyframes pulse {
@@ -222,7 +208,7 @@
     }
 
     .time-info {
-      font-family: ui-monospace, 'Courier New', monospace;
+      font-family: var(--mono);
       font-size: 10px;
       color: var(--label);
       margin-top: 4px;
@@ -231,7 +217,7 @@
     /* Step warning */
     .step-warning {
       display: none;
-      font-family: ui-monospace, 'Courier New', monospace;
+      font-family: var(--mono);
       font-size: 10px;
       color: var(--body);
       margin-top: 4px;
@@ -239,15 +225,21 @@
 
     /* Slider val display */
     .slider-val {
-      font-family: ui-monospace, 'Courier New', monospace;
+      font-family: var(--mono);
       font-size: 11px;
       color: var(--body);
       min-width: 40px;
       text-align: right;
     }
 
+    /* Hero section — the one parameter that defines the tool */
+    .panel-section.hero .slider-val {
+      font-size: 16px;
+      color: var(--text);
+    }
+
     .slider-range {
-      font-family: ui-monospace, 'Courier New', monospace;
+      font-family: var(--mono);
       font-size: 10px;
       color: var(--label);
     }
@@ -269,7 +261,7 @@
       display: flex;
       justify-content: space-between;
       margin-bottom: 3px;
-      font-family: ui-monospace, 'Courier New', monospace;
+      font-family: var(--mono);
       font-size: 10px;
     }
 
@@ -277,9 +269,8 @@
     .debug-stat .value { color: var(--secondary); }
     .debug-stat .value.dim { color: var(--label); }
 
-    /* Collapsed log panel */
-    #debugPanel.collapsed .log-wrap,
-    #debugPanel.collapsed .debug-stats {
+    /* Debug stats follow the log's collapsed state */
+    .log-wrap.collapsed ~ .debug-stats {
       display: none;
     }
 
@@ -300,6 +291,9 @@
     <!-- Left: canvas area -->
     <div class="canvas-wrap">
 
+      <!-- Stage chip — render facts -->
+      <div class="stage-chip hidden" id="stageChip"></div>
+
       <!-- Upload zone -->
       <div class="dropzone" id="uploadZone">
         <div class="upload-text">>> drop a folder or multiple video files</div>
@@ -307,12 +301,6 @@
         <button class="btn" id="browseBtn">Browse Folder</button>
         <input type="file" id="fileInputFolder" class="file-input" accept="video/*" webkitdirectory />
         <input type="file" id="fileInputFiles"  class="file-input" accept="video/*" multiple />
-      </div>
-
-      <!-- Loaded file list -->
-      <div class="file-list" id="fileList">
-        <div class="file-list-header" id="fileListHeader">0 videos loaded</div>
-        <div id="fileListBody"></div>
       </div>
 
       <!-- Scan progress -->
@@ -335,39 +323,50 @@
       <!-- Off-screen recording canvas -->
       <canvas class="record-canvas" id="recordCanvas"></canvas>
 
-      <!-- Status line (always visible) -->
-      <div class="status-line" style="padding:6px 12px;border-top:1px solid var(--border);">
-        <span class="status-prefix">// </span><span id="statusText">waiting for video input</span>
+      <!-- Clip-pool strip — one chip per loaded clip -->
+      <div class="clip-strip ghosted" id="clipStrip">
+        <span class="clip-chip">NO CLIPS</span>
+      </div>
+
+      <!-- Transport -->
+      <div class="playback-row ghosted" id="playbackRow">
+        <button class="btn" id="playBtn" disabled>Play</button>
+        <button class="btn" id="stopBtn" disabled>Stop</button>
+        <button class="btn btn-lock" id="lockBtn" disabled title="Hold to freeze walk">Hold: Lock</button>
+        <button class="btn" id="muteBtn">Mute</button>
       </div>
 
     </div>
 
-    <!-- About panel — visible before files load, overlaid by controls after -->
-    <div class="controls-panel" id="about-panel" style="grid-column:2;grid-row:1;">
-      <div class="panel-section">
-        <p class="panel-section-label">About</p>
-        <p class="about-text">Drop multiple video clips. After K segments play, the engine builds a transition probability matrix from playback history. Randomness controls deviation from learned patterns — 0 follows the matrix strictly, 1 samples randomly. PLAY starts statistical sequencing.</p>
+    <!-- Right: controls panel — one panel, always present -->
+    <div class="controls-panel" id="controls">
+
+      <!-- Randomness — hero -->
+      <div class="panel-section hero ghosted">
+        <p class="panel-section-label">Randomness</p>
+        <div class="slider-row">
+          <div class="slider-label-row">
+            <label class="slider-range">0 = most similar &nbsp;·&nbsp; 1 = fully random</label>
+            <span class="slider-val" id="randomnessVal">0.30</span>
+          </div>
+          <input type="range" class="slider" id="randomnessSlider" min="0" max="1.0" step="0.01" value="0.3" />
+        </div>
       </div>
-    </div>
 
-    <!-- Right: controls panel -->
-    <div class="controls-panel" id="controls" style="display:none;grid-column:2;grid-row:1;">
-
-      <!-- Playback -->
-      <div class="panel-section">
-        <p class="panel-section-label">Playback</p>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;">
-          <button class="btn" id="playBtn" disabled>Play</button>
-          <button class="btn" id="stopBtn" disabled>Stop</button>
-          <button class="btn btn-lock" id="lockBtn" disabled title="Hold to freeze walk">Hold: Lock</button>
-          <button class="btn btn-rec" id="recordBtn">Rec</button>
-          <button class="btn" id="exportBtn" disabled>Export</button>
-          <button class="btn" id="muteBtn">Mute</button>
+      <!-- K Neighbors -->
+      <div class="panel-section ghosted">
+        <p class="panel-section-label">K Neighbors</p>
+        <div class="slider-row">
+          <div class="slider-label-row">
+            <label class="slider-range">3 – 10 &nbsp;·&nbsp; candidates per step</label>
+            <span class="slider-val" id="kVal">5</span>
+          </div>
+          <input type="range" class="slider" id="kSlider" min="3" max="10" step="1" value="5" />
         </div>
       </div>
 
       <!-- Sample Rate -->
-      <div class="panel-section">
+      <div class="panel-section ghosted">
         <p class="panel-section-label">Sample Rate</p>
         <div class="slider-row">
           <div class="slider-label-row">
@@ -381,32 +380,8 @@
         </div>
       </div>
 
-      <!-- Randomness -->
-      <div class="panel-section">
-        <p class="panel-section-label">Randomness</p>
-        <div class="slider-row">
-          <div class="slider-label-row">
-            <label class="slider-range">0 = most similar &nbsp;·&nbsp; 1 = fully random</label>
-            <span class="slider-val" id="randomnessVal">0.30</span>
-          </div>
-          <input type="range" class="slider" id="randomnessSlider" min="0" max="1.0" step="0.01" value="0.3" />
-        </div>
-      </div>
-
-      <!-- K Neighbors -->
-      <div class="panel-section">
-        <p class="panel-section-label">K Neighbors</p>
-        <div class="slider-row">
-          <div class="slider-label-row">
-            <label class="slider-range">3 – 10 &nbsp;·&nbsp; candidates per step</label>
-            <span class="slider-val" id="kVal">5</span>
-          </div>
-          <input type="range" class="slider" id="kSlider" min="3" max="10" step="1" value="5" />
-        </div>
-      </div>
-
       <!-- Timeline -->
-      <div class="panel-section">
+      <div class="panel-section ghosted">
         <p class="panel-section-label">Timeline</p>
         <div style="display:flex;align-items:center;gap:8px;">
           <div class="timeline-track">
@@ -417,13 +392,22 @@
         <div class="time-info" id="timeInfo">00:00 / 00:00</div>
       </div>
 
-      <!-- Log / Debug -->
-      <div class="panel-section" id="debugPanel">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <p class="panel-section-label" style="margin-bottom:0;">Log</p>
-          <button class="btn" id="debugToggle">−</button>
+      <!-- Record / Export -->
+      <div class="panel-section ghosted">
+        <p class="panel-section-label">Record</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <button class="btn btn-rec" id="recordBtn">Rec</button>
+          <button class="btn" id="exportBtn" disabled>Export</button>
         </div>
-        <div class="log-wrap" id="debugLog"></div>
+      </div>
+
+      <!-- Log — collapsed to one status line, click to expand -->
+      <div class="panel-section" id="debugPanel">
+        <p class="panel-section-label">Log</p>
+        <div class="log-line" id="logLine" title="click to expand history">
+          <span class="status-prefix">// </span><span id="statusText">waiting for video input</span>
+        </div>
+        <div class="log-wrap collapsed" id="debugLog"></div>
         <div class="debug-stats">
           <div class="debug-stat">
             <span class="label">phase</span>
@@ -466,6 +450,12 @@
             <span class="value dim" id="dbRand">0.30</span>
           </div>
         </div>
+      </div>
+
+      <!-- About -->
+      <div class="panel-section about-section">
+        <p class="panel-section-label">About</p>
+        <p class="about-text">Drop multiple video clips. After K segments play, the engine builds a transition probability matrix from playback history. Randomness controls deviation from learned patterns — 0 follows the matrix strictly, 1 samples randomly. PLAY starts statistical sequencing.</p>
       </div>
 
     </div>
@@ -516,9 +506,8 @@ const el = {
     browseBtn:        $('browseBtn'),
     fileInputFolder:  $('fileInputFolder'),
     fileInputFiles:   $('fileInputFiles'),
-    fileList:         $('fileList'),
-    fileListHeader:   $('fileListHeader'),
-    fileListBody:     $('fileListBody'),
+    clipStrip:        $('clipStrip'),
+    stageChip:        $('stageChip'),
     scanPanel:        $('scanPanel'),
     scanLabel:        $('scanLabel'),
     scanBarFill:      $('scanBarFill'),
@@ -547,7 +536,7 @@ const el = {
     stepWarning:      $('stepWarning'),
     adjustedStep:     $('adjustedStep'),
     debugPanel:       $('debugPanel'),
-    debugToggle:      $('debugToggle'),
+    logLine:          $('logLine'),
     debugLog:         $('debugLog'),
     dbPhase:          $('dbPhase'),
     dbVideos:         $('dbVideos'),
@@ -761,12 +750,14 @@ async function loadMetadataThenScan() {
     el.recordCanvas.width  = firstV.videoWidth  || 640;
     el.recordCanvas.height = firstV.videoHeight || 360;
 
-    // Show UI sections
+    // Media surface swaps in; every pre-wired control wakes up
     el.videoContainer.style.display = 'block';
-    el.controls.style.display       = 'block';
     el.uploadZone.style.display     = 'none';
+    document.querySelectorAll('.main-layout .ghosted')
+        .forEach(n => n.classList.remove('ghosted'));
 
-    // Render file list
+    // Stage chip + clip strip
+    updateStageChip();
     renderFileList();
 
     // Show first video as placeholder
@@ -777,24 +768,35 @@ async function loadMetadataThenScan() {
 }
 
 function renderFileList() {
-    el.fileList.style.display = 'block';
-    el.fileListHeader.textContent = `${videos.length} video${videos.length > 1 ? 's' : ''} loaded`;
-    el.fileListBody.innerHTML = '';
+    // Clip-pool strip: one chip per loaded clip. Filenames are untrusted —
+    // textContent only, never innerHTML with interpolated names.
+    el.clipStrip.textContent = '';
     videos.forEach((v, i) => {
-        const row = document.createElement('div');
-        row.className   = 'file-entry';
-        row.id          = `file-entry-${i}`;
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'fname';
-        nameSpan.textContent = truncate(v.name, 32);
-        const durSpan = document.createElement('span');
-        durSpan.className = 'fdur';
-        durSpan.textContent = fmtTime(v.duration);
-        row.appendChild(nameSpan);
-        row.appendChild(durSpan);
-        el.fileListBody.appendChild(row);
+        const chip = document.createElement('span');
+        chip.className   = 'clip-chip';
+        chip.id          = `clip-chip-${i}`;
+        chip.textContent = v.name;
+        chip.title       = `${v.name} · ${fmtTime(v.duration)}`;
+        el.clipStrip.appendChild(chip);
     });
 }
+
+function updateStageChip() {
+    const w = el.recordCanvas.width, h = el.recordCanvas.height;
+    const g = gcd(w, h) || 1;
+    const ar = (w / g <= 50) ? `${w / g}:${h / g}` : (w / h).toFixed(2) + ':1';
+    el.stageChip.textContent = '';
+    const bDim = document.createElement('b');
+    bDim.textContent = `${w}×${h}`;
+    const bAr = document.createElement('b');
+    bAr.textContent = ar;
+    const bN = document.createElement('b');
+    bN.textContent = videos.length;
+    el.stageChip.append(bDim, ' • ', bAr, ' • ', bN, ' CLIPS');
+    el.stageChip.classList.remove('hidden');
+}
+
+function gcd(a, b) { return b ? gcd(b, a % b) : a; }
 
 function showVideo(vIdx) {
     if (activeVideoIndex === vIdx) return;
@@ -804,9 +806,9 @@ function showVideo(vIdx) {
     activeVideoIndex = vIdx;
     videos[vIdx].el.classList.add('active-video');
 
-    // Highlight file list entry
-    el.fileListBody.querySelectorAll('.file-entry').forEach((r, i) => {
-        r.classList.toggle('active', i === vIdx);
+    // Highlight the playing chip (recolor only — no size change)
+    el.clipStrip.querySelectorAll('.clip-chip').forEach((c, i) => {
+        c.classList.toggle('playing', i === vIdx);
     });
 
     el.dbVideo.textContent = truncate(videos[vIdx].name, 20);
@@ -999,6 +1001,8 @@ function switchToVideo(vIdx, time) {
 function updateDebugStats() {
     const f = frames[currentFrameIndex];
     if (!f) return;
+    const pc = el.clipStrip.querySelector('.clip-chip.playing');
+    if (pc) pc.title = `${videos[f.videoIndex].name} · SEG ${currentFrameIndex}`;
     el.dbFrameT.textContent     = f.time.toFixed(3) + 's';
     el.dbIndex.textContent      = `${currentFrameIndex} / ${frames.length}`;
     el.dbSimilarity.textContent = lastDist ? lastDist.toFixed(4) : '—';
@@ -1142,9 +1146,8 @@ function toggleRecording() {
 
 // ── CONTROLS ──────────────────────────────────────────────────────────────
 function initControls() {
-    el.debugToggle.addEventListener('click', () => {
-        el.debugPanel.classList.toggle('collapsed');
-        el.debugToggle.textContent = el.debugPanel.classList.contains('collapsed') ? '+' : '−';
+    el.logLine.addEventListener('click', () => {
+        el.debugLog.classList.toggle('collapsed');
     });
 
     el.playBtn.addEventListener('click', startPlayback);

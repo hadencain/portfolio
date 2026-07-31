@@ -95,67 +95,6 @@
       width: 0%;
     }
 
-    /* Frequency visualizer */
-    #visualizer {
-      display: none;
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      background: var(--bg);
-    }
-
-    #visualizer.visible {
-      display: block;
-    }
-
-    .viz-label-row {
-      font-family: ui-monospace, 'Courier New', monospace;
-      font-size: 9px;
-      letter-spacing: 0.3em;
-      color: var(--label);
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
-    .viz-bars {
-      display: flex;
-      justify-content: space-around;
-      align-items: flex-end;
-      height: 48px;
-      gap: 8px;
-    }
-
-    .viz-col {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      flex: 1;
-    }
-
-    .viz-bar-track {
-      width: 100%;
-      height: 48px;
-      display: flex;
-      align-items: flex-end;
-      background: var(--ghost);
-    }
-
-    .viz-bar {
-      width: 100%;
-      height: 0;
-      transition: height 0.04s linear;
-      background: var(--secondary);
-    }
-
-    .viz-tag {
-      font-family: ui-monospace, 'Courier New', monospace;
-      font-size: 8px;
-      letter-spacing: 1px;
-      color: var(--label);
-      text-align: center;
-      text-transform: uppercase;
-    }
-
     /* Timeline */
     .timeline-container {
       flex: 1;
@@ -238,9 +177,13 @@
       width: 6px;
       height: 6px;
       background: var(--error);
-      border-radius: 50%;
+      border-radius: 0;
       margin-right: 6px;
       animation: pulse 1s infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .recording-indicator { animation: none; }
     }
 
     @keyframes pulse {
@@ -261,6 +204,11 @@
       padding-top: 8px;
     }
 
+    /* stats ride the log's expand/collapse, matching the other lab tools */
+    .log-wrap.collapsed ~ .debug-stats {
+      display: none;
+    }
+
     .debug-stat {
       display: flex;
       justify-content: space-between;
@@ -270,48 +218,6 @@
       color: var(--label);
     }
 
-    /* Btn active state */
-    .btn.active {
-      border-color: var(--secondary);
-      color: var(--text);
-    }
-
-    /* Hidden controls until video loaded */
-    #controls-playback {
-      display: none;
-    }
-
-    #controls-playback.visible {
-      display: block;
-    }
-
-    #controls-spectral {
-      display: none;
-    }
-
-    #controls-spectral.visible {
-      display: block;
-    }
-
-    #controls-overlay-settings {
-      display: none;
-    }
-
-    #controls-overlay-settings.visible {
-      display: block;
-    }
-
-    #controls-volume {
-      display: none;
-    }
-
-    #controls-volume.visible {
-      display: block;
-    }
-
-    #controls-transport.visible {
-      display: block;
-    }
   </style>
 </head>
 <body>
@@ -325,6 +231,8 @@
   <!-- Main layout: canvas area + controls panel -->
   <div class="main-layout">
     <div class="canvas-wrap">
+      <div class="stage-chip hidden" id="stageChip"></div>
+
       <!-- File input (hidden) -->
       <input type="file" id="fileInput" class="hidden" accept="video/*" />
 
@@ -351,29 +259,6 @@
         </div>
       </div>
 
-      <!-- Frequency visualizer -->
-      <div id="visualizer">
-        <div class="viz-label-row">Frequency Analysis</div>
-        <div class="viz-bars">
-          <div class="viz-col">
-            <div class="viz-bar-track"><div class="viz-bar" id="bassBar"></div></div>
-            <div class="viz-tag">Bass</div>
-          </div>
-          <div class="viz-col">
-            <div class="viz-bar-track"><div class="viz-bar" id="lowMidBar"></div></div>
-            <div class="viz-tag">Lo-Mid</div>
-          </div>
-          <div class="viz-col">
-            <div class="viz-bar-track"><div class="viz-bar" id="highMidBar"></div></div>
-            <div class="viz-tag">Hi-Mid</div>
-          </div>
-          <div class="viz-col">
-            <div class="viz-bar-track"><div class="viz-bar" id="trebleBar"></div></div>
-            <div class="viz-tag">Treble</div>
-          </div>
-        </div>
-      </div>
-
       <!-- Capture window (OBS target) -->
       <div id="captureWindow">
         <div class="capture-window-label">Capture View — OBS Target</div>
@@ -385,6 +270,18 @@
         </div>
       </div>
 
+      <!-- Transport — present from first paint, inert until video loads -->
+      <div class="playback-row ghosted" id="controls-transport">
+        <button class="btn" id="playBtn">PLAY</button>
+        <button class="btn" id="resetBtn">RESET</button>
+        <button class="btn" id="loopBtn">LOOP</button>
+        <button class="btn" id="muteBtn">MUTE</button>
+        <div class="timeline-container" id="timelineContainer">
+          <div class="timeline-progress" id="timelineProgress" style="width:0%"></div>
+        </div>
+        <span id="timeDisplay" class="time-display">00:00 / 00:00</span>
+      </div>
+
       <!-- Status line -->
       <div class="status-line">
         <span class="status-prefix">STATUS:</span>
@@ -394,42 +291,22 @@
 
     <!-- Controls panel -->
     <div class="controls-panel" id="controls">
-      <!-- Transport / timeline — hidden until video loaded -->
-      <div class="panel-section" id="controls-transport">
-        <p class="panel-section-label">Playback</p>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-          <button class="btn" id="playBtn">PLAY</button>
-          <button class="btn" id="resetBtn">RESET</button>
-          <button class="btn" id="loopBtn">LOOP</button>
-          <button class="btn" id="muteBtn">MUTE</button>
-          <button class="btn" id="recordBtn">REC</button>
-          <button class="btn" id="downloadBtn" disabled>EXPORT</button>
-        </div>
-        <div class="slider-row">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <div class="timeline-container" id="timelineContainer">
-              <div class="timeline-progress" id="timelineProgress" style="width:0%"></div>
-            </div>
-            <span id="timeDisplay">00:00 / 00:00</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Volume — hidden until video loaded -->
-      <div class="panel-section" id="controls-volume">
-        <p class="panel-section-label">Volume</p>
-        <div class="slider-row">
-          <div class="slider-label-row">
-            <label>Level</label>
-            <span class="slider-value" id="volumeDisplay">70%</span>
-          </div>
-          <input type="range" id="volumeSlider" min="0" max="100" value="70" />
-        </div>
-      </div>
-
-      <!-- Spectral parameters — hidden until video loaded -->
-      <div class="panel-section" id="controls-spectral">
+      <!-- Spectral parameters — hero. Rendered from first paint, ghosted until load -->
+      <div class="panel-section ghosted" id="controls-spectral">
         <p class="panel-section-label">Spectral Parameters</p>
+
+        <div class="meter-strip">
+          <div class="meter-band"><div class="meter-band-fill" id="bassBar"></div></div>
+          <div class="meter-band"><div class="meter-band-fill" id="lowMidBar"></div></div>
+          <div class="meter-band"><div class="meter-band-fill" id="highMidBar"></div></div>
+          <div class="meter-band"><div class="meter-band-fill" id="trebleBar"></div></div>
+        </div>
+        <div class="meter-labels">
+          <span>Bass</span>
+          <span>Lomid</span>
+          <span>Himid</span>
+          <span>Treb</span>
+        </div>
 
         <div class="slider-row">
           <div class="slider-label-row">
@@ -464,8 +341,8 @@
         </div>
       </div>
 
-      <!-- Overlay settings — hidden until video loaded -->
-      <div class="panel-section" id="controls-overlay-settings">
+      <!-- Overlay settings — ghosted until load -->
+      <div class="panel-section ghosted" id="controls-overlay-settings">
         <p class="panel-section-label">Overlay Settings</p>
 
         <div class="slider-row">
@@ -485,13 +362,27 @@
         </div>
       </div>
 
-      <!-- Debug log — always visible -->
-      <div class="panel-section" id="debugPanel">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <p class="panel-section-label" style="margin-bottom:0;">Log</p>
-          <button class="btn" id="debugToggle">−</button>
+      <!-- Record / export + monitor level — ghosted until load -->
+      <div class="panel-section ghosted" id="controls-record">
+        <p class="panel-section-label">Record</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+          <button class="btn" id="recordBtn">REC</button>
+          <button class="btn" id="downloadBtn" disabled>EXPORT</button>
         </div>
-        <div class="log-wrap" id="debugLog"></div>
+        <div class="slider-row">
+          <div class="slider-label-row">
+            <label>Volume</label>
+            <span class="slider-value" id="volumeDisplay">70%</span>
+          </div>
+          <input type="range" id="volumeSlider" min="0" max="100" value="70" />
+        </div>
+      </div>
+
+      <!-- Log — always visible, never ghosted. Latest line shown; click to expand -->
+      <div class="panel-section" id="debugPanel">
+        <p class="panel-section-label">Log</p>
+        <div class="log-line" id="logLine">—</div>
+        <div class="log-wrap collapsed" id="debugLog"></div>
         <div class="debug-stats" id="debugStats">
           <div class="debug-stat"><span>FPS</span><span id="fpsCounter">0</span></div>
           <div class="debug-stat"><span>Frame Time</span><span id="frameTime">0ms</span></div>
@@ -565,7 +456,6 @@
         uploadZone:       document.getElementById('uploadZone'),
         fileInput:        document.getElementById('fileInput'),
         videoContainer:   document.getElementById('videoContainer'),
-        visualizer:       document.getElementById('visualizer'),
         controls:         document.getElementById('controls'),
         playBtn:          document.getElementById('playBtn'),
         resetBtn:         document.getElementById('resetBtn'),
@@ -586,8 +476,8 @@
         recordBtn:        document.getElementById('recordBtn'),
         downloadBtn:      document.getElementById('downloadBtn'),
         statusText:       document.getElementById('statusText'),
-        debugPanel:       document.getElementById('debugPanel'),
-        debugToggle:      document.getElementById('debugToggle'),
+        stageChip:        document.getElementById('stageChip'),
+        logLine:          document.getElementById('logLine'),
         debugLog:         document.getElementById('debugLog'),
         fpsCounter:       document.getElementById('fpsCounter'),
         frameTime:        document.getElementById('frameTime'),
@@ -606,6 +496,10 @@
         lowMidBar:        document.getElementById('lowMidBar'),
         highMidBar:       document.getElementById('highMidBar'),
         trebleBar:        document.getElementById('trebleBar'),
+        sectionSpectral:  document.getElementById('controls-spectral'),
+        sectionOverlay:   document.getElementById('controls-overlay-settings'),
+        sectionRecord:    document.getElementById('controls-record'),
+        transportRow:     document.getElementById('controls-transport'),
     };
 
     // --- Debug ---
@@ -624,6 +518,7 @@
             div.textContent = line.text;
             els.debugLog.appendChild(div);
         });
+        if (debugLines.length > 0) els.logLine.textContent = debugLines[0].text;
     }
 
     // --- File handling ---
@@ -644,6 +539,14 @@
         els.uploadZone.addEventListener('click', () => els.fileInput.click());
         els.fileInput.addEventListener('change', e => {
             if (e.target.files.length > 0) handleFile(e.target.files[0]);
+        });
+
+        // After load the dropzone hides — keep drag-drop replacement alive on the stage
+        const stage = document.querySelector('.canvas-wrap');
+        stage.addEventListener('dragover', e => e.preventDefault());
+        stage.addEventListener('drop', e => {
+            e.preventDefault();
+            if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
         });
     }
 
@@ -710,10 +613,14 @@
             els.statusText.textContent = 'VIDEO LOADED — READY';
         }
 
-        els.videoContainer.style.display = 'block';
-        els.visualizer.style.display = 'block';
-        els.controls.style.display = 'block';
-        els.captureWindow.style.display = 'block';
+        els.uploadZone.classList.add('hidden');
+        els.videoContainer.classList.add('visible');
+        els.captureWindow.classList.add('visible');
+        els.sectionSpectral.classList.remove('ghosted');
+        els.sectionOverlay.classList.remove('ghosted');
+        els.sectionRecord.classList.remove('ghosted');
+        els.transportRow.classList.remove('ghosted');
+        populateStageChip();
         updateTimeDisplay();
     }
 
@@ -800,6 +707,7 @@
                 els.seekDeltaDisplay.textContent   = seekDelta.toFixed(4) + 's';
                 els.currentTimeDisplay.textContent = currentFrameTime.toFixed(2) + 's';
                 updatePerfStats();
+                updateStageChipLive(seekDelta);
             }
         }
 
@@ -837,11 +745,21 @@
     }
 
     function updateVisualizer(bass, lowMid, highMid, treble) {
-        const maxH = 80;
-        els.bassBar.style.height    = (bass    * maxH) + 'px';
-        els.lowMidBar.style.height  = (lowMid  * maxH) + 'px';
-        els.highMidBar.style.height = (highMid * maxH) + 'px';
-        els.trebleBar.style.height  = (treble  * maxH) + 'px';
+        els.bassBar.style.height    = (bass    * 100) + '%';
+        els.lowMidBar.style.height  = (lowMid  * 100) + '%';
+        els.highMidBar.style.height = (highMid * 100) + '%';
+        els.trebleBar.style.height  = (treble  * 100) + '%';
+        els.bassBar.parentElement.classList.toggle('hot', bass > 0.9);
+        els.lowMidBar.parentElement.classList.toggle('hot', lowMid > 0.9);
+        els.highMidBar.parentElement.classList.toggle('hot', highMid > 0.9);
+        els.trebleBar.parentElement.classList.toggle('hot', treble > 0.9);
+    }
+
+    function zeroMeters() {
+        [els.bassBar, els.lowMidBar, els.highMidBar, els.trebleBar].forEach(bar => {
+            bar.style.height = '0%';
+            bar.parentElement.classList.remove('hot');
+        });
     }
 
     function updateVideoOverlay(bass, lowMid, highMid, treble, seekDelta) {
@@ -1039,6 +957,38 @@
         els.videoReady.textContent = video.readyState >= 2 ? 'YES' : 'NO';
     }
 
+    // --- Stage chip ---
+    let chipFpsEl = null, chipDeltaEl = null, lastChipUpdate = 0;
+
+    function aspectLabel(w, h) {
+        const gcd = (a, b) => b ? gcd(b, a % b) : a;
+        const d = gcd(w, h) || 1;
+        const rw = w / d, rh = h / d;
+        if (rw <= 32 && rh <= 32) return rw + ':' + rh;
+        return (w / h).toFixed(1) + ':1';
+    }
+
+    function populateStageChip() {
+        const vw = video.videoWidth || 640;
+        const vh = video.videoHeight || 480;
+        els.stageChip.innerHTML =
+            '<b>' + vw + '×' + vh + '</b> • <b>' + aspectLabel(vw, vh) +
+            '</b> • <b id="chipFps">—</b> FPS • Δ <b id="chipDelta">+0.000</b>s';
+        chipFpsEl = document.getElementById('chipFps');
+        chipDeltaEl = document.getElementById('chipDelta');
+        lastChipUpdate = 0;
+        els.stageChip.classList.remove('hidden');
+    }
+
+    function updateStageChipLive(seekDelta) {
+        if (!chipFpsEl) return;
+        const now = performance.now();
+        if (now - lastChipUpdate < 1000) return;
+        lastChipUpdate = now;
+        chipFpsEl.textContent = els.fpsCounter.textContent;
+        chipDeltaEl.textContent = (seekDelta >= 0 ? '+' : '') + seekDelta.toFixed(3);
+    }
+
     // --- Playback control ---
     function play() {
         if (!audioContext) return;
@@ -1059,6 +1009,7 @@
         els.statusText.textContent = 'PAUSED';
         video.pause();
         cancelAnimationFrame(animationId);
+        zeroMeters();
     }
 
     function resetVideo() {
@@ -1067,10 +1018,7 @@
         video.currentTime = 0;
         updateTimeline();
         updateTimeDisplay();
-        els.bassBar.style.height    = '0px';
-        els.lowMidBar.style.height  = '0px';
-        els.highMidBar.style.height = '0px';
-        els.trebleBar.style.height  = '0px';
+        zeroMeters();
         els.statusText.textContent  = 'RESET TO START POSITION';
         debugLog('Reset', 'info');
     }
@@ -1134,6 +1082,7 @@
 
             mediaRecorder.start();
             isRecording = true;
+            els.recordBtn.classList.add('active');
             els.recordBtn.innerHTML = '<span class="recording-indicator"></span>STOP';
             els.statusText.textContent = 'RECORDING...';
             debugLog('Recording started', 'info');
@@ -1146,15 +1095,15 @@
     function stopRecording() {
         if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
         isRecording = false;
+        els.recordBtn.classList.remove('active');
         els.recordBtn.textContent = 'REC';
         debugLog('Recording stopped', 'info');
     }
 
     // --- Controls init ---
     function initControls() {
-        els.debugToggle.addEventListener('click', () => {
-            els.debugPanel.classList.toggle('collapsed');
-            els.debugToggle.textContent = els.debugPanel.classList.contains('collapsed') ? '+' : '−';
+        els.logLine.addEventListener('click', () => {
+            els.debugLog.classList.toggle('collapsed');
         });
 
         els.playBtn.addEventListener('click', () => isPlaying ? pause() : play());

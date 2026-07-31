@@ -35,15 +35,6 @@
       display: flex;
     }
 
-    /* Replaces .controls — shown after file loaded */
-    #controls {
-      display: none;
-    }
-
-    #controls.visible {
-      display: block;
-    }
-
     /* Timeline bar */
     .timeline-container {
       flex: 1;
@@ -64,7 +55,7 @@
     .status-line {
       padding: 8px 12px;
       border-top: 1px solid var(--border);
-      font-family: ui-monospace, 'Courier New', monospace;
+      font-family: var(--mono);
       font-size: 10px;
       color: var(--body);
     }
@@ -79,7 +70,7 @@
       width: 6px;
       height: 6px;
       background: var(--error);
-      border-radius: 50%;
+      border-radius: 0;
       margin-right: 6px;
       animation: pulse 1s infinite;
     }
@@ -108,9 +99,9 @@
       display: flex;
       justify-content: space-between;
       margin-bottom: 3px;
-      font-family: ui-monospace, 'Courier New', monospace;
-      font-size: 10px;
-      color: var(--label);
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--quiet);
     }
 
     /* Effect buttons active state */
@@ -131,14 +122,14 @@
       color: var(--body);
       padding: 12px;
       margin-top: 12px;
-      font-family: ui-monospace, 'Courier New', monospace;
+      font-family: var(--mono);
       font-size: 10px;
       line-height: 1.5;
     }
 
     /* Playback row time display */
     #timeDisplay {
-      font-family: ui-monospace, 'Courier New', monospace;
+      font-family: var(--mono);
       font-size: 10px;
       color: var(--body);
       white-space: nowrap;
@@ -146,7 +137,7 @@
 
     /* Volume display and probability display */
     .probability-display {
-      font-family: ui-monospace, 'Courier New', monospace;
+      font-family: var(--mono);
       font-size: 10px;
       color: var(--body);
       min-width: 36px;
@@ -170,6 +161,9 @@
   <!-- Main layout: canvas area + controls -->
   <div class="main-layout">
     <div class="canvas-wrap">
+      <!-- Stage chip — render facts, populated on video load -->
+      <div class="stage-chip hidden" id="stageChip"><b id="chipRes">—</b> • <b id="chipAR">—</b> • <b id="fpsCounter">—</b> FPS</div>
+
       <!-- File input (hidden) -->
       <input type="file" id="fileInput" class="hidden" accept="video/*" />
 
@@ -185,6 +179,17 @@
         </div>
       </div>
 
+      <!-- Transport — present from first paint, inert until media loads -->
+      <div class="playback-row ghosted" id="controls">
+        <button class="btn" id="playBtn">PLAY</button>
+        <button class="btn" id="resetBtn">RESET</button>
+        <button class="btn" id="muteBtn">MUTE</button>
+        <div class="timeline-container progress-bar" id="timelineContainer">
+          <div class="timeline-progress" id="timelineProgress"></div>
+        </div>
+        <span class="time-display" id="timeDisplay">00:00 / 00:00</span>
+      </div>
+
       <!-- Status line -->
       <div class="status-line">
         <span class="status-prefix">STATUS:</span>
@@ -193,41 +198,20 @@
     </div>
 
     <div class="controls-panel">
-      <!-- Playback controls -->
-      <div class="panel-section" id="controls">
-        <p class="panel-section-label">Playback</p>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-          <button class="btn" id="playBtn">PLAY</button>
-          <button class="btn" id="resetBtn">RESET</button>
-          <button class="btn" id="muteBtn">MUTE</button>
-          <button class="btn" id="recordBtn">REC</button>
-          <button class="btn" id="downloadBtn" disabled>EXPORT</button>
-        </div>
-        <!-- Timeline -->
-        <div class="slider-row">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <div class="timeline-container" id="timelineContainer">
-              <div class="timeline-progress" id="timelineProgress"></div>
-            </div>
-            <span id="timeDisplay">00:00 / 00:00</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Volume -->
-      <div class="panel-section" id="volume-section" style="display:none;">
-        <p class="panel-section-label">Volume</p>
+      <!-- Frame Probability — the premise -->
+      <div class="panel-section ghosted" id="probability-section">
+        <p class="panel-section-label">Frame Probability</p>
         <div class="slider-row">
           <div class="slider-label-row">
-            <label>Level</label>
-            <span class="probability-display" id="volumeDisplay">70%</span>
+            <label>Probability</label>
+            <span class="probability-display" id="probabilityDisplay">75%</span>
           </div>
-          <input type="range" id="volumeSlider" min="0" max="100" value="70" />
+          <input type="range" id="probabilitySlider" min="0" max="100" value="75" />
         </div>
       </div>
 
       <!-- Visual Effects -->
-      <div class="panel-section" id="effects-section" style="display:none;">
+      <div class="panel-section ghosted" id="effects-section">
         <p class="panel-section-label">Effects</p>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
           <button class="btn" id="contrastBtn">CONTRAST</button>
@@ -244,23 +228,24 @@
         </div>
       </div>
 
-      <!-- Frame Probability -->
-      <div class="panel-section" id="probability-section" style="display:none;">
-        <p class="panel-section-label">Frame Probability</p>
+      <!-- Volume -->
+      <div class="panel-section ghosted" id="volume-section">
+        <p class="panel-section-label">Volume</p>
         <div class="slider-row">
           <div class="slider-label-row">
-            <label>Probability</label>
-            <span class="probability-display" id="probabilityDisplay">75%</span>
+            <label>Level</label>
+            <span class="probability-display" id="volumeDisplay">70%</span>
           </div>
-          <input type="range" id="probabilitySlider" min="0" max="100" value="75" />
+          <input type="range" id="volumeSlider" min="0" max="100" value="70" />
         </div>
       </div>
 
-      <!-- Export -->
-      <div class="panel-section">
+      <!-- Export / record -->
+      <div class="panel-section ghosted" id="export-section">
         <p class="panel-section-label">Export</p>
-        <div style="display:flex;gap:8px;">
-          <button class="btn primary" id="export-webm" onclick="document.getElementById('downloadBtn').click()">WEBM</button>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn" id="recordBtn">REC</button>
+          <button class="btn primary" id="downloadBtn" disabled>EXPORT WEBM</button>
         </div>
       </div>
 
@@ -268,25 +253,24 @@
       <div class="panel-section" id="debugPanel">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
           <p class="panel-section-label" style="margin-bottom:0;">Log</p>
-          <button class="btn" id="debugToggle">−</button>
+          <button class="btn" id="debugToggle">+</button>
         </div>
-        <div class="log-wrap" id="debugLog"></div>
-        <div class="debug-stats" id="debugStats">
-          <div class="debug-stat">
-            <span>FPS</span>
-            <span id="fpsCounter">0</span>
-          </div>
-          <div class="debug-stat">
-            <span>Frame Time</span>
-            <span id="frameTime">0ms</span>
-          </div>
-          <div class="debug-stat">
-            <span>Video Ready</span>
-            <span id="videoReady">NO</span>
-          </div>
-          <div class="debug-stat">
-            <span>Effects</span>
-            <span id="activeEffects">NONE</span>
+        <div class="log-line" id="logLine">—</div>
+        <div class="log-wrap collapsed" id="logHistory">
+          <div id="debugLog"></div>
+          <div class="debug-stats" id="debugStats">
+            <div class="debug-stat">
+              <span>Frame Time</span>
+              <span id="frameTime">0ms</span>
+            </div>
+            <div class="debug-stat">
+              <span>Video Ready</span>
+              <span id="videoReady">NO</span>
+            </div>
+            <div class="debug-stat">
+              <span>Effects</span>
+              <span id="activeEffects">NONE</span>
+            </div>
           </div>
         </div>
       </div>
@@ -322,6 +306,7 @@
         let lastFrameTime = 0;
         let fpsHistory = [];
         let debugLines = [];
+        let lastChipFpsUpdate = 0;
         const MAX_DEBUG_LINES = 12;
 
         // Lightweight effects state
@@ -358,10 +343,16 @@
             invertBtn: document.getElementById('invertBtn'),
             blurBtn: document.getElementById('blurBtn'),
             noiseBtn: document.getElementById('noiseBtn'),
+            // Stage chip
+            stageChip: document.getElementById('stageChip'),
+            chipRes: document.getElementById('chipRes'),
+            chipAR: document.getElementById('chipAR'),
             // Debug elements
             debugPanel: document.getElementById('debugPanel'),
             debugToggle: document.getElementById('debugToggle'),
             debugLog: document.getElementById('debugLog'),
+            logLine: document.getElementById('logLine'),
+            logHistory: document.getElementById('logHistory'),
             fpsCounter: document.getElementById('fpsCounter'),
             frameTime: document.getElementById('frameTime'),
             videoReady: document.getElementById('videoReady'),
@@ -383,6 +374,10 @@
         }
 
         function updateDebugDisplay() {
+            if (debugLines.length > 0) {
+                elements.logLine.textContent = debugLines[0].text;
+            }
+
             const logContainer = elements.debugLog;
             logContainer.innerHTML = '';
 
@@ -411,7 +406,11 @@
             }
             const avgFps = fpsHistory.reduce((a, b) => a + b, 0) / fpsHistory.length;
 
-            elements.fpsCounter.textContent = Math.round(avgFps);
+            // Stage chip FPS — at most once per second
+            if (now - lastChipFpsUpdate >= 1000) {
+                elements.fpsCounter.textContent = Math.round(avgFps);
+                lastChipFpsUpdate = now;
+            }
             elements.frameTime.textContent = Math.round(deltaTime) + 'ms';
             elements.videoReady.textContent = video.readyState >= 2 ? 'YES' : 'NO';
 
@@ -504,10 +503,17 @@
 
                 elements.uploadZone.classList.add('hidden');
                 elements.videoContainer.classList.add('visible');
-                elements.controls.classList.add('visible');
-                document.getElementById('volume-section').style.display = '';
-                document.getElementById('effects-section').style.display = '';
-                document.getElementById('probability-section').style.display = '';
+                elements.controls.classList.remove('ghosted');
+                document.getElementById('volume-section').classList.remove('ghosted');
+                document.getElementById('effects-section').classList.remove('ghosted');
+                document.getElementById('probability-section').classList.remove('ghosted');
+                document.getElementById('export-section').classList.remove('ghosted');
+
+                // Stage chip — render facts
+                elements.chipRes.textContent = video.videoWidth + '×' + video.videoHeight;
+                elements.chipAR.textContent = formatAspect(video.videoWidth, video.videoHeight);
+                elements.stageChip.classList.remove('hidden');
+
                 updateTimeDisplay();
                 elements.statusText.textContent = 'VIDEO LOADED. READY FOR GLITCH PROCESSING.';
             });
@@ -526,13 +532,28 @@
             });
         }
 
+        // Aspect ratio — small clean ratio when exact, else one decimal
+        function formatAspect(w, h) {
+            if (!w || !h) return '—';
+            const gcd = (a, b) => b ? gcd(b, a % b) : a;
+            const d = gcd(w, h);
+            const rw = w / d;
+            const rh = h / d;
+            if (rw <= 21 && rh <= 21) return rw + ':' + rh;
+            return (w / h).toFixed(1) + ':1';
+        }
+
+        // Log history toggle — collapsed by default, latest line always shown
+        function toggleLogHistory() {
+            elements.logHistory.classList.toggle('collapsed');
+            elements.debugToggle.textContent = elements.logHistory.classList.contains('collapsed') ? '+' : '−';
+        }
+
         // Control handlers
         function initializeControls() {
-            // Debug panel toggle
-            elements.debugToggle.addEventListener('click', () => {
-                elements.debugPanel.classList.toggle('collapsed');
-                elements.debugToggle.textContent = elements.debugPanel.classList.contains('collapsed') ? '+' : '−';
-            });
+            // Log expand/collapse
+            elements.debugToggle.addEventListener('click', toggleLogHistory);
+            elements.logLine.addEventListener('click', toggleLogHistory);
 
             // Playback controls
             elements.playBtn.addEventListener('click', togglePlay);

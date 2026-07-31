@@ -26,73 +26,25 @@
       border-right: 1px solid var(--border);
     }
 
-    /* The actual canvas fills available space */
-    #canvas {
-      display: block;
-      width: 100%;
+    /* Stage — canvas fills it, dropzone overlays it pre-load */
+    .stage-area {
+      position: relative;
       flex: 1;
       min-height: 0;
     }
 
-    /* Drop hint overlay (canvas-hint id used by JS) */
-    #canvas-hint {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: ui-monospace, 'Courier New', monospace;
-      font-size: 11px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--quiet);
-      pointer-events: none;
+    #canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
     }
 
-    /* Layer stack badges */
-    .layer-stack {
+    .canvas-wrap .dropzone {
       position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .ltag {
-      font-family: ui-monospace, 'Courier New', monospace;
-      font-size: 9px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      padding: 2px 5px;
-      border: 1px solid;
-    }
-
-    .ltag.p2  { color: var(--ghost);   border-color: var(--ghost); }
-    .ltag.p1  { color: var(--quiet);   border-color: var(--quiet); }
-    .ltag.now { color: var(--secondary); border-color: var(--secondary); }
-    .ltag.f1  { color: var(--quiet);   border-color: var(--quiet); }
-    .ltag.f2  { color: var(--ghost);   border-color: var(--ghost); }
-
-    /* Timecode */
-    #timecode {
-      position: absolute;
-      bottom: 66px; /* above playback-row */
-      left: 10px;
-      font-family: ui-monospace, 'Courier New', monospace;
-      font-size: 10px;
-      letter-spacing: 0.1em;
-      color: var(--body);
-    }
-
-    /* Transport buttons overlay */
-    .transport {
-      position: absolute;
-      bottom: 66px;
-      right: 10px;
-      display: flex;
-      gap: 6px;
+      inset: 10px;
+      z-index: 2;
+      flex: none;
+      width: auto;
     }
 
     /* Visualizer strip */
@@ -151,96 +103,24 @@
 
     .vlabel.now { color: var(--secondary); }
 
-    /* Playback row */
+    /* Transport row may wrap on narrow stages */
     .playback-row {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 10px;
-      border-top: 1px solid var(--border);
-      background: var(--bg);
-      flex-shrink: 0;
       flex-wrap: wrap;
     }
 
-    .playback-row .fsep { flex: 1; }
+    /* record-active: class toggled by JS on btn-record while capturing */
+    .btn.record-active {
+      border-color: var(--blood);
+      color: var(--blood-bright);
+    }
 
-    /* btn.active state for shared.css .btn */
-    .btn.active {
-      border-color: var(--border2);
+    /* Audio drive toggle label — matches slider label voice */
+    .toggle-row label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
       color: var(--secondary);
     }
-
-    /* record-active: class toggled by JS on btn-record */
-    .btn.record-active {
-      border-color: var(--secondary);
-      color: var(--text);
-    }
-
-    /* ctrl.disabled used by JS in AR mode */
-    .ctrl.disabled {
-      opacity: 0.35;
-      pointer-events: none;
-    }
-
-    /* Status bar inside panel */
-    .status-bar {
-      font-family: ui-monospace, 'Courier New', monospace;
-      font-size: 10px;
-      color: var(--body);
-      letter-spacing: 0.08em;
-      padding: 2px 0 8px;
-      line-height: 1.5;
-    }
-
-    .status-bar span { color: var(--text); }
-
-    /* Debug panel: hidden by default, shown via .visible toggled by JS */
-    #debug-panel {
-      display: none;
-    }
-
-    #debug-panel.visible {
-      display: block;
-    }
-
-    /* Debug columns */
-    .debug-cols {
-      display: flex;
-      gap: 0;
-    }
-
-    .debug-col {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      border-right: 1px solid var(--border);
-      padding: 0 8px;
-    }
-
-    .debug-col:first-child { padding-left: 0; }
-    .debug-col:last-child  { border-right: none; }
-
-    .dlabel {
-      font-family: ui-monospace, 'Courier New', monospace;
-      font-size: 9px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--label);
-    }
-
-    .dlabel.now { color: var(--secondary); }
-
-    .dval {
-      font-family: ui-monospace, 'Courier New', monospace;
-      font-size: 9px;
-      letter-spacing: 0.06em;
-      color: var(--body);
-    }
-
-    .dval.now { color: var(--text); }
 
     /* Responsive */
     @media (max-width: 700px) {
@@ -278,21 +158,23 @@
 
     <!-- Left: canvas column -->
     <div class="canvas-wrap" id="canvas-wrap">
-      <canvas id="canvas"></canvas>
-      <div id="canvas-hint">DROP VIDEO FILE TO BEGIN</div>
+      <div class="stage-chip hidden" id="stageChip"></div>
 
-      <div class="layer-stack">
-        <div class="ltag f2">FUT-2</div>
-        <div class="ltag f1">FUT-1</div>
-        <div class="ltag now">NOW</div>
-        <div class="ltag p1">PAST-1</div>
-        <div class="ltag p2">PAST-2</div>
+      <div class="stage-area">
+        <canvas id="canvas"></canvas>
+        <div class="dropzone" id="dropzone">DROP VIDEO FILE OR CLICK TO LOAD</div>
       </div>
 
-      <div id="timecode">--:--.-</div>
+      <!-- Transport -->
+      <div class="playback-row ghosted" id="transport">
+        <button class="btn primary" id="btn-play">&#9654; PLAY</button>
+        <button class="btn" id="btn-pause">&#9646;&#9646; PAUSE</button>
+        <button class="btn" id="btn-loop">LOOP</button>
+        <input type="range" class="progress-bar" id="progress" min="0" max="1000" value="0" aria-label="Seek">
+        <span class="time-display" id="timecode">--:--.- / --:--.-</span>
+      </div>
 
-
-      <!-- Visualizer -->
+      <!-- Visualizer / filmstrip — bars + label brightness carry per-layer weight -->
       <div class="viz" id="viz">
         <div class="viz-col">
           <div class="bar-track"><div class="bar" id="bar-0" style="height:0%"></div></div>
@@ -316,42 +198,12 @@
           <div class="vlabel">FUT-2</div>
         </div>
       </div>
-
-      <!-- Playback row -->
-      <div class="playback-row">
-        <button class="btn active" id="btn-load">LOAD FILE</button>
-        <button class="btn" id="btn-loop">LOOP</button>
-        <button class="btn" id="btn-ar">AR</button>
-        <div class="fsep"></div>
-        <button class="btn hidden" id="btn-record">&#9679; RECORD</button>
-        <button class="btn hidden" id="btn-export">EXPORT</button>
-        <button class="btn" id="btn-debug">DEBUG</button>
-      </div>
     </div>
 
     <!-- Right: controls panel -->
     <div class="controls-panel">
 
-      <!-- Playback -->
-      <div class="panel-section">
-        <p class="panel-section-label">Playback</p>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <button class="btn primary" id="btn-play">&#9654; PLAY</button>
-          <button class="btn" id="btn-pause">&#9646;&#9646; PAUSE</button>
-        </div>
-      </div>
-
-      <!-- Status -->
-      <div class="panel-section">
-        <p class="panel-section-label">Status</p>
-        <div class="status-bar" id="status">
-          T = <span id="s-offset">1.0s</span> &nbsp;|&nbsp;
-          LAYERS: <span id="s-layers">5</span> &nbsp;|&nbsp;
-          <span id="s-state">READY</span>
-        </div>
-      </div>
-
-      <!-- Temporal Offset -->
+      <!-- Parameters -->
       <div class="panel-section">
         <p class="panel-section-label">Parameters</p>
 
@@ -394,44 +246,33 @@
             <input type="range" id="ctrl-layers" min="0" max="1" step="1" value="1">
           </div>
         </div>
+
+        <div class="toggle-row">
+          <label for="toggle-audio-drive">AUDIO DRIVE</label>
+          <button type="button" class="toggle" id="toggle-audio-drive" aria-pressed="false" aria-label="Audio drive"></button>
+        </div>
       </div>
 
-      <!-- Debug panel: toggled by JS via .visible on #debug-panel -->
-      <div class="panel-section" id="debug-panel">
-        <p class="panel-section-label">Debug</p>
-        <div class="debug-cols">
-          <div class="debug-col">
-            <div class="dlabel">PAST-2</div>
-            <div class="dval" id="dbg-t-0">t: &#8212;</div>
-            <div class="dval" id="dbg-a-0">&#945;: 0.00</div>
-          </div>
-          <div class="debug-col">
-            <div class="dlabel">PAST-1</div>
-            <div class="dval" id="dbg-t-1">t: &#8212;</div>
-            <div class="dval" id="dbg-a-1">&#945;: 0.00</div>
-          </div>
-          <div class="debug-col">
-            <div class="dlabel now">NOW</div>
-            <div class="dval now" id="dbg-t-2">t: &#8212;</div>
-            <div class="dval now" id="dbg-a-2">&#945;: 0.30</div>
-          </div>
-          <div class="debug-col">
-            <div class="dlabel">FUT-1</div>
-            <div class="dval" id="dbg-t-3">t: &#8212;</div>
-            <div class="dval" id="dbg-a-3">&#945;: 0.00</div>
-          </div>
-          <div class="debug-col">
-            <div class="dlabel">FUT-2</div>
-            <div class="dval" id="dbg-t-4">t: &#8212;</div>
-            <div class="dval" id="dbg-a-4">&#945;: 0.00</div>
-          </div>
+      <!-- Playback -->
+      <div class="panel-section">
+        <p class="panel-section-label">Playback</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn ghosted" id="btn-record">&#9679; RECORD</button>
+          <button class="btn ghosted" id="btn-export">EXPORT</button>
         </div>
+      </div>
+
+      <!-- Log -->
+      <div class="panel-section">
+        <p class="panel-section-label">Log</p>
+        <div class="log-line" id="log-line">READY</div>
+        <div class="log-wrap collapsed" id="log-wrap"></div>
       </div>
 
       <!-- About -->
       <div class="panel-section about-section">
         <p class="panel-section-label">About</p>
-        <p class="about-text">Drop a video. The compositor layers the current frame with shifted past and future frames, weighted by microphone spectral energy. Temporal Offset sets how far back and forward the layers reach. AR corrects aspect ratio. RECORD captures composite output as WEBM.</p>
+        <p class="about-text">Drop a video. The compositor layers the current frame with shifted past and future frames, weighted by microphone spectral energy. Temporal Offset sets how far back and forward the layers reach. RECORD captures composite output as WEBM.</p>
       </div>
 
     </div>
@@ -453,7 +294,8 @@ let frameCount  = 0;
 let animFrameId = null;
 let isPlaying   = false;
 let loopMode    = false;
-let arMode      = false;
+let isSeeking   = false;
+let audioDrive  = false;  // band energy drives Temporal Offset / Present Floor / layer rates
 
 // Video dimensions (set on loadedmetadata)
 let videoNativeW = 0;
@@ -490,6 +332,7 @@ const BANDS = [
 const canvas     = document.getElementById('canvas');
 const ctx        = canvas.getContext('2d');
 const canvasWrap = document.getElementById('canvas-wrap');
+const vizLabels  = document.querySelectorAll('.viz .vlabel'); // index-aligned with layers 0..4
 
 // ============================================================
 // ENGINE
@@ -510,12 +353,18 @@ function setupLayers(src) {
   // Only the present layer (index 2) produces audio
   layers[2].muted = false;
 
-  // Once metadata loads on layer 2, store duration and apply aspect ratio
+  // Once metadata loads on layer 2, store duration and size the buffer
   layers[2].addEventListener('loadedmetadata', () => {
     duration     = layers[2].duration;
     videoNativeW = layers[2].videoWidth;
     videoNativeH = layers[2].videoHeight;
-    applyVideoAspect();
+    // Native-res buffer: drawImage fills it 1:1 (no distortion, full quality);
+    // CSS object-fit: contain letterboxes it inside the wrapper.
+    canvas.width  = videoNativeW;
+    canvas.height = videoNativeH;
+    updateStageChip();
+    updateTimecode(0);
+    logMsg(`SOURCE ${videoNativeW}×${videoNativeH}`);
   }, { once: true });
 }
 
@@ -537,26 +386,54 @@ function loadFile(file) {
   duration = 0;
   videoNativeW = 0;
   videoNativeH = 0;
-  canvasWrap.style.width       = '';
-  canvasWrap.style.justifySelf = '';
+  document.getElementById('stageChip').classList.add('hidden');
 
   setupLayers(currentSrcUrl);
 
-  // Auto-exit AR mode on file load to prevent orphaned disabled state
-  if (arMode) {
-    arMode = false;
-    document.getElementById('btn-ar').classList.remove('active');
-    document.querySelectorAll('.ctrl').forEach(el => el.classList.remove('disabled'));
-  }
+  // Auto-exit audio drive on file load to prevent orphaned driven state
+  if (audioDrive) setAudioDrive(false);
 
-  document.getElementById('canvas-hint').style.display = 'none';
-  document.getElementById('btn-export').classList.remove('hidden');
-  document.getElementById('btn-record').classList.add('hidden');
+  document.getElementById('dropzone').classList.add('hidden');
+  document.getElementById('transport').classList.remove('ghosted');
+  document.getElementById('btn-export').classList.remove('ghosted');
+  document.getElementById('btn-record').classList.add('ghosted');
   setStatus('LOADED');
 }
 
+// ── Log: one-line status, click to expand history ──
+const logHistory = [];
+
+function logMsg(text) {
+  const ts = new Date().toTimeString().slice(0, 8);
+  logHistory.push(`${ts} ${text}`);
+  document.getElementById('log-line').textContent = text;
+  const wrap = document.getElementById('log-wrap');
+  wrap.textContent = logHistory.join('\n');
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
 function setStatus(text) {
-  document.getElementById('s-state').textContent = text;
+  logMsg(text);
+}
+
+// ── Stage chip: W×H • AR • T • L ──
+function aspectLabel(w, h) {
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+  const d = gcd(w, h);
+  return (w / d <= 40 && h / d <= 40)
+    ? `${w / d}:${h / d}`
+    : `${(w / h).toFixed(2)}:1`;
+}
+
+function updateStageChip() {
+  if (!videoNativeW || !videoNativeH) return;
+  const chip = document.getElementById('stageChip');
+  chip.innerHTML =
+    `<b>${videoNativeW}×${videoNativeH}</b> • ` +
+    `<b>${aspectLabel(videoNativeW, videoNativeH)}</b> • ` +
+    `T <b>${temporalOffset.toFixed(1)}s</b> • ` +
+    `L<b>${layerCount}</b>`;
+  chip.classList.remove('hidden');
 }
 
 function setupAudio() {
@@ -615,19 +492,11 @@ function renderFrame() {
   frameCount++;
   const masterTime = layers[2].currentTime;
 
-  // Resize canvas to container if needed
-  const w = canvasWrap.clientWidth;
-  const h = canvasWrap.clientHeight;
-  if (canvas.width !== w || canvas.height !== h) {
-    canvas.width  = w;
-    canvas.height = h;
-  }
-
   // Pull frequency data
   if (analyser) analyser.getByteFrequencyData(freqData);
 
-  // AR mode — audio drives parameters each frame
-  if (arMode && analyser) {
+  // Audio drive — band energy drives parameters each frame
+  if (audioDrive && analyser) {
     temporalOffset = 0.5 + getBandEnergy(0, 10) * 4.5;
     presentFloor   = getBandEnergy(11, 40);
     const futRate  = 0.5 + getBandEnergy(101, 160) * 1.5;
@@ -643,6 +512,8 @@ function renderFrame() {
     if (floorSlider) floorSlider.value = presentFloor * 100;
     document.getElementById('val-offset').textContent = `${temporalOffset.toFixed(1)}s`;
     document.getElementById('val-floor').textContent  = presentFloor.toFixed(2);
+    // Stage chip T tracks the driven value, throttled to the drift cadence
+    if (frameCount % 30 === 0) updateStageChip();
   }
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -663,8 +534,8 @@ function renderFrame() {
 
   ctx.globalAlpha = 1.0;
 
-  // Drift correction — every frame in AR mode (offset changes each frame), else every 30
-  if (arMode || frameCount % 30 === 0) syncLayers();
+  // Drift correction — every frame in audio drive (offset changes each frame), else every 30
+  if (audioDrive || frameCount % 30 === 0) syncLayers();
 
   // Update UI
   updateVisualizer(opacities, masterTime);
@@ -695,13 +566,9 @@ function updateVisualizer(opacities, masterTime) {
     const bar = document.getElementById(`bar-${i}`);
     if (bar) bar.style.height = `${(op * 100).toFixed(1)}%`;
 
-    const dt = document.getElementById(`dbg-t-${i}`);
-    const da = document.getElementById(`dbg-a-${i}`);
-    if (dt) {
-      const t = (i === 2) ? masterTime : Math.max(0, Math.min(masterTime + (i - 2) * temporalOffset, duration));
-      dt.textContent = `t: ${t.toFixed(2)}s`;
-    }
-    if (da) da.textContent = `α: ${op.toFixed(2)}`;
+    // Layer weight also steps the filmstrip label brightness
+    // (replaces the old floating layer-stack badges)
+    if (vizLabels[i]) vizLabels[i].style.opacity = (0.45 + op * 0.55).toFixed(2);
   }
 
   // Keep the NOW floor hairline aligned with presentFloor
@@ -720,8 +587,9 @@ function updateTimecode(t) {
   };
   document.getElementById('timecode').textContent =
     `${fmt(t)} / ${fmt(duration)}`;
-  document.getElementById('s-offset').textContent = `${temporalOffset.toFixed(1)}s`;
-  document.getElementById('s-layers').textContent = `${layerCount}`;
+  if (duration > 0 && !isSeeking) {
+    document.getElementById('progress').value = Math.round((t / duration) * 1000);
+  }
 }
 
 function startPlayback() {
@@ -733,7 +601,7 @@ function startPlayback() {
   layers.forEach(v => v.play().catch(() => {}));
   isPlaying = true;
   setStatus('PLAYING');
-  document.getElementById('btn-record').classList.remove('hidden');
+  document.getElementById('btn-record').classList.remove('ghosted');
   animFrameId = requestAnimationFrame(renderFrame);
 }
 
@@ -742,7 +610,7 @@ function pausePlayback() {
   if (animFrameId) { cancelAnimationFrame(animFrameId); animFrameId = null; }
   layers.forEach(v => v.pause());
   setStatus('PAUSED');
-  document.getElementById('btn-record').classList.add('hidden');
+  document.getElementById('btn-record').classList.add('ghosted');
   if (isRecording) stopRecording();
 }
 
@@ -794,18 +662,13 @@ function stopRecording() {
   btn.classList.remove('record-active');
 }
 
-function applyVideoAspect() {
-  if (!videoNativeW || !videoNativeH) return;
-  if (videoNativeH > videoNativeW) {
-    // Portrait: constrain wrap width to maintain video AR within available height
-    const availH = canvasWrap.offsetHeight || (window.innerHeight - 168);
-    const w = Math.floor(availH * (videoNativeW / videoNativeH));
-    canvasWrap.style.width       = `${w}px`;
-    canvasWrap.style.justifySelf = 'center';
-  } else {
-    canvasWrap.style.width       = '';
-    canvasWrap.style.justifySelf = '';
-  }
+// Paused-seek preview: draw the present layer once after it lands on the new time
+function drawStill() {
+  if (isPlaying || !layers.length || layers[2].readyState < 2) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.globalAlpha = 1.0;
+  ctx.drawImage(layers[2], 0, 0, canvas.width, canvas.height);
+  updateTimecode(layers[2].currentTime);
 }
 
 // ============================================================
@@ -823,12 +686,12 @@ fileInput.addEventListener('change', () => {
   if (fileInput.files[0]) loadFile(fileInput.files[0]);
 });
 
-document.getElementById('btn-load').addEventListener('click', () => fileInput.click());
+document.getElementById('dropzone').addEventListener('click', () => fileInput.click());
 
 // --- Drag and drop ---
 canvasWrap.addEventListener('dragover', e => {
   e.preventDefault();
-  canvasWrap.style.outline = '1px solid rgba(227,221,208,0.22)';
+  canvasWrap.style.outline = '1px solid var(--border2)';
 });
 
 canvasWrap.addEventListener('dragleave', () => {
@@ -846,18 +709,27 @@ canvasWrap.addEventListener('drop', e => {
 document.getElementById('btn-play').addEventListener('click', startPlayback);
 document.getElementById('btn-pause').addEventListener('click', pausePlayback);
 
-// --- Debug panel toggle ---
-document.getElementById('btn-debug').addEventListener('click', () => {
-  const panel = document.getElementById('debug-panel');
-  panel.classList.toggle('visible');
-  document.getElementById('btn-debug').classList.toggle('active');
+// --- Progress / seek ---
+const progressEl = document.getElementById('progress');
+progressEl.addEventListener('pointerdown', () => { isSeeking = true; });
+window.addEventListener('pointerup', () => { isSeeking = false; });
+progressEl.addEventListener('input', function() {
+  if (!layers.length || !duration) return;
+  layers[2].currentTime = (this.value / 1000) * duration;
+  syncLayers();
+  if (!isPlaying) layers[2].addEventListener('seeked', drawStill, { once: true });
+});
+
+// --- Log expand/collapse: click the status line ---
+document.getElementById('log-line').addEventListener('click', () => {
+  document.getElementById('log-wrap').classList.toggle('collapsed');
 });
 
 // --- Temporal Offset: slider range 1–50, value maps to 0.1–5.0s (divide by 10) ---
 document.getElementById('ctrl-offset').addEventListener('input', function() {
   temporalOffset = this.value / 10;
   document.getElementById('val-offset').textContent = `${temporalOffset.toFixed(1)}s`;
-  document.getElementById('s-offset').textContent   = `${temporalOffset.toFixed(1)}s`;
+  updateStageChip();
   // Trigger immediate re-sync on next tick
   if (isPlaying) syncLayers();
 });
@@ -879,7 +751,7 @@ document.getElementById('ctrl-smooth').addEventListener('input', function() {
 document.getElementById('ctrl-layers').addEventListener('input', function() {
   layerCount = this.value === '1' ? 5 : 3;
   document.getElementById('val-layers').textContent = `${layerCount}`;
-  document.getElementById('s-layers').textContent   = `${layerCount}`;
+  updateStageChip();
 });
 
 // --- Record button ---
@@ -900,29 +772,31 @@ document.getElementById('btn-loop').addEventListener('click', () => {
   document.getElementById('btn-loop').classList.toggle('active', loopMode);
 });
 
-// --- AR mode toggle ---
-document.getElementById('btn-ar').addEventListener('click', () => {
-  arMode = !arMode;
-  document.getElementById('btn-ar').classList.toggle('active', arMode);
-  document.querySelectorAll('.ctrl').forEach(el => {
-    el.classList.toggle('disabled', arMode);
-  });
-  if (!arMode) {
-    // Restore all layer playback rates to 1.0 when leaving AR mode
+// --- Audio drive toggle: band energy drives Temporal Offset / Present Floor / layer rates ---
+function setAudioDrive(on) {
+  audioDrive = on;
+  const t = document.getElementById('toggle-audio-drive');
+  t.classList.toggle('active', on);
+  t.setAttribute('aria-pressed', String(on));
+  // Driven sliders read as externally driven; readouts keep updating from the drive
+  document.querySelector('#ctrl-wrap-offset .slider-row').classList.toggle('ghosted', on);
+  document.querySelector('#ctrl-wrap-floor .slider-row').classList.toggle('ghosted', on);
+  if (!on) {
+    // Restore all layer playback rates to 1.0 when leaving audio drive.
+    // Temporal Offset / Present Floor stay wherever the drive left them.
     layers.forEach(v => { if (v) v.playbackRate = 1.0; });
+    updateStageChip();
   }
+}
+
+document.getElementById('toggle-audio-drive').addEventListener('click', () => {
+  setAudioDrive(!audioDrive);
 });
 
-// Initial canvas sizing
-canvas.width  = canvasWrap.clientWidth;
-canvas.height = canvasWrap.clientHeight;
+// Canvas buffer is sized from the video's native dims on loadedmetadata;
+// CSS object-fit: contain handles all element-level resizing from there.
 
-// Resize handler
-window.addEventListener('resize', () => {
-  applyVideoAspect();
-  canvas.width  = canvasWrap.clientWidth;
-  canvas.height = canvasWrap.clientHeight;
-});
+logMsg('READY');
   </script>
 </body>
 </html>

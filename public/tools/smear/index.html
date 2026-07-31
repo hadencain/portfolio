@@ -22,6 +22,7 @@
 </nav>
 <div class="main-layout">
   <div class="canvas-wrap">
+    <div class="stage-chip hidden" id="stageChip"></div>
     <div class="dropzone" id="dropVideo">DROP VIDEO / CLICK TO LOAD</div>
     <canvas id="out" class="hidden"></canvas>
     <div class="playback-row">
@@ -298,6 +299,7 @@ const dropTrack = document.getElementById('dropTrack');
 const btnPlay = document.getElementById('btnPlay');
 const btnRecord = document.getElementById('btnRecord');
 const timeEl = document.getElementById('time');
+const stageChip = document.getElementById('stageChip');
 const filePick = document.getElementById('filePick');
 const engine = createEngine(canvas);
 if (!engine) setStatus('WEBGL2 UNAVAILABLE', true);
@@ -327,6 +329,14 @@ function rewire() {
 }
 function master() { return mode === 'track' ? trk : vid; }
 
+// stage chip: aspect reduced to a clean ratio when exact (16:9), else one decimal (2.4:1)
+function ratioLabel(w, h) {
+  let a = w, b = h;
+  while (b) { const t = a % b; a = b; b = t; }
+  const rw = w / a, rh = h / a;
+  return (rw <= 21 && rh <= 21) ? rw + ':' + rh : (w / h).toFixed(1) + ':1';
+}
+
 function loadFile(file) {
   if (file.type.startsWith('video/')) {
     vid.src = URL.createObjectURL(file);
@@ -334,6 +344,9 @@ function loadFile(file) {
       dropVideo.classList.add('hidden');
       canvas.classList.remove('hidden');
       if (engine) engine.sizeFor(vid.videoWidth, vid.videoHeight, 1280);
+      stageChip.innerHTML = '<b>' + vid.videoWidth + '×' + vid.videoHeight + '</b> • <b>' +
+        ratioLabel(vid.videoWidth, vid.videoHeight) + '</b>';
+      stageChip.classList.remove('hidden');
       btnPlay.disabled = false;
       btnRecord.disabled = !window.MediaRecorder;
       setStatus(window.MediaRecorder ? 'READY' : 'READY — RECORD UNAVAILABLE IN THIS BROWSER');

@@ -8,34 +8,108 @@
   <style>
     /* --error comes from shared.css (blood-bright) */
 
-    /* Two-column drop zone grid */
-    .drop-zones {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1px;
-      background: var(--border);
+    /* Stage column: A/B row + canvas-wrap fill the left grid cell */
+    .stage-col {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
     }
 
-    .drop-zone {
-      padding: 32px 20px;
-      text-align: center;
-      cursor: pointer;
-      font-family: ui-monospace, 'Courier New', monospace;
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      color: var(--secondary);
-      background: var(--ghost);
-      user-select: none;
-      transition: background 0.1s, color 0.1s;
-    }
-
-    .drop-zone:hover {
+    /* A/B slot row — [slot A] [direction cluster] [slot B] */
+    .ab-row {
+      flex-shrink: 0;
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
       background: var(--bg);
+    }
+
+    .ab-slot {
+      flex: 1;
+      min-width: 0;
+      height: 64px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--ghost);
+      border: 1px dashed var(--border2);
+      cursor: pointer;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .ab-slot:hover {
+      border-color: var(--secondary);
+    }
+
+    .ab-slot-tag {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 2;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--label);
+      background: var(--bg);
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 2px 4px 2px 6px;
+      pointer-events: none;
+    }
+
+    .ab-slot.loaded .ab-slot-tag {
       color: var(--text);
     }
 
-    .drop-zone.waiting {
+    .ab-slot-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--secondary);
+      text-align: center;
+      padding: 0 10px;
+      user-select: none;
+      transition: color 0.2s;
+    }
+
+    .ab-slot.waiting .ab-slot-label {
       color: var(--label);
+    }
+
+    .ab-slot:hover .ab-slot-label {
+      color: var(--text);
+    }
+
+    /* Live AR-correct preview once a slot is loaded */
+    .ab-slot video {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: var(--screen);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .ab-slot.loaded video {
+      opacity: 1;
+    }
+
+    /* Direction cluster between the slots — the geometry explains the bleed */
+    .dir-cluster {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
 
     /* Canvas fills remaining vertical space */
@@ -47,41 +121,12 @@
       min-height: 0;
     }
 
-    /* Contamination meter strip */
-    .meter-strip {
-      padding: 6px 12px;
-      border-top: 1px solid var(--border);
-      background: var(--bg);
-    }
-
-    .meter-label-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: ui-monospace, 'Courier New', monospace;
-      font-size: 10px;
-      color: var(--label);
-      letter-spacing: 0.15em;
-      margin-bottom: 4px;
-    }
-
-    .meter-track {
-      width: 100%;
-      height: 2px;
-      background: var(--border2);
-    }
-
-    .meter-fill {
-      height: 100%;
-      background: var(--secondary);
-      width: 0%;
-      transition: width 0.4s;
-    }
-
-    /* Canvas-wrap: full flex column */
+    /* Canvas-wrap: flex column inside stage-col */
     .canvas-wrap {
+      flex: 1;
       display: flex;
       flex-direction: column;
+      min-height: 0;
       overflow: hidden;
     }
 
@@ -115,19 +160,17 @@
       color: var(--error);
     }
 
-    /* Log output */
-    .log-wrap {
-      font-family: ui-monospace, 'Courier New', monospace;
-      font-size: 10px;
-      color: var(--quiet);
-      line-height: 1.5;
-      word-break: break-all;
-      white-space: pre-wrap;
-    }
+    @media (max-width: 700px) {
+      .ab-slot {
+        height: 56px;
+      }
 
-    /* Main layout height accounting for header + nav */
-    .main-layout {
-      height: calc(100vh - var(--nav-height) - 90px);
+      /* height: auto keeps the canvas at its intrinsic aspect ratio when
+         the stage no longer has a fixed viewport height to flex into */
+      #display {
+        flex: none;
+        height: auto;
+      }
     }
   </style>
 </head>
@@ -143,42 +186,41 @@
   <!-- Main layout -->
   <div class="main-layout">
 
-    <!-- Canvas area -->
-    <div class="canvas-wrap">
+    <!-- Stage: A/B slots flanking the direction cluster, above the output canvas -->
+    <div class="stage-col">
 
-      <!-- Drop zones -->
-      <div class="drop-zones">
-        <div id="dropA" class="drop-zone waiting">[ DROP VIDEO A ]</div>
-        <div id="dropB" class="drop-zone waiting">[ DROP VIDEO B ]</div>
+      <div class="ab-row">
+        <div id="dropA" class="ab-slot waiting">
+          <span class="ab-slot-tag">A</span>
+          <span class="ab-slot-label">[ DROP VIDEO A ]</span>
+          <video id="videoA" loop crossorigin="anonymous"></video>
+        </div>
+        <div class="dir-cluster">
+          <button class="btn" id="dirAtoB">A→B</button>
+          <button class="btn active" id="dirBidi">⇄</button>
+          <button class="btn" id="dirBtoA">B→A</button>
+        </div>
+        <div id="dropB" class="ab-slot waiting">
+          <span class="ab-slot-tag">B</span>
+          <span class="ab-slot-label">[ DROP VIDEO B ]</span>
+          <video id="videoB" loop crossorigin="anonymous"></video>
+        </div>
       </div>
 
-      <!-- Output canvas -->
-      <canvas id="display"></canvas>
-
-      <!-- Contamination meter -->
-      <div class="meter-strip">
-        <div class="meter-label-row">
-          <span id="meterLabel">CONTAMINATION: 0%</span>
-        </div>
-        <div class="meter-track">
-          <div id="meterBar" class="meter-fill"></div>
+      <div class="canvas-wrap">
+        <div class="stage-chip hidden" id="stageChip"></div>
+        <canvas id="display"></canvas>
+        <div class="playback-row ghosted" id="playbackRow">
+          <button class="btn primary" id="playBtn" disabled>PLAY</button>
+          <button class="btn" id="resetBtn">RESET</button>
+          <button class="btn" id="loopBtn">LOOP: OFF</button>
         </div>
       </div>
 
-    </div><!-- /canvas-wrap -->
+    </div><!-- /stage-col -->
 
     <!-- Controls panel -->
     <div class="controls-panel">
-
-      <!-- Direction -->
-      <div class="panel-section">
-        <p class="panel-section-label">Direction</p>
-        <div class="btn-group">
-          <button class="btn" id="dirAtoB">A→B</button>
-          <button class="btn active" id="dirBidi">BIDI</button>
-          <button class="btn" id="dirBtoA">B→A</button>
-        </div>
-      </div>
 
       <!-- Bleed -->
       <div class="panel-section">
@@ -192,21 +234,19 @@
         </div>
       </div>
 
-      <!-- Playback -->
+      <!-- Record -->
       <div class="panel-section">
-        <p class="panel-section-label">Playback</p>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <button class="btn primary" id="playBtn" disabled>PLAY</button>
+        <p class="panel-section-label">Record</p>
+        <div class="btn-group ghosted" id="recRow">
           <button class="btn" id="recBtn" disabled>REC</button>
-          <button class="btn" id="resetBtn">RESET</button>
-          <button class="btn" id="loopBtn">LOOP: OFF</button>
         </div>
       </div>
 
       <!-- Log -->
       <div class="panel-section">
         <p class="panel-section-label">Log</p>
-        <div class="log-wrap" id="debugPanel">bleed=0.010 &nbsp; fps=— &nbsp; contamination=0%</div>
+        <div class="log-line" id="logLine">bleed=0.010  fps=—  contamination=0%</div>
+        <div class="log-wrap collapsed" id="debugPanel"></div>
       </div>
 
       <!-- About -->
@@ -219,11 +259,10 @@
 
   </div><!-- /main-layout -->
 
-  <!-- Hidden file inputs and video elements (JS references these IDs — do not change) -->
+  <!-- Hidden file inputs (JS references these IDs — do not change).
+       videoA/videoB moved into the A/B slots as live previews. -->
   <input type="file" id="fileA" accept="video/*" style="display:none">
   <input type="file" id="fileB" accept="video/*" style="display:none">
-  <video id="videoA" style="display:none" loop crossorigin="anonymous"></video>
-  <video id="videoB" style="display:none" loop crossorigin="anonymous"></video>
 
   <script>
         const videoA = document.getElementById('videoA');
@@ -366,19 +405,33 @@
 
         requestAnimationFrame(renderFrame);
 
-        const meterLabel = document.getElementById('meterLabel');
-        const meterBar = document.getElementById('meterBar');
+        const stageChip = document.getElementById('stageChip');
         const debugPanel = document.getElementById('debugPanel');
+        const logLine = document.getElementById('logLine');
+
+        logLine.addEventListener('click', () => debugPanel.classList.toggle('collapsed'));
 
         function updateDebug(pct) {
-            debugPanel.innerHTML = `bleed=${bleedRate.toFixed(3)} &nbsp; fps=${currentFps || '—'} &nbsp; contamination=${pct}%`;
+            const line = `bleed=${bleedRate.toFixed(3)}  fps=${currentFps || '—'}  contamination=${pct}%`;
+            logLine.textContent = line;
+            const entry = document.createElement('div');
+            entry.textContent = line;
+            debugPanel.appendChild(entry);
+            while (debugPanel.childNodes.length > 30) debugPanel.removeChild(debugPanel.firstChild);
+        }
+
+        function aspectLabel() {
+            const gcd = (a, b) => b ? gcd(b, a % b) : a;
+            const d = gcd(WORK_W, WORK_H) || 1;
+            const rw = WORK_W / d, rh = WORK_H / d;
+            return (rw <= 40 && rh <= 40) ? `${rw}:${rh}` : (WORK_W / WORK_H).toFixed(2);
         }
 
         setInterval(() => {
             if (!isPlaying || !bufInitialized) return;
             const pct = Math.round(computeContaminationPercent() * 100);
-            meterLabel.textContent = `CONTAMINATION: ${pct}%`;
-            meterBar.style.width = `${pct}%`;
+            stageChip.innerHTML = `<b>${WORK_W}×${WORK_H}</b> • <b>${aspectLabel()}</b> • CONTAM <b>${pct}%</b>`;
+            stageChip.classList.remove('hidden');
             updateDebug(pct);
         }, 1000);
 
@@ -412,17 +465,22 @@
         });
 
         function checkReady() {
-            if (readyA && readyB) playBtn.disabled = false;
+            if (readyA && readyB) {
+                playBtn.disabled = false;
+                document.getElementById('playbackRow').classList.remove('ghosted');
+                document.getElementById('recRow').classList.remove('ghosted');
+            }
         }
 
         function loadVideo(video, file, zone, onReady) {
-            zone.textContent = 'LOADING...';
+            const label = zone.querySelector('.ab-slot-label');
+            label.textContent = 'LOADING...';
             if (video.src && video.src.startsWith('blob:')) URL.revokeObjectURL(video.src);
             video.src = URL.createObjectURL(file);
             video.oncanplay = () => {
-                const label = zone.id === 'dropA' ? '[ VIDEO A — READY ]' : '[ VIDEO B — READY ]';
-                zone.textContent = label;
+                label.textContent = zone.id === 'dropA' ? '[ VIDEO A — READY ]' : '[ VIDEO B — READY ]';
                 zone.classList.remove('waiting');
+                zone.classList.add('loaded');
                 onReady();
             };
             video.load();
