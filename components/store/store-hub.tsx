@@ -82,15 +82,15 @@ export function StoreHub() {
         Tools.
       </motion.h1>
 
-      {/* The two imprints, equal weight. -mt-px overlaps the adjoining
+      {/* The two satellite sites, equal weight. -mt-px overlaps the adjoining
           hairlines so the stack reads as one ruled block, not a double line. */}
       <div className="max-w-3xl mb-20">
-        <ArsenicFeature labelLine={false} />
+        <ArsenicFeature />
         <LabelFeature
           className="-mt-px"
-          eyebrow="The mobile line"
+          eyebrow="Android apps"
           name="mobile"
-          blurb="AR instruments, flashcards, on-device dictation, and a voice assistant — local-first Android apps."
+          blurb="AR instruments, flashcards, on-device dictation, and a voice assistant — all local-first."
           href={MOBILE_ORIGIN}
           cta="VISIT MOBILE ↗"
         />
