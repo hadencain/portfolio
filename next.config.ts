@@ -29,6 +29,13 @@ const nextConfig: NextConfig = {
         destination: `${MOBILE_ORIGIN}/${slug}`,
         permanent: true,
       })),
+      // The desktop pomodoro's development moved into its AR successor; the
+      // old landing URL follows the work.
+      {
+        source: "/store/pomodoro",
+        destination: "/store/focus-garden",
+        permanent: true,
+      },
     ];
   },
   async headers() {
