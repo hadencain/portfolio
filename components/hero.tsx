@@ -17,11 +17,6 @@ function fadeUp(delay: number, y = 10, duration = 0.7) {
   };
 }
 
-const SECTIONS = [
-  { n: "01", label: "SECURITY", count: "10", href: "/security" },
-  { n: "02", label: "VIDEO", count: "08", href: "/video" },
-];
-
 // Platform accounts only — Arsenic is a destination, not a profile, and gets
 // its own feature block in the work index below.
 const SOCIALS = [
@@ -91,33 +86,7 @@ export function Hero() {
             <GlitchLabel />
           </motion.div>
 
-          <motion.nav
-            className="mt-9 flex flex-col"
-            aria-label="Project sections"
-            {...fadeUp(0.55, 12, 0.8)}
-          >
-            {SECTIONS.map((s) => (
-              <a
-                key={s.href}
-                href={s.href}
-                onMouseEnter={emitFieldPulse}
-                onFocus={emitFieldPulse}
-                className="group flex items-baseline gap-5 w-full max-w-sm py-[7px] border-b border-paper/12 hover:border-paper/40 transition-colors duration-300"
-              >
-                <span className="font-mono text-[10px] tracking-[0.2em] text-paper-mute transition-colors duration-200 group-hover:text-paper">
-                  {s.n}
-                </span>
-                <span className="font-mono text-[12px] tracking-[0.3em] text-paper-dim group-hover:text-paper transition-colors duration-200">
-                  {s.label}
-                </span>
-                <span className="ml-auto font-mono text-[10px] tracking-[0.2em] text-paper-mute">
-                  ×{s.count}
-                </span>
-              </a>
-            ))}
-          </motion.nav>
-
-          <motion.div className="mt-8 flex gap-6" {...fadeUp(0.7)}>
+          <motion.div className="mt-9 flex gap-6" {...fadeUp(0.55)}>
             {SOCIALS.map((s) => (
               <a
                 key={s.label}
