@@ -12,6 +12,10 @@ interface Project {
   title: string;
   description: string;
   tags: string[];
+  // Active months from the repo's git history (created -> last pushed),
+  // checked 2026-08-25. A catalog without dates reads as an active maintained
+  // collection; these say plainly when each piece was actually worked.
+  date: string;
   github: string;
   youtube?: string;
   demo?: string;
@@ -34,6 +38,7 @@ const VIDEO: Project[] = [
     description:
       "Modular AR audio-visual instruments for Android. Camera, motion, and generative audio as playable pieces.",
     tags: ["React Native", "Skia", "Web Audio"],
+    date: "JUN–JUL 2026",
     github: "https://github.com/hadencain/senses",
     href: `${MOBILE_ORIGIN}/senses`,
   },
@@ -42,6 +47,7 @@ const VIDEO: Project[] = [
     description:
       "Datamoshes broadcast video and reads the decoded melt back as sound — a channel-surfing noise-music generator. Two sonification lanes (scanline wavetable + spectral resynthesis) driven by the picture's own corruption, rendered to DAW stems through a CLI and a local queue-based web UI.",
     tags: ["Python", "FastAPI", "ffmpeg"],
+    date: "JUL 2026",
     github: "https://github.com/hadencain/bleed",
     flagship: true,
   },
@@ -50,6 +56,7 @@ const VIDEO: Project[] = [
     description:
       "Temporal corruption in the browser — frames bleed and smear under performable glitch controls. Real-time Canvas, no export queue.",
     tags: ["HTML5", "Canvas"],
+    date: "JUL 2025–JUL 2026",
     github: "https://github.com/hadencain/Glitch",
     demo: "/tools/glitch/",
     flagship: true,
@@ -59,6 +66,7 @@ const VIDEO: Project[] = [
     description:
       "Pixel contamination between two clips — one video seeps into the other through luminance-gated membranes, live on Canvas.",
     tags: ["HTML5", "Canvas"],
+    date: "MAY–JUN 2026",
     github: "https://github.com/hadencain/osmosis",
     demo: "/tools/osmosis/",
   },
@@ -67,6 +75,7 @@ const VIDEO: Project[] = [
     description:
       "Audio-reactive displacement — a track's spectrum shoves video pixels around in real time.",
     tags: ["Canvas", "Web Audio"],
+    date: "MAY–JUN 2026",
     github: "https://github.com/hadencain/spectral",
     demo: "/tools/spectral/",
   },
@@ -75,6 +84,7 @@ const VIDEO: Project[] = [
     description:
       "Layered spectral compositing — clips stack like an overwritten manuscript, each layer ghosting through the next.",
     tags: ["HTML5", "Canvas"],
+    date: "MAY–JUN 2026",
     github: "https://github.com/hadencain/palimpsest",
     demo: "/tools/palimpsest/",
   },
@@ -83,6 +93,7 @@ const VIDEO: Project[] = [
     description:
       "Markov-chain resequencing — a clip's frames reordered by learned transition probabilities, structure emerging from stochastic playback.",
     tags: ["HTML5", "Canvas"],
+    date: "MAY–JUN 2026",
     github: "https://github.com/hadencain/markov",
     demo: "/tools/markov/",
   },
@@ -91,6 +102,7 @@ const VIDEO: Project[] = [
     description:
       "Audio-driven melt — motion-displaced WebGL feedback that never clears; transients rupture the picture in blocks while the track plays as master clock.",
     tags: ["WebGL2", "Web Audio"],
+    date: "JUL 2026",
     github: "https://github.com/hadencain",
     demo: "/tools/smear/",
   },
@@ -102,6 +114,7 @@ const SECURITY: Project[] = [
     description:
       "Scans source files for accidentally committed secrets — API keys, private keys, AWS credentials, passwords, and connection strings. Named regex patterns plus optional entropy-based detection. Git pre-commit hook blocks commits before exposure. git-history.py scans the full commit history for secrets introduced and later removed — splits output into still-in-HEAD (rotate now) vs removed-from-HEAD (treat as exposed if repo is public).",
     tags: ["Python"],
+    date: "JUN 2026",
     github: "https://github.com/hadencain/secret-scanner",
   },
   {
@@ -109,6 +122,7 @@ const SECURITY: Project[] = [
     description:
       "CLI tool that audits Python dependencies for outdated packages, abandoned libraries, and known CVEs — from a local requirements.txt or any GitHub repo URL. --graph exports a self-contained D3 force graph of the full transitive dependency tree, risk-colored per node (red=CVE, yellow=outdated, gray=abandoned).",
     tags: ["Python"],
+    date: "JUN–JUL 2026",
     github: "https://github.com/hadencain/dependency-risk-scan",
   },
   {
@@ -116,6 +130,7 @@ const SECURITY: Project[] = [
     description:
       "Live TUI that monitors DNS lookups on Windows, grouped by domain with frequency counts. Flags high-entropy hostnames (DGA detection), uncommon or abused TLDs, deep subdomain chains, and first-seen domains.",
     tags: ["Python"],
+    date: "JUN 2026",
     github: "https://github.com/hadencain/dns-request-logger",
   },
   {
@@ -123,6 +138,7 @@ const SECURITY: Project[] = [
     description:
       "Monitors and auto-remediates the Windows 11 camsvc WAL runaway write bug — a system process that silently fills drives. Electron tray app with alerting and one-click remediation.",
     tags: ["Electron", "JavaScript"],
+    date: "MAY–JUN 2026",
     github: "https://github.com/hadencain/capabilityaccessmanager_monitor",
   },
   {
@@ -130,6 +146,7 @@ const SECURITY: Project[] = [
     description:
       "Windows CLI for monitoring localhost dev server ports. Lists all listeners, inspects process detail, health-scans for exposed interfaces and port conflicts, kills processes by PID, and watches for real-time open/close events.",
     tags: ["Go"],
+    date: "JUN 2026",
     github: "https://github.com/hadencain/portCheck",
   },
   {
@@ -137,6 +154,7 @@ const SECURITY: Project[] = [
     description:
       "OSINT infrastructure pivot tool. Given a domain or IP, correlates across WHOIS, DNS, certificate transparency, passive DNS, ASN ownership, reverse IP, and HTTP fingerprint to map infrastructure relationships. Flags new domains, bulletproof hosting, and CDN-diluted edges. Exports JSON and a self-contained D3 force graph.",
     tags: ["Python"],
+    date: "JUN 2026",
     github: "https://github.com/hadencain/cairn",
     flagship: true,
   },
@@ -145,6 +163,7 @@ const SECURITY: Project[] = [
     description:
       "Seller-centric OSINT for organized retail crime. Pulls listings from the eBay Browse API and Craigslist RSS, scores each on a confluence of fencing signals — sealed and bulk inventory, below-market pricing, new-account sellers, liquidation language — then rolls listings up into ranked sellers and maps where the goods move from. ToS-clean sources only, no scraping.",
     tags: ["Python", "Flask"],
+    date: "JUN–AUG 2026",
     github: "https://github.com/hadencain/magpie",
     href: "https://github.com/hadencain",
   },
@@ -153,6 +172,7 @@ const SECURITY: Project[] = [
     description:
       "Behavioral install-time sandbox for pip and npm. Detonates a package install inside a disposable WSL2 guest, watches what it actually does — DNS, network egress, file writes, shell spawns — and returns an allow/block verdict plus a diff of everything that changed. The dynamic complement to dependency-risk-scan's static pre-check: catches clean-looking packages whose setup.py or postinstall phones home, drops persistence, or opens a port the moment you install.",
     tags: ["Python", "WSL2", "strace"],
+    date: "JUL 2026",
     github: "https://github.com/hadencain/installSandbox",
   },
   {
@@ -160,6 +180,7 @@ const SECURITY: Project[] = [
     description:
       "Pre-publish gate. Point it at a local git repo and it emits a single SAFE/UNSAFE verdict (exit 0/1) plus a report before you flip a repo public. Scans full git history for secrets — not just HEAD — plus committed credential files, high-entropy strings, PII (Windows user paths, author emails), oversized binaries, and a missing LICENSE. Stdlib only, no runtime deps.",
     tags: ["Python"],
+    date: "JUL 2026",
     github: "https://github.com/hadencain/repoAuditor",
   },
   {
@@ -167,6 +188,7 @@ const SECURITY: Project[] = [
     description:
       "Indoor mapping authoring and operator console. Draw venues on an IMDF data model, route with A* across floors and elevators, place cameras with occlusion-aware coverage and PTZ, and run incidents, patrols, and fixtures from the same map. Seven demo venues included.",
     tags: ["TypeScript", "React"],
+    date: "JUL–AUG 2026",
     github: "https://github.com/hadencain/indoorMaps",
     flagship: true,
   },
@@ -332,7 +354,7 @@ function SpecimenRow({
             {project.description}
           </p>
           <p className="pt-1 font-mono text-[8.5px] tracking-[0.22em] uppercase text-paper-mute/70">
-            {project.tags.join(" · ")}
+            {[...project.tags, project.date].join(" · ")}
           </p>
           {project.demos && (
             <div className="pt-2 flex flex-wrap gap-x-6 gap-y-1.5">
@@ -432,7 +454,7 @@ function Readout({
                 done ? "opacity-100" : "opacity-0"
               }`}
             >
-              {sel.project.tags.join(" · ")}
+              {[...sel.project.tags, sel.project.date].join(" · ")}
             </span>
           </p>
           {/* Suite entries surface their live demos here, immediately — the
@@ -502,7 +524,11 @@ function PlateHeader({
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function Projects() {
+// `only` renders a single plate as a standalone catalog page (no "Work"
+// section label, nav-clearing top padding); omitted, the full catalog renders
+// as the homepage work section. Accession numbers stay global either way, so
+// an entry keeps its number wherever it appears.
+export function Projects({ only }: { only?: "security" | "video" }) {
   const noHover = useNoHover();
   // Last-touched row per plate — each readout keeps holding its entry after
   // the pointer moves on, so the bars never flicker back to empty. Each bar
@@ -523,20 +549,29 @@ export function Projects() {
     return init;
   });
 
+  const shown = only ? PLATES.filter((pl) => pl.id === only) : PLATES;
   return (
     <section
-      id="work"
-      className="relative border-t border-paper/10 px-8 md:px-16 lg:px-24 py-20 md:py-24"
+      id={only ? undefined : "work"}
+      className={
+        only
+          ? "relative px-8 md:px-16 lg:px-24 pt-36 md:pt-40 pb-24"
+          : "relative border-t border-paper/10 px-8 md:px-16 lg:px-24 py-20 md:py-24"
+      }
     >
-      <p className="smallcaps text-[13px] tracking-[0.3em] text-paper-mute mb-14">
-        Work
-      </p>
+      {!only && (
+        <p className="smallcaps text-[13px] tracking-[0.3em] text-paper-mute mb-14">
+          Work
+        </p>
+      )}
 
-      {PLATES.map((plate, pi) => (
+      {shown.map((plate) => (
         <div
           key={plate.id}
           id={plate.id}
-          className={`scroll-mt-24 ${pi < PLATES.length - 1 ? "mb-16" : ""}`}
+          className={`scroll-mt-24 ${
+            !only && plate.id !== PLATES[PLATES.length - 1].id ? "mb-16" : ""
+          }`}
         >
           <PlateHeader
             plate={plate.plate}
@@ -551,7 +586,9 @@ export function Projects() {
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-12">
             {plate.projects.map((p, i) => {
-              const label = String(PLATE_OFFSETS[pi] + i + 1).padStart(3, "0");
+              const label = String(
+                PLATE_OFFSETS[PLATES.indexOf(plate)] + i + 1
+              ).padStart(3, "0");
               return (
                 <SpecimenRow
                   key={p.title}

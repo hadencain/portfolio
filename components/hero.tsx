@@ -18,12 +18,12 @@ function fadeUp(delay: number, y = 10, duration = 0.7) {
 }
 
 const SECTIONS = [
-  { n: "01", label: "SECURITY", count: "10", href: "#security" },
-  { n: "02", label: "VIDEO", count: "08", href: "#video" },
+  { n: "01", label: "SECURITY", count: "10", href: "/security" },
+  { n: "02", label: "VIDEO", count: "08", href: "/video" },
 ];
 
 // Platform accounts only — Arsenic is a destination, not a profile, and gets
-// its own feature block below the work catalog.
+// its own feature block in the work index below.
 const SOCIALS = [
   { label: "GITHUB", href: "https://github.com/hadencain" },
   { label: "LINKEDIN", href: "https://www.linkedin.com/in/haden-cain-77031124a/" },
