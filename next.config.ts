@@ -29,13 +29,12 @@ const nextConfig: NextConfig = {
         destination: `${MOBILE_ORIGIN}/${slug}`,
         permanent: true,
       })),
-      // The desktop pomodoro's development moved into its AR successor; the
-      // old landing URL follows the work.
-      {
-        source: "/store/pomodoro",
-        destination: "/store/focus-garden",
-        permanent: true,
-      },
+      // The store was archived 2026-11-07 (git tag archive/store-2026-11-07).
+      // Anything left under /store lands on the work index. Temporary so the
+      // path can come back without fighting cached 308s. Must stay after the
+      // per-slug redirects above — first match wins.
+      { source: "/store", destination: "/#work", permanent: false },
+      { source: "/store/:path*", destination: "/#work", permanent: false },
     ];
   },
   async headers() {

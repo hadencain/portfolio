@@ -8,7 +8,6 @@ const ITEMS = [
   { label: "Work", href: "/#work" },
   { label: "About", href: "/#about" },
   { label: "Contact", href: "/#contact" },
-  { label: "Store", href: "/store" },
 ];
 
 // Header bar — links only, no wordmark. The ink plate holds over everything.
