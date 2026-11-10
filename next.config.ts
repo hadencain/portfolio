@@ -35,6 +35,12 @@ const nextConfig: NextConfig = {
       // per-slug redirects above — first match wins.
       { source: "/store", destination: "/#work", permanent: false },
       { source: "/store/:path*", destination: "/#work", permanent: false },
+      // 2026-11-09: the portfolio went security-only (tag
+      // archive/multi-discipline-2026-11-09). The security catalog is the
+      // homepage now; the video page and its live tools are gone.
+      { source: "/security", destination: "/#work", permanent: false },
+      { source: "/video", destination: "/", permanent: false },
+      { source: "/tools/:path*", destination: "/", permanent: false },
     ];
   },
   async headers() {

@@ -37,18 +37,18 @@ export const metadata: Metadata = {
   ),
   title: "Haden Cain",
   description:
-    "Software Engineer. Security tooling, OSINT, and real-time video instruments.",
+    "Security engineer. OSINT, host monitoring, and supply-chain tooling.",
   openGraph: {
     title: "Haden Cain",
     description:
-      "Software Engineer. Security tooling, OSINT, and real-time video instruments.",
+      "Security engineer. OSINT, host monitoring, and supply-chain tooling.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Haden Cain",
     description:
-      "Software Engineer. Security tooling, OSINT, and real-time video instruments.",
+      "Security engineer. OSINT, host monitoring, and supply-chain tooling.",
   },
 };
 

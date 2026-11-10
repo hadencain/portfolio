@@ -67,7 +67,7 @@ export default function OgImage() {
               color: "#8a8274",
             }}
           >
-            SECURITY · VIDEO · CREATIVE CODING
+            SECURITY · OSINT · TOOLING
           </div>
         </div>
 

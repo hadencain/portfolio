@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { emitFieldPulse } from "./field-pulse";
-import { MOBILE_ORIGIN } from "@/lib/mobile";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -31,82 +30,6 @@ interface Project {
   // default readout — the copy a scanning visitor reads without hovering.
   flagship?: boolean;
 }
-
-const VIDEO: Project[] = [
-  {
-    title: "senses",
-    description:
-      "Modular AR audio-visual instruments for Android. Camera, motion, and generative audio as playable pieces.",
-    tags: ["React Native", "Skia", "Web Audio"],
-    date: "JUN–JUL 2026",
-    github: "https://github.com/hadencain/senses",
-    href: `${MOBILE_ORIGIN}/senses`,
-  },
-  {
-    title: "bleed",
-    description:
-      "Datamoshes broadcast video and reads the decoded melt back as sound — a channel-surfing noise-music generator. Two sonification lanes (scanline wavetable + spectral resynthesis) driven by the picture's own corruption, rendered to DAW stems through a CLI and a local queue-based web UI.",
-    tags: ["Python", "FastAPI", "ffmpeg"],
-    date: "JUL 2026",
-    github: "https://github.com/hadencain/bleed",
-    flagship: true,
-  },
-  {
-    title: "glitch",
-    description:
-      "Temporal corruption in the browser — frames bleed and smear under performable glitch controls. Real-time Canvas, no export queue.",
-    tags: ["HTML5", "Canvas"],
-    date: "JUL 2025–JUL 2026",
-    github: "https://github.com/hadencain/Glitch",
-    demo: "/tools/glitch/",
-    flagship: true,
-  },
-  {
-    title: "osmosis",
-    description:
-      "Pixel contamination between two clips — one video seeps into the other through luminance-gated membranes, live on Canvas.",
-    tags: ["HTML5", "Canvas"],
-    date: "MAY–JUN 2026",
-    github: "https://github.com/hadencain/osmosis",
-    demo: "/tools/osmosis/",
-  },
-  {
-    title: "spectral",
-    description:
-      "Audio-reactive displacement — a track's spectrum shoves video pixels around in real time.",
-    tags: ["Canvas", "Web Audio"],
-    date: "MAY–JUN 2026",
-    github: "https://github.com/hadencain/spectral",
-    demo: "/tools/spectral/",
-  },
-  {
-    title: "palimpsest",
-    description:
-      "Layered spectral compositing — clips stack like an overwritten manuscript, each layer ghosting through the next.",
-    tags: ["HTML5", "Canvas"],
-    date: "MAY–JUN 2026",
-    github: "https://github.com/hadencain/palimpsest",
-    demo: "/tools/palimpsest/",
-  },
-  {
-    title: "markov",
-    description:
-      "Markov-chain resequencing — a clip's frames reordered by learned transition probabilities, structure emerging from stochastic playback.",
-    tags: ["HTML5", "Canvas"],
-    date: "MAY–JUN 2026",
-    github: "https://github.com/hadencain/markov",
-    demo: "/tools/markov/",
-  },
-  {
-    title: "smear",
-    description:
-      "Audio-driven melt — motion-displaced WebGL feedback that never clears; transients rupture the picture in blocks while the track plays as master clock.",
-    tags: ["WebGL2", "Web Audio"],
-    date: "JUL 2026",
-    github: "https://github.com/hadencain",
-    demo: "/tools/smear/",
-  },
-];
 
 const SECURITY: Project[] = [
   {
@@ -198,7 +121,6 @@ const SECURITY: Project[] = [
 
 const PLATES = [
   { id: "security", plate: "01", label: "Security", projects: SECURITY },
-  { id: "video", plate: "02", label: "Video", projects: VIDEO },
 ];
 
 // Continuous catalog numbering across all plates.
@@ -528,7 +450,7 @@ function PlateHeader({
 // section label, nav-clearing top padding); omitted, the full catalog renders
 // as the homepage work section. Accession numbers stay global either way, so
 // an entry keeps its number wherever it appears.
-export function Projects({ only }: { only?: "security" | "video" }) {
+export function Projects({ only }: { only?: "security" }) {
   const noHover = useNoHover();
   // Last-touched row per plate — each readout keeps holding its entry after
   // the pointer moves on, so the bars never flicker back to empty. Each bar

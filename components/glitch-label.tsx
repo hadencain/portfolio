@@ -11,12 +11,10 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 const LABELS = [
   "SECURITY TOOLS",
   "OSINT",
-  "VIDEO EFFECTS",
-  "DATAMOSHING",
-  "CREATIVE CODING",
-  "GENERATIVE ART",
-  "AUGMENTED REALITY",
-  "LOCAL-FIRST AI",
+  "SANDBOXING",
+  "HOST MONITORING",
+  "SECRET SCANNING",
+  "SUPPLY-CHAIN RISK",
 ];
 
 const HOLD_MS = 3400;
