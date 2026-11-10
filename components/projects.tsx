@@ -19,10 +19,12 @@ interface Project {
   youtube?: string;
   demo?: string;
   // Destination override for the card's arrow. Public repos omit it and link
-  // straight to GitHub. Private repos set it to an internal landing page (or
-  // the GitHub profile) so nothing on the page links to a repo a visitor
-  // can't open.
+  // straight to GitHub. A private entry may set it to an internal landing
+  // page; without one it shows the access-request form (see `private`).
   href?: string;
+  // Source is private. The row drops its GitHub arrow and the entry offers an
+  // access-request / waitlist form instead, tagged with the project title.
+  private?: boolean;
   // Live sub-demos (suite entries like video-lab). Rendered as a LIVE-link
   // strip in the plate's readout bar when this entry is selected.
   demos?: { name: string; href: string }[];
@@ -55,6 +57,7 @@ const SECURITY: Project[] = [
     tags: ["Python"],
     date: "JUN 2026",
     github: "https://github.com/hadencain/dns-request-logger",
+    private: true,
   },
   {
     title: "capabilityaccessmanager-monitor",
@@ -79,6 +82,7 @@ const SECURITY: Project[] = [
     tags: ["Python"],
     date: "JUN 2026",
     github: "https://github.com/hadencain/cairn",
+    private: true,
     flagship: true,
   },
   {
@@ -88,7 +92,7 @@ const SECURITY: Project[] = [
     tags: ["Python", "Flask"],
     date: "JUN–AUG 2026",
     github: "https://github.com/hadencain/magpie",
-    href: "https://github.com/hadencain",
+    private: true,
   },
   {
     title: "installSandbox",
@@ -97,6 +101,7 @@ const SECURITY: Project[] = [
     tags: ["Python", "WSL2", "strace"],
     date: "JUL 2026",
     github: "https://github.com/hadencain/installSandbox",
+    private: true,
   },
   {
     title: "repoAuditor",
@@ -113,6 +118,7 @@ const SECURITY: Project[] = [
     tags: ["TypeScript", "React"],
     date: "JUL–AUG 2026",
     github: "https://github.com/hadencain/indoorMaps",
+    private: true,
     flagship: true,
   },
 ];
@@ -157,6 +163,43 @@ const Arrow = () => (
   </svg>
 );
 
+// Private-source entries collect an email instead of linking out. Posts to the
+// Buttondown list (same account the archived store used), tagged per project
+// so requests can be filtered by repo.
+const BUTTONDOWN_USERNAME = "hadencain";
+
+function AccessRequest({ project }: { project: Project }) {
+  return (
+    <div className="mt-2 flex flex-col gap-1.5 max-w-md">
+      <p className="font-mono text-[8.5px] tracking-[0.22em] uppercase text-paper-mute/80">
+        source private — reach out for access or join the waitlist
+      </p>
+      <form
+        action={`https://buttondown.com/api/emails/embed-subscribe/${BUTTONDOWN_USERNAME}`}
+        method="post"
+        target="_blank"
+        className="flex gap-2.5"
+      >
+        <input type="hidden" name="tag" value={project.title} />
+        <input
+          type="email"
+          name="email"
+          required
+          placeholder="email"
+          aria-label={`request access to ${project.title}`}
+          className="flex-1 min-w-0 bg-transparent border border-paper/20 px-2.5 py-1.5 font-mono text-[11px] text-paper placeholder:text-paper-mute/50 focus:border-blood-bright focus:outline-none"
+        />
+        <button
+          type="submit"
+          className="border border-paper/20 font-mono text-[9px] tracking-[0.22em] text-paper-dim px-3 py-1.5 hover:border-blood-bright hover:text-paper transition-colors duration-200"
+        >
+          REQUEST
+        </button>
+      </form>
+    </div>
+  );
+}
+
 // The row's arrow link. External (GitHub) opens in a new tab; internal
 // landing pages navigate in place via next/link.
 function ProjectLink({
@@ -166,6 +209,16 @@ function ProjectLink({
   project: Project;
   className: string;
 }) {
+  if (project.private && !project.href) {
+    return (
+      <span
+        className="font-mono text-[8px] tracking-[0.25em] text-paper-mute/70 border border-paper/15 px-1 py-px"
+        title="source private — request access below"
+      >
+        PRIVATE
+      </span>
+    );
+  }
   const href = project.href ?? project.github;
   const external = /^https?:\/\//.test(href);
   if (external) {
@@ -278,6 +331,7 @@ function SpecimenRow({
           <p className="pt-1 font-mono text-[8.5px] tracking-[0.22em] uppercase text-paper-mute/70">
             {[...project.tags, project.date].join(" · ")}
           </p>
+          {project.private && <AccessRequest project={project} />}
           {project.demos && (
             <div className="pt-2 flex flex-wrap gap-x-6 gap-y-1.5">
               {project.demos.map((d) => (
@@ -358,7 +412,7 @@ function Readout({
   }, [title, reduced, full.length]);
 
   return (
-    <div className={`mb-5 min-h-[88px] ${tall ? "xl:min-h-[88px]" : "xl:min-h-[64px]"}`}>
+    <div className={`mb-5 ${tall ? "min-h-[150px] xl:min-h-[130px]" : "min-h-[88px] xl:min-h-[64px]"}`}>
       {sel ? (
         <>
           <p className="text-[11.5px] leading-snug text-paper-mute">
@@ -379,6 +433,7 @@ function Readout({
               {[...sel.project.tags, sel.project.date].join(" · ")}
             </span>
           </p>
+          {sel.project.private && done && <AccessRequest project={sel.project} />}
           {/* Suite entries surface their live demos here, immediately — the
               bar holds its selection after the pointer leaves, so these stay
               clickable while the cursor travels up to them. */}
@@ -503,7 +558,7 @@ export function Projects({ only }: { only?: "security" }) {
           {!noHover && (
             <Readout
               sel={selByPlate[plate.id] ?? null}
-              tall={plate.projects.some((p) => p.demos)}
+              tall={plate.projects.some((p) => p.demos || p.private)}
             />
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-12">
