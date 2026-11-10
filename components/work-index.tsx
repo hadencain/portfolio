@@ -1,11 +1,11 @@
 "use client";
 
-import { ArsenicFeature } from "./arsenic-feature";
 import { LabelFeature } from "./label-feature";
 import { MOBILE_ORIGIN } from "@/lib/mobile";
 
 // The homepage work section: one feature block per line, equal weight —
-// two catalog pages on this site, two satellite sites. The full catalogs
+// two catalog pages on this site, one satellite site. (Audio left the
+// portfolio 2026-11-09 — the VST line markets on its own.) The full catalogs
 // live on their pages; this is the index. -mt-px overlaps adjoining
 // hairlines so the stack reads as one ruled block.
 export function WorkIndex() {
@@ -33,7 +33,6 @@ export function WorkIndex() {
           href="/video"
           cta="BROWSE VIDEO →"
         />
-        <ArsenicFeature className="-mt-px" />
         <LabelFeature
           className="-mt-px"
           eyebrow="Android apps"

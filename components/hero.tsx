@@ -17,8 +17,7 @@ function fadeUp(delay: number, y = 10, duration = 0.7) {
   };
 }
 
-// Platform accounts only — Arsenic is a destination, not a profile, and gets
-// its own feature block in the work index below.
+// Platform accounts only.
 const SOCIALS = [
   { label: "GITHUB", href: "https://github.com/hadencain" },
   { label: "LINKEDIN", href: "https://www.linkedin.com/in/haden-cain-77031124a/" },
