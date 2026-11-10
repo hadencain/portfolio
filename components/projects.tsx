@@ -41,6 +41,7 @@ const SECURITY: Project[] = [
     tags: ["Python"],
     date: "JUN 2026",
     github: "https://github.com/hadencain/secret-scanner",
+    private: true,
   },
   {
     title: "dependency-risk-scan",
@@ -49,6 +50,7 @@ const SECURITY: Project[] = [
     tags: ["Python"],
     date: "JUN–JUL 2026",
     github: "https://github.com/hadencain/dependency-risk-scan",
+    private: true,
   },
   {
     title: "dns-request-logger",
@@ -66,6 +68,7 @@ const SECURITY: Project[] = [
     tags: ["Electron", "JavaScript"],
     date: "MAY–JUN 2026",
     github: "https://github.com/hadencain/capabilityaccessmanager_monitor",
+    private: true,
   },
   {
     title: "portCheck",
@@ -74,6 +77,7 @@ const SECURITY: Project[] = [
     tags: ["Go"],
     date: "JUN 2026",
     github: "https://github.com/hadencain/portCheck",
+    private: true,
   },
   {
     title: "cairn",
@@ -110,6 +114,7 @@ const SECURITY: Project[] = [
     tags: ["Python"],
     date: "JUL 2026",
     github: "https://github.com/hadencain/repoAuditor",
+    private: true,
   },
   {
     title: "indoorMaps",
